@@ -262,6 +262,4 @@ doc.save("modified_example.docx")
 
 欢迎通过提交问题或拉取请求来贡献此项目。
 
-## 许可证
 
-本项目采用[MIT许可证](LICENSE)。

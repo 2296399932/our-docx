@@ -1,0 +1,66 @@
+{
+  "目录": {
+    "toc_toc_title": "目录标题",
+    "toc_toc_level_1": "一级目录项",
+    "toc_toc_level_2": "二级目录项",
+    "toc_toc_level_3": "三级目录项",
+    "toc_toc_page_number": "页码",
+    "toc_toc_format_notes": null,
+    "toc_other_toc": null
+  },
+  "中文摘要": {
+    "abstract_zh_abstract_zh_title": "摘要标题",
+    "abstract_zh_abstract_zh_content": "摘要内容",
+    "abstract_zh_keywords_zh_label": "关键词标签",
+    "abstract_zh_keywords_zh_content": "关键词内容",
+    "abstract_zh_abstract_notes": null
+  },
+  "英文摘要": {
+    "abstract_en_abstract_en_title": "摘要标题",
+    "abstract_en_abstract_en_content": "摘要内容",
+    "abstract_en_keywords_en_label": "关键词标签",
+    "abstract_en_keywords_en_content": "关键词内容",
+    "abstract_en_abstract_notes": null
+  },
+  "正文": {
+    "body_heading_level_1": "一级标题",
+    "body_heading_level_2": "二级标题",
+    "body_heading_level_3": "三级标题",
+    "body_body_paragraph": "正文段落",
+    "body_image": null,
+    "body_figure_caption": "图表标题",
+    "body_table": "表格",
+    "body_table_caption": "表格标题",
+    "body_equation": "公式",
+    "body_list_item": null,
+    "body_citation": null,
+    "body_code": "代码",
+    "body_other_body": null
+  },
+  "参考文献": {
+    "references_references_title": "标题",
+    "references_reference_item": "条目"
+  },
+  "致谢": {
+    "acknowledgements_acknowledgements_title": "标题",
+    "acknowledgements_acknowledgements_content": "内容"
+  },
+  "附录": {
+    "appendix_appendix_title": "标题",
+    "appendix_appendix_subtitle": "子标题",
+    "appendix_appendix_content": "内容",
+    "appendix_appendix_figure": null,
+    "appendix_appendix_table": null,
+    "appendix_other_appendix": null
+  },
+  "封面": {
+    "cover_title": null,
+    "cover_author": null,
+    "cover_institution": null,
+    "cover_date": null,
+    "cover_other_cover": null
+  },
+  "其他元素": {
+    "other_elements": null
+  }
+} 

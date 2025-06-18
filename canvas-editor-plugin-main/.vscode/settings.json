@@ -1,0 +1,28 @@
+{
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "arrowParens",
+    "esbenp",
+    "jsbarcode",
+    "linebreak",
+    "pickr",
+    "prismjs",
+    "zxing"
+  ],
+  "cSpell.ignorePaths": [
+    "dist",
+    "node_modules",
+    "pnpm-lock.yaml"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "svg.preview.background": "custom",
+  "eslint.workingDirectories": [
+    "./packages"
+  ]
+}

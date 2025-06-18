@@ -1,0 +1,12 @@
+{
+  "original_errors": 1598,
+  "cleaned_errors": 910,
+  "fixed_errors": {
+    "paragraph": 629,
+    "run": 264,
+    "table": 17,
+    "total": 910,
+    "skipped": 0
+  },
+  "remaining_errors": 0
+}

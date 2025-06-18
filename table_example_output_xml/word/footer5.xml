@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<w:ftr xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" mc:Ignorable="w14 w15 wp14">
+  <w:p w14:paraId="36220113">
+    <w:pPr>
+      <w:pStyle w:val="9"/>
+      <w:rPr>
+        <w:rFonts w:hint="eastAsia"/>
+      </w:rPr>
+    </w:pPr>
+  </w:p>
+</w:ftr>

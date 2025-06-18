@@ -1,0 +1,282 @@
+<?xml version="1.0" ?>
+<ns0:theme xmlns:ns0="http://schemas.openxmlformats.org/drawingml/2006/main" name="Office">
+  <ns0:themeElements>
+    <ns0:clrScheme name="Office">
+      <ns0:dk1>
+        <ns0:sysClr val="windowText" lastClr="000000"/>
+      </ns0:dk1>
+      <ns0:lt1>
+        <ns0:sysClr val="window" lastClr="FFFFFF"/>
+      </ns0:lt1>
+      <ns0:dk2>
+        <ns0:srgbClr val="1F497D"/>
+      </ns0:dk2>
+      <ns0:lt2>
+        <ns0:srgbClr val="EEECE1"/>
+      </ns0:lt2>
+      <ns0:accent1>
+        <ns0:srgbClr val="4F81BD"/>
+      </ns0:accent1>
+      <ns0:accent2>
+        <ns0:srgbClr val="C0504D"/>
+      </ns0:accent2>
+      <ns0:accent3>
+        <ns0:srgbClr val="9BBB59"/>
+      </ns0:accent3>
+      <ns0:accent4>
+        <ns0:srgbClr val="8064A2"/>
+      </ns0:accent4>
+      <ns0:accent5>
+        <ns0:srgbClr val="4BACC6"/>
+      </ns0:accent5>
+      <ns0:accent6>
+        <ns0:srgbClr val="F79646"/>
+      </ns0:accent6>
+      <ns0:hlink>
+        <ns0:srgbClr val="0000FF"/>
+      </ns0:hlink>
+      <ns0:folHlink>
+        <ns0:srgbClr val="800080"/>
+      </ns0:folHlink>
+    </ns0:clrScheme>
+    <ns0:fontScheme name="Office">
+      <ns0:majorFont>
+        <ns0:latin typeface="Cambria"/>
+        <ns0:ea typeface=""/>
+        <ns0:cs typeface=""/>
+        <ns0:font script="Jpan" typeface="ＭＳ ゴシック"/>
+        <ns0:font script="Hang" typeface="맑은 고딕"/>
+        <ns0:font script="Hans" typeface="宋体"/>
+        <ns0:font script="Hant" typeface="新細明體"/>
+        <ns0:font script="Arab" typeface="Times New Roman"/>
+        <ns0:font script="Hebr" typeface="Times New Roman"/>
+        <ns0:font script="Thai" typeface="Angsana New"/>
+        <ns0:font script="Ethi" typeface="Nyala"/>
+        <ns0:font script="Beng" typeface="Vrinda"/>
+        <ns0:font script="Gujr" typeface="Shruti"/>
+        <ns0:font script="Khmr" typeface="MoolBoran"/>
+        <ns0:font script="Knda" typeface="Tunga"/>
+        <ns0:font script="Guru" typeface="Raavi"/>
+        <ns0:font script="Cans" typeface="Euphemia"/>
+        <ns0:font script="Cher" typeface="Plantagenet Cherokee"/>
+        <ns0:font script="Yiii" typeface="Microsoft Yi Baiti"/>
+        <ns0:font script="Tibt" typeface="Microsoft Himalaya"/>
+        <ns0:font script="Thaa" typeface="MV Boli"/>
+        <ns0:font script="Deva" typeface="Mangal"/>
+        <ns0:font script="Telu" typeface="Gautami"/>
+        <ns0:font script="Taml" typeface="Latha"/>
+        <ns0:font script="Syrc" typeface="Estrangelo Edessa"/>
+        <ns0:font script="Orya" typeface="Kalinga"/>
+        <ns0:font script="Mlym" typeface="Kartika"/>
+        <ns0:font script="Laoo" typeface="DokChampa"/>
+        <ns0:font script="Sinh" typeface="Iskoola Pota"/>
+        <ns0:font script="Mong" typeface="Mongolian Baiti"/>
+        <ns0:font script="Viet" typeface="Times New Roman"/>
+        <ns0:font script="Uigh" typeface="Microsoft Uighur"/>
+        <ns0:font script="Geor" typeface="Sylfaen"/>
+      </ns0:majorFont>
+      <ns0:minorFont>
+        <ns0:latin typeface="Calibri"/>
+        <ns0:ea typeface=""/>
+        <ns0:cs typeface=""/>
+        <ns0:font script="Jpan" typeface="ＭＳ 明朝"/>
+        <ns0:font script="Hang" typeface="맑은 고딕"/>
+        <ns0:font script="Hans" typeface="宋体"/>
+        <ns0:font script="Hant" typeface="新細明體"/>
+        <ns0:font script="Arab" typeface="Arial"/>
+        <ns0:font script="Hebr" typeface="Arial"/>
+        <ns0:font script="Thai" typeface="Cordia New"/>
+        <ns0:font script="Ethi" typeface="Nyala"/>
+        <ns0:font script="Beng" typeface="Vrinda"/>
+        <ns0:font script="Gujr" typeface="Shruti"/>
+        <ns0:font script="Khmr" typeface="DaunPenh"/>
+        <ns0:font script="Knda" typeface="Tunga"/>
+        <ns0:font script="Guru" typeface="Raavi"/>
+        <ns0:font script="Cans" typeface="Euphemia"/>
+        <ns0:font script="Cher" typeface="Plantagenet Cherokee"/>
+        <ns0:font script="Yiii" typeface="Microsoft Yi Baiti"/>
+        <ns0:font script="Tibt" typeface="Microsoft Himalaya"/>
+        <ns0:font script="Thaa" typeface="MV Boli"/>
+        <ns0:font script="Deva" typeface="Mangal"/>
+        <ns0:font script="Telu" typeface="Gautami"/>
+        <ns0:font script="Taml" typeface="Latha"/>
+        <ns0:font script="Syrc" typeface="Estrangelo Edessa"/>
+        <ns0:font script="Orya" typeface="Kalinga"/>
+        <ns0:font script="Mlym" typeface="Kartika"/>
+        <ns0:font script="Laoo" typeface="DokChampa"/>
+        <ns0:font script="Sinh" typeface="Iskoola Pota"/>
+        <ns0:font script="Mong" typeface="Mongolian Baiti"/>
+        <ns0:font script="Viet" typeface="Arial"/>
+        <ns0:font script="Uigh" typeface="Microsoft Uighur"/>
+        <ns0:font script="Geor" typeface="Sylfaen"/>
+      </ns0:minorFont>
+    </ns0:fontScheme>
+    <ns0:fmtScheme name="Office">
+      <ns0:fillStyleLst>
+        <ns0:solidFill>
+          <ns0:schemeClr val="phClr"/>
+        </ns0:solidFill>
+        <ns0:gradFill rotWithShape="1">
+          <ns0:gsLst>
+            <ns0:gs pos="0">
+              <ns0:schemeClr val="phClr">
+                <ns0:tint val="50000"/>
+                <ns0:satMod val="300000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="35000">
+              <ns0:schemeClr val="phClr">
+                <ns0:tint val="37000"/>
+                <ns0:satMod val="300000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="100000">
+              <ns0:schemeClr val="phClr">
+                <ns0:tint val="15000"/>
+                <ns0:satMod val="350000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+          </ns0:gsLst>
+          <ns0:lin ang="16200000" scaled="1"/>
+        </ns0:gradFill>
+        <ns0:gradFill rotWithShape="1">
+          <ns0:gsLst>
+            <ns0:gs pos="0">
+              <ns0:schemeClr val="phClr">
+                <ns0:shade val="51000"/>
+                <ns0:satMod val="130000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="80000">
+              <ns0:schemeClr val="phClr">
+                <ns0:shade val="93000"/>
+                <ns0:satMod val="130000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="100000">
+              <ns0:schemeClr val="phClr">
+                <ns0:shade val="94000"/>
+                <ns0:satMod val="135000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+          </ns0:gsLst>
+          <ns0:lin ang="16200000" scaled="0"/>
+        </ns0:gradFill>
+      </ns0:fillStyleLst>
+      <ns0:lnStyleLst>
+        <ns0:ln w="9525" cap="flat" cmpd="sng" algn="ctr">
+          <ns0:solidFill>
+            <ns0:schemeClr val="phClr">
+              <ns0:shade val="95000"/>
+              <ns0:satMod val="105000"/>
+            </ns0:schemeClr>
+          </ns0:solidFill>
+          <ns0:prstDash val="solid"/>
+        </ns0:ln>
+        <ns0:ln w="25400" cap="flat" cmpd="sng" algn="ctr">
+          <ns0:solidFill>
+            <ns0:schemeClr val="phClr"/>
+          </ns0:solidFill>
+          <ns0:prstDash val="solid"/>
+        </ns0:ln>
+        <ns0:ln w="38100" cap="flat" cmpd="sng" algn="ctr">
+          <ns0:solidFill>
+            <ns0:schemeClr val="phClr"/>
+          </ns0:solidFill>
+          <ns0:prstDash val="solid"/>
+        </ns0:ln>
+      </ns0:lnStyleLst>
+      <ns0:effectStyleLst>
+        <ns0:effectStyle>
+          <ns0:effectLst>
+            <ns0:outerShdw blurRad="40000" dist="20000" dir="5400000" rotWithShape="0">
+              <ns0:srgbClr val="000000">
+                <ns0:alpha val="38000"/>
+              </ns0:srgbClr>
+            </ns0:outerShdw>
+          </ns0:effectLst>
+        </ns0:effectStyle>
+        <ns0:effectStyle>
+          <ns0:effectLst>
+            <ns0:outerShdw blurRad="40000" dist="23000" dir="5400000" rotWithShape="0">
+              <ns0:srgbClr val="000000">
+                <ns0:alpha val="35000"/>
+              </ns0:srgbClr>
+            </ns0:outerShdw>
+          </ns0:effectLst>
+        </ns0:effectStyle>
+        <ns0:effectStyle>
+          <ns0:effectLst>
+            <ns0:outerShdw blurRad="40000" dist="23000" dir="5400000" rotWithShape="0">
+              <ns0:srgbClr val="000000">
+                <ns0:alpha val="35000"/>
+              </ns0:srgbClr>
+            </ns0:outerShdw>
+          </ns0:effectLst>
+          <ns0:scene3d>
+            <ns0:camera prst="orthographicFront">
+              <ns0:rot lat="0" lon="0" rev="0"/>
+            </ns0:camera>
+            <ns0:lightRig rig="threePt" dir="t">
+              <ns0:rot lat="0" lon="0" rev="1200000"/>
+            </ns0:lightRig>
+          </ns0:scene3d>
+          <ns0:sp3d>
+            <ns0:bevelT w="63500" h="25400"/>
+          </ns0:sp3d>
+        </ns0:effectStyle>
+      </ns0:effectStyleLst>
+      <ns0:bgFillStyleLst>
+        <ns0:solidFill>
+          <ns0:schemeClr val="phClr"/>
+        </ns0:solidFill>
+        <ns0:gradFill rotWithShape="1">
+          <ns0:gsLst>
+            <ns0:gs pos="0">
+              <ns0:schemeClr val="phClr">
+                <ns0:tint val="40000"/>
+                <ns0:satMod val="350000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="40000">
+              <ns0:schemeClr val="phClr">
+                <ns0:tint val="45000"/>
+                <ns0:satMod val="350000"/>
+                <ns0:shade val="99000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="100000">
+              <ns0:schemeClr val="phClr">
+                <ns0:shade val="20000"/>
+                <ns0:satMod val="255000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+          </ns0:gsLst>
+          <ns0:path path="circle">
+            <ns0:fillToRect l="50000" t="-80000" r="50000" b="180000"/>
+          </ns0:path>
+        </ns0:gradFill>
+        <ns0:gradFill rotWithShape="1">
+          <ns0:gsLst>
+            <ns0:gs pos="0">
+              <ns0:schemeClr val="phClr">
+                <ns0:tint val="80000"/>
+                <ns0:satMod val="300000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+            <ns0:gs pos="100000">
+              <ns0:schemeClr val="phClr">
+                <ns0:shade val="30000"/>
+                <ns0:satMod val="200000"/>
+              </ns0:schemeClr>
+            </ns0:gs>
+          </ns0:gsLst>
+          <ns0:path path="circle">
+            <ns0:fillToRect l="50000" t="50000" r="50000" b="50000"/>
+          </ns0:path>
+        </ns0:gradFill>
+      </ns0:bgFillStyleLst>
+    </ns0:fmtScheme>
+  </ns0:themeElements>
+  <ns0:objectDefaults/>
+</ns0:theme>

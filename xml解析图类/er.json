@@ -1,0 +1,272 @@
+{
+  "tables": [
+    {
+      "name": "user",
+      "x": 750,
+      "y": 200,
+      "fields": [
+        {
+          "name": "id",
+          "x": 750,
+          "y": 50
+        },
+        {
+          "name": "username",
+          "x": 550,
+          "y": 200
+        },
+        {
+          "name": "password",
+          "x": 950,
+          "y": 200
+        },
+        {
+          "name": "phone",
+          "x": 750,
+          "y": 400
+        },
+        {
+          "name": "role",
+          "x": 550,
+          "y": 50
+        },
+        {
+          "name": "birth_date",
+          "x": 950,
+          "y": 50
+        },
+        {
+          "name": "sex",
+          "x": 550,
+          "y": 350
+        },
+        {
+          "name": "name",
+          "x": 950,
+          "y": 350
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "x": 1500,
+      "y": 200,
+      "fields": [
+        {
+          "name": "id",
+          "x": 1500,
+          "y": 50
+        },
+        {
+          "name": "name",
+          "x": 1300,
+          "y": 200
+        },
+        {
+          "name": "file_url",
+          "x": 1700,
+          "y": 200
+        },
+        {
+          "name": "file_path",
+          "x": 1500,
+          "y": 400
+        },
+        {
+          "name": "created_at",
+          "x": 1300,
+          "y": 50
+        },
+        {
+          "name": "updated_at",
+          "x": 1700,
+          "y": 50
+        },
+        {
+          "name": "user_id",
+          "x": 1300,
+          "y": 350
+        }
+      ]
+    },
+    {
+      "name": "fileing",
+      "x": 1125,
+      "y": 800,
+      "fields": [
+        {
+          "name": "id",
+          "x": 1125,
+          "y": 650
+        },
+        {
+          "name": "user_id",
+          "x": 925,
+          "y": 800
+        },
+        {
+          "name": "file_id",
+          "x": 1325,
+          "y": 800
+        },
+        {
+          "name": "ing_at",
+          "x": 1125,
+          "y": 1000
+        }
+      ]
+    },
+    {
+      "name": "project",
+      "x": 750,
+      "y": 1400,
+      "fields": [
+        {
+          "name": "id",
+          "x": 750,
+          "y": 1250
+        },
+        {
+          "name": "name",
+          "x": 550,
+          "y": 1400
+        },
+        {
+          "name": "folder_path",
+          "x": 950,
+          "y": 1400
+        },
+        {
+          "name": "directory_image_url",
+          "x": 750,
+          "y": 1600
+        },
+        {
+          "name": "created_at",
+          "x": 550,
+          "y": 1250
+        },
+        {
+          "name": "updated_at",
+          "x": 950,
+          "y": 1250
+        },
+        {
+          "name": "user_id",
+          "x": 550,
+          "y": 1550
+        }
+      ]
+    },
+    {
+      "name": "file_project_association",
+      "x": 1500,
+      "y": 1400,
+      "fields": [
+        {
+          "name": "id",
+          "x": 1500,
+          "y": 1250
+        },
+        {
+          "name": "file_id",
+          "x": 1300,
+          "y": 1400
+        },
+        {
+          "name": "project_id",
+          "x": 1700,
+          "y": 1400
+        }
+      ]
+    },
+    {
+      "name": "project_user_association",
+      "x": 375,
+      "y": 800,
+      "fields": [
+        {
+          "name": "id",
+          "x": 375,
+          "y": 650
+        },
+        {
+          "name": "project_id",
+          "x": 175,
+          "y": 800
+        },
+        {
+          "name": "user_id",
+          "x": 575,
+          "y": 800
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "file",
+      "to": "user",
+      "type": "N-to-1",
+      "x": 1125,
+      "y": 200,
+      "desc": "file_ibfk_1"
+    },
+    {
+      "from": "fileing",
+      "to": "user",
+      "type": "N-to-1",
+      "x": 562.5,
+      "y": 800,
+      "desc": "fileing_ibfk_1"
+    },
+    {
+      "from": "fileing",
+      "to": "file",
+      "type": "N-to-1",
+      "x": 1312.5,
+      "y": 500,
+      "desc": "fileing_ibfk_2"
+    },
+    {
+      "from": "project",
+      "to": "user",
+      "type": "N-to-1",
+      "x": 750,
+      "y": 800,
+      "desc": "project_ibfk_1"
+    },
+    {
+      "from": "file_project_association",
+      "to": "file",
+      "type": "N-to-1",
+      "x": 1500,
+      "y": 800,
+      "desc": "file_project_association_ibfk_1"
+    },
+    {
+      "from": "file_project_association",
+      "to": "project",
+      "type": "N-to-1",
+      "x": 1125,
+      "y": 1400,
+      "desc": "file_project_association_ibfk_2"
+    },
+    {
+      "from": "project_user_association",
+      "to": "project",
+      "type": "N-to-1",
+      "x": 562.5,
+      "y": 1100,
+      "desc": "project_user_association_ibfk_1"
+    },
+    {
+      "from": "project_user_association",
+      "to": "user",
+      "type": "N-to-1",
+      "x": 562.5,
+      "y": 500,
+      "desc": "project_user_association_ibfk_2"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<w:hdr xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" mc:Ignorable="w14 w15 wp14">
+  <w:p w14:paraId="53DE209B">
+    <w:pPr>
+      <w:pStyle w:val="10"/>
+      <w:rPr>
+        <w:rFonts w:ascii="宋体" w:hAnsi="宋体"/>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+      </w:rPr>
+    </w:pPr>
+    <w:r>
+      <w:rPr>
+        <w:rFonts w:hint="eastAsia" w:ascii="宋体" w:hAnsi="宋体"/>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+      </w:rPr>
+      <w:t>天津仁爱学院</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:rFonts w:hint="cs"/>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+        <w:cs/>
+      </w:rPr>
+      <w:t>2</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+      </w:rPr>
+      <w:t>02</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:rFonts w:hint="eastAsia"/>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+      </w:rPr>
+      <w:t>5</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:rFonts w:hint="eastAsia" w:ascii="宋体" w:hAnsi="宋体"/>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+      </w:rPr>
+      <w:t>届本科生毕业设计（论文）</w:t>
+    </w:r>
+  </w:p>
+</w:hdr>

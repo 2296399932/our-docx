@@ -1,0 +1,19 @@
+{
+  "packages": [
+    "packages/*",
+    "example/*"
+  ],
+  "version": "0.0.1",
+  "npmClient": "pnpm",
+  "command": {
+    "ignoreChanges": [
+      "*.md",
+      "example/**"
+    ]
+  },
+  "bootstrap": {
+    "npmClientArgs": [
+      "--no-package-lock"
+    ]
+  }
+}

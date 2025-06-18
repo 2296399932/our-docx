@@ -1,0 +1,157 @@
+<?xml version="1.0" ?>
+<ns0:settings xmlns:ns0="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:ns1="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ns2="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:ns3="urn:schemas-microsoft-com:office:office" xmlns:ns4="urn:schemas-microsoft-com:vml" ns1:Ignorable="w14">
+  <ns0:zoom ns0:percent="90"/>
+  <ns0:bordersDoNotSurroundHeader ns0:val="0"/>
+  <ns0:bordersDoNotSurroundFooter ns0:val="0"/>
+  <ns0:stylePaneFormatFilter ns0:val="3F01" ns0:allStyles="1" ns0:customStyles="0" ns0:latentStyles="0" ns0:stylesInUse="0" ns0:headingStyles="0" ns0:numberingStyles="0" ns0:tableStyles="0" ns0:directFormattingOnRuns="1" ns0:directFormattingOnParagraphs="1" ns0:directFormattingOnNumbering="1" ns0:directFormattingOnTables="1" ns0:clearFormatting="1" ns0:top3HeadingStyles="1" ns0:visibleStyles="0" ns0:alternateStyleNames="0"/>
+  <ns0:documentProtection ns0:enforcement="0"/>
+  <ns0:defaultTabStop ns0:val="420"/>
+  <ns0:hyphenationZone ns0:val="360"/>
+  <ns0:drawingGridHorizontalSpacing ns0:val="220"/>
+  <ns0:drawingGridVerticalSpacing ns0:val="299"/>
+  <ns0:displayHorizontalDrawingGridEvery ns0:val="1"/>
+  <ns0:displayVerticalDrawingGridEvery ns0:val="1"/>
+  <ns0:noPunctuationKerning ns0:val="1"/>
+  <ns0:characterSpacingControl ns0:val="compressPunctuation"/>
+  <ns0:footnotePr>
+    <ns0:footnote ns0:id="0"/>
+    <ns0:footnote ns0:id="1"/>
+  </ns0:footnotePr>
+  <ns0:endnotePr>
+    <ns0:endnote ns0:id="0"/>
+    <ns0:endnote ns0:id="1"/>
+  </ns0:endnotePr>
+  <ns0:compat>
+    <ns0:spaceForUL/>
+    <ns0:balanceSingleByteDoubleByteWidth/>
+    <ns0:doNotLeaveBackslashAlone/>
+    <ns0:ulTrailSpace/>
+    <ns0:doNotExpandShiftReturn/>
+    <ns0:adjustLineHeightInTable/>
+    <ns0:useFELayout/>
+    <ns0:compatSetting ns0:name="compatibilityMode" ns0:uri="http://schemas.microsoft.com/office/word" ns0:val="14"/>
+    <ns0:compatSetting ns0:name="overrideTableStyleFontSizeAndJustification" ns0:uri="http://schemas.microsoft.com/office/word" ns0:val="1"/>
+    <ns0:compatSetting ns0:name="enableOpenTypeFeatures" ns0:uri="http://schemas.microsoft.com/office/word" ns0:val="1"/>
+    <ns0:compatSetting ns0:name="doNotFlipMirrorIndents" ns0:uri="http://schemas.microsoft.com/office/word" ns0:val="1"/>
+  </ns0:compat>
+  <ns0:rsids>
+    <ns0:rsidRoot ns0:val="00C355C9"/>
+    <ns0:rsid ns0:val="000235A5"/>
+    <ns0:rsid ns0:val="0003150F"/>
+    <ns0:rsid ns0:val="000439E8"/>
+    <ns0:rsid ns0:val="000D3DA8"/>
+    <ns0:rsid ns0:val="001A1FF4"/>
+    <ns0:rsid ns0:val="001A6D97"/>
+    <ns0:rsid ns0:val="001D44DB"/>
+    <ns0:rsid ns0:val="00352339"/>
+    <ns0:rsid ns0:val="003E38AB"/>
+    <ns0:rsid ns0:val="003F3199"/>
+    <ns0:rsid ns0:val="0040739B"/>
+    <ns0:rsid ns0:val="00455B04"/>
+    <ns0:rsid ns0:val="0047261D"/>
+    <ns0:rsid ns0:val="0048600A"/>
+    <ns0:rsid ns0:val="004926E0"/>
+    <ns0:rsid ns0:val="004C15DB"/>
+    <ns0:rsid ns0:val="004C1A62"/>
+    <ns0:rsid ns0:val="004C3801"/>
+    <ns0:rsid ns0:val="005040E6"/>
+    <ns0:rsid ns0:val="00566346"/>
+    <ns0:rsid ns0:val="005B09C5"/>
+    <ns0:rsid ns0:val="0062191C"/>
+    <ns0:rsid ns0:val="00632412"/>
+    <ns0:rsid ns0:val="006445EB"/>
+    <ns0:rsid ns0:val="00654A36"/>
+    <ns0:rsid ns0:val="006B0979"/>
+    <ns0:rsid ns0:val="006C630F"/>
+    <ns0:rsid ns0:val="006D36D7"/>
+    <ns0:rsid ns0:val="007C3644"/>
+    <ns0:rsid ns0:val="007C5900"/>
+    <ns0:rsid ns0:val="007C7CEC"/>
+    <ns0:rsid ns0:val="007D35CE"/>
+    <ns0:rsid ns0:val="00840856"/>
+    <ns0:rsid ns0:val="008F030F"/>
+    <ns0:rsid ns0:val="008F0DF2"/>
+    <ns0:rsid ns0:val="008F53DC"/>
+    <ns0:rsid ns0:val="009C676D"/>
+    <ns0:rsid ns0:val="00A306D5"/>
+    <ns0:rsid ns0:val="00A7302D"/>
+    <ns0:rsid ns0:val="00AB275E"/>
+    <ns0:rsid ns0:val="00AB52EB"/>
+    <ns0:rsid ns0:val="00B71F38"/>
+    <ns0:rsid ns0:val="00C122E0"/>
+    <ns0:rsid ns0:val="00C2204D"/>
+    <ns0:rsid ns0:val="00C355C9"/>
+    <ns0:rsid ns0:val="00C35858"/>
+    <ns0:rsid ns0:val="00C80EF1"/>
+    <ns0:rsid ns0:val="00DB55D1"/>
+    <ns0:rsid ns0:val="00DC39EE"/>
+    <ns0:rsid ns0:val="00E23112"/>
+    <ns0:rsid ns0:val="00E60547"/>
+    <ns0:rsid ns0:val="00F423B7"/>
+    <ns0:rsid ns0:val="00FA4DAA"/>
+    <ns0:rsid ns0:val="00FD1361"/>
+    <ns0:rsid ns0:val="00FD51E2"/>
+    <ns0:rsid ns0:val="00FD5BC9"/>
+    <ns0:rsid ns0:val="027C260B"/>
+    <ns0:rsid ns0:val="10F31ECA"/>
+    <ns0:rsid ns0:val="157B57FF"/>
+    <ns0:rsid ns0:val="16490A43"/>
+    <ns0:rsid ns0:val="1B414DF5"/>
+    <ns0:rsid ns0:val="1F825BAA"/>
+    <ns0:rsid ns0:val="2E02122C"/>
+    <ns0:rsid ns0:val="2E0D1ABF"/>
+    <ns0:rsid ns0:val="2E0D6780"/>
+    <ns0:rsid ns0:val="2FD0102E"/>
+    <ns0:rsid ns0:val="340B159F"/>
+    <ns0:rsid ns0:val="36D22101"/>
+    <ns0:rsid ns0:val="3C4126E1"/>
+    <ns0:rsid ns0:val="3E21790D"/>
+    <ns0:rsid ns0:val="413A6FE2"/>
+    <ns0:rsid ns0:val="448E52F4"/>
+    <ns0:rsid ns0:val="467D261E"/>
+    <ns0:rsid ns0:val="495D06F3"/>
+    <ns0:rsid ns0:val="4BE50C5E"/>
+    <ns0:rsid ns0:val="4F2C3CAD"/>
+    <ns0:rsid ns0:val="5263366D"/>
+    <ns0:rsid ns0:val="54837309"/>
+    <ns0:rsid ns0:val="59200F93"/>
+    <ns0:rsid ns0:val="5B900926"/>
+    <ns0:rsid ns0:val="657B1E7E"/>
+    <ns0:rsid ns0:val="681919FF"/>
+    <ns0:rsid ns0:val="6D9C7364"/>
+    <ns0:rsid ns0:val="6EDC443E"/>
+    <ns0:rsid ns0:val="7FC8429E"/>
+  </ns0:rsids>
+  <ns2:mathPr>
+    <ns2:brkBin ns2:val="before"/>
+    <ns2:brkBinSub ns2:val="--"/>
+    <ns2:smallFrac ns2:val="0"/>
+    <ns2:dispDef/>
+    <ns2:lMargin ns2:val="0"/>
+    <ns2:rMargin ns2:val="0"/>
+    <ns2:defJc ns2:val="centerGroup"/>
+    <ns2:wrapIndent ns2:val="1440"/>
+    <ns2:intLim ns2:val="subSup"/>
+    <ns2:naryLim ns2:val="undOvr"/>
+  </ns2:mathPr>
+  <ns0:uiCompat97To2003/>
+  <ns0:themeFontLang ns0:val="en-US" ns0:eastAsia="zh-CN"/>
+  <ns0:clrSchemeMapping ns0:bg1="light1" ns0:t1="dark1" ns0:bg2="light2" ns0:t2="dark2" ns0:accent1="accent1" ns0:accent2="accent2" ns0:accent3="accent3" ns0:accent4="accent4" ns0:accent5="accent5" ns0:accent6="accent6" ns0:hyperlink="hyperlink" ns0:followedHyperlink="followedHyperlink"/>
+  <ns0:doNotIncludeSubdocsInStats/>
+  <ns0:shapeDefaults>
+    <ns3:shapedefaults fillcolor="#FFFFFF" fill="t" stroke="t">
+      <ns4:fill on="t" focussize="0,0"/>
+      <ns4:stroke color="#000000"/>
+    </ns3:shapedefaults>
+    <ns3:shapelayout ns4:ext="edit">
+      <ns3:idmap ns4:ext="edit" data="1"/>
+      <ns3:rules ns4:ext="edit">
+        <ns3:r id="V:Rule1" type="connector" idref="#自选图形 5"/>
+        <ns3:r id="V:Rule2" type="connector" idref="#自选图形 6"/>
+        <ns3:r id="V:Rule3" type="connector" idref="#自选图形 7"/>
+        <ns3:r id="V:Rule4" type="connector" idref="#自选图形 8"/>
+        <ns3:r id="V:Rule5" type="connector" idref="#自选图形 9"/>
+      </ns3:rules>
+    </ns3:shapelayout>
+  </ns0:shapeDefaults>
+</ns0:settings>

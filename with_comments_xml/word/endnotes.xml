@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<ns0:endnotes xmlns:ns0="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:ns1="http://schemas.openxmlformats.org/markup-compatibility/2006" ns1:Ignorable="w14 w15 wp14">
+  <ns0:endnote ns0:type="separator" ns0:id="0">
+    <ns0:p>
+      <ns0:pPr>
+        <ns0:spacing ns0:line="240" ns0:lineRule="auto"/>
+        <ns0:ind ns0:firstLine="480"/>
+      </ns0:pPr>
+      <ns0:r>
+        <ns0:separator/>
+      </ns0:r>
+    </ns0:p>
+  </ns0:endnote>
+  <ns0:endnote ns0:type="continuationSeparator" ns0:id="1">
+    <ns0:p>
+      <ns0:pPr>
+        <ns0:spacing ns0:line="240" ns0:lineRule="auto"/>
+        <ns0:ind ns0:firstLine="480"/>
+      </ns0:pPr>
+      <ns0:r>
+        <ns0:continuationSeparator/>
+      </ns0:r>
+    </ns0:p>
+  </ns0:endnote>
+</ns0:endnotes>

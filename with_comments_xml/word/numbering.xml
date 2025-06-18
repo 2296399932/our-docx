@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<ns0:numbering xmlns:ns0="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:ns1="http://schemas.openxmlformats.org/markup-compatibility/2006" ns1:Ignorable="w14 wp14">
+  <ns0:abstractNum ns0:abstractNumId="0">
+    <ns0:nsid ns0:val="23222874"/>
+    <ns0:multiLevelType ns0:val="singleLevel"/>
+    <ns0:tmpl ns0:val="23222874"/>
+    <ns0:lvl ns0:ilvl="0" ns0:tentative="0">
+      <ns0:start ns0:val="1"/>
+      <ns0:numFmt ns0:val="decimal"/>
+      <ns0:lvlText ns0:val="[%1]"/>
+      <ns0:lvlJc ns0:val="left"/>
+      <ns0:pPr>
+        <ns0:tabs>
+          <ns0:tab ns0:val="left" ns0:pos="420"/>
+        </ns0:tabs>
+        <ns0:ind ns0:left="425" ns0:hanging="425"/>
+      </ns0:pPr>
+      <ns0:rPr>
+        <ns0:rFonts ns0:hint="default"/>
+      </ns0:rPr>
+    </ns0:lvl>
+  </ns0:abstractNum>
+  <ns0:num ns0:numId="1">
+    <ns0:abstractNumId ns0:val="0"/>
+  </ns0:num>
+</ns0:numbering>

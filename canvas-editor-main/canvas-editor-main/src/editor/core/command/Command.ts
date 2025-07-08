@@ -138,12 +138,14 @@ export class Command {
   public getElementById: CommandAdapt['getElementById']
   public executeIndent : CommandAdapt['indent']
   public executeOutdent : CommandAdapt['outdent']
-  public fixAllIndentValues: CommandAdapt['fixAllIndentValues']
+  public executeSetIndentValue : CommandAdapt['setIndentValue']
+  public executeSetFirstParagraphIndent : CommandAdapt['setFirstParagraphIndent']
   constructor(adapt: CommandAdapt) {
     // 全局命令
-    this. executeIndent = adapt.indent.bind(adapt)
-    this. executeOutdent = adapt.outdent.bind(adapt)
-    this.fixAllIndentValues = adapt.fixAllIndentValues.bind(adapt)
+    this.executeIndent = adapt.indent.bind(adapt)
+    this.executeOutdent = adapt.outdent.bind(adapt)
+    this.executeSetIndentValue = adapt.setIndentValue.bind(adapt)
+    this.executeSetFirstParagraphIndent = adapt.setFirstParagraphIndent.bind(adapt)
 
     this.executeMode = adapt.mode.bind(adapt)
     this.executeCut = adapt.cut.bind(adapt)
@@ -233,10 +235,10 @@ export class Command {
     this.executeSetMainBadge = adapt.setMainBadge.bind(adapt)
     this.executeSetAreaBadge = adapt.setAreaBadge.bind(adapt)
     // 区域
-    this.getAreaValue = adapt.getAreaValue.bind(adapt)
     this.executeInsertArea = adapt.insertArea.bind(adapt)
     this.executeSetAreaProperties = adapt.setAreaProperties.bind(adapt)
     this.executeLocationArea = adapt.locationArea.bind(adapt)
+    this.getAreaValue = adapt.getAreaValue.bind(adapt)
     // 通用
     this.executeInsertElementList = adapt.insertElementList.bind(adapt)
     this.executeAppendElementList = adapt.appendElementList.bind(adapt)

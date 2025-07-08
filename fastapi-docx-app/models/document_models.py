@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, ForwardRef
 from datetime import datetime
 from enum import Enum
 
@@ -32,6 +32,8 @@ class VerticalAlign(str, Enum):
     TOP = "top"
     CENTER = "center"
     BOTTOM = "bottom"
+    RIGHT = 'right'
+    LEFT = 'left'
 
 class Border(BaseModel):
     """边框模型"""
@@ -50,7 +52,14 @@ class RunModel(BaseModel):
     strike: bool = Field(False, description="是否删除线")
     color: Optional[str] = Field(None, description="字体颜色(十六进制)")
     highlight: Optional[str] = Field(None, description="高亮颜色(十六进制)")
-
+    lineRule: Optional[str] = Field('auto', description="行距规则(auto, atLeast, exactly, multiple)")
+    line: Optional[float] = Field(None, description="行距大小(磅)")
+    rowFlex: Optional[str] = Field(None, description="段落对齐方式")
+    indent: Optional[float] = Field(None, description="缩进(磅)")
+    paragraphId: Optional[str] = Field(None, description="段落ID")
+    superscript: bool = Field(False, description="是否上标")
+    subscript: bool = Field(False, description="是否下标")
+    rowMargin: Optional[float] = Field(None, description="行间距(磅)")
     
     class Config:
         schema_extra = {
@@ -68,15 +77,13 @@ class ParagraphModel(BaseModel):
     """段落模型"""
     id: Optional[str] = Field(None, description="段落ID")
     valueList: List[RunModel] = Field(default_factory=list, description="段落中的文本运行")
-
-    rowFlex: Optional[float] = Field(None, description="段落对齐方式")
-
     type: Optional[str] = Field(None, description="段落类型")
     value: str = Field(..., description="运行文本内容")
-
+    rowFlex: Optional[str] = Field(None, description="段落对齐方式")
     indent: Optional[float] = Field(None, description="缩进(磅)")
-
-    
+    lineRule: Optional[str] = Field('auto', description="行距规则(auto, atLeast, exactly, multiple)")
+    line: Optional[float] = Field(None, description="行距大小(磅)")
+    rowMargin: Optional[float] = Field(None, description="行间距(磅)")
     class Config:
         schema_extra = {
             "example": {
@@ -102,13 +109,14 @@ class ParagraphModel(BaseModel):
 class ImageModel(BaseModel):
     """图片模型"""
     id: Optional[str] = Field(None, description="图片ID")
-    file_name: Optional[str] = Field(None, description="图片文件名")
+    type : Optional[str] = Field(None, description="类型")
     description: Optional[str] = Field(None, description="图片描述")
     width: Optional[float] = Field(None, description="宽度(厘米)")
     height: Optional[float] = Field(None, description="高度(厘米)")
-    rel_id: Optional[str] = Field(None, description="关系ID")
-    wrap_type: str = Field("inline", description="环绕方式(inline, square, tight, through, behind)")
-    
+    value: Optional[str] = Field(None, description="图片Base64编码数据URI")
+    imgDisplay: str = Field("inline", description="环绕方式(inline, block, surround, float-top, float-bottom)")
+    rowMargin: Optional[float] = Field(None, description="行间距(磅)")
+    rowFlex: Optional[str] = Field(None, description="段落对齐方式")
     class Config:
         schema_extra = {
             "example": {
@@ -118,59 +126,6 @@ class ImageModel(BaseModel):
                 "width": 10.0,
                 "height": 8.0,
                 "wrap_type": "inline"
-            }
-        }
-
-class TableCellModel(BaseModel):
-    """表格单元格模型"""
-    row_span: int = Field(1, description="行跨度")
-    col_span: int = Field(1, description="列跨度")
-    vertical_align: VerticalAlign = Field(VerticalAlign.CENTER, description="垂直对齐方式")
-    background_color: Optional[str] = Field(None, description="背景颜色(十六进制)")
-    borders: Dict[str, Border] = Field(default_factory=dict, description="边框(top, bottom, left, right)")
-    paragraphs: List[ParagraphModel] = Field(default_factory=list, description="单元格中的段落")
-    
-class TableRowModel(BaseModel):
-    """表格行模型"""
-    height: Optional[float] = Field(None, description="行高(厘米)")
-    cells: List[TableCellModel] = Field(..., description="行中的单元格")
-    
-class TableModel(BaseModel):
-    """表格模型"""
-    id: Optional[str] = Field(None, description="表格ID")
-    rows: List[TableRowModel] = Field(..., description="表格行")
-    width: Optional[float] = Field(None, description="表格宽度(厘米)")
-    column_widths: List[float] = Field(default_factory=list, description="列宽(厘米)")
-    border_type: Optional[str] = Field(None, description="边框类型")
-    border_color: Optional[str] = Field(None, description="边框颜色(十六进制)")
-    border_width: Optional[float] = Field(None, description="边框宽度(磅)")
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "id": "table1",
-                "rows": [
-                    {
-                        "height": 1.0,
-                        "cells": [
-                            {
-                                "row_span": 1,
-                                "col_span": 1,
-                                "paragraphs": [
-                                    {
-                                        "runs": [
-                                            {
-                                                "text": "单元格内容",
-                                                "font_size": 12.0
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                "column_widths": [3.0, 3.0, 3.0]
             }
         }
 
@@ -201,8 +156,41 @@ class PageBreakModel(BaseModel):
             }
         }
 
+# 使用 ForwardRef 避免循环引用
+TableCellContent = ForwardRef("TableCellContent")
+
+class TableCellModel(BaseModel):
+    """表格单元格模型"""
+    rowspan: int = Field(1, description="行跨度")
+    colspan: int = Field(1, description="列跨度")
+    verticalAlign: VerticalAlign = Field(VerticalAlign.CENTER, description="垂直对齐方式")
+    backgroundColor: Optional[str] = Field(None, description="背景颜色(十六进制)")
+    borderTypes: List[str] = Field(default_factory=list, description="边框类型(top, bottom, left, right)")
+    value: List[Any] = Field(default_factory=list, description="单元格中的内容，可以是段落、文本、图片等")
+    
+class TableRowModel(BaseModel):
+    """表格行模型"""
+    minHeight: Optional[float] = Field(None, description="行高(厘米)")
+    tdList: List[TableCellModel] = Field(..., description="行中的单元格")
+    
+class TableModel(BaseModel):
+    """表格模型"""
+    id: Optional[str] = Field(None, description="表格ID")
+    width: Optional[float] = Field(None, description="表格宽度")
+    trList: List[TableRowModel] = Field(default_factory=list, description="表格行")
+    borderType: Optional[str] = Field(None, description="边框类型")
+    colgroup: Optional[list] = Field(None, description="表格宽度组")
+    borderColor: Optional[str] = Field(None, description="边框颜色(十六进制)")
+    border_width: Optional[float] = Field(None, description="边框宽度(磅)")
+    height: Optional[float] = Field(None, description="表格高度(磅)")
+    type: Optional[str] = Field(None, description="类型")
+
 # 定义文档元素的类型别名，用于文档内容列表
 DocElement = Union[ParagraphModel, ImageModel, TableModel, SeparatorModel, PageBreakModel]
+
+# 更新 TableCellContent 类型
+TableCellContent = Union[RunModel, ParagraphModel, ImageModel, SeparatorModel, PageBreakModel]
+TableCellModel.update_forward_refs()
 
 class DocumentModel(BaseModel):
     """完整文档模型"""

@@ -1,6 +1,9 @@
 from docx_namespace import DocxElementParser
 import os
 
+from style_analyzer import StyleAnalyzer
+
+
 def create_standard_table_example(docx_path, output_path):
     """
     创建一个符合标准要求的三线表格示例
@@ -181,18 +184,16 @@ def test_set_paragraph_before_line(docx_path, output_path, para_index=0, before_
 
 if __name__ == "__main__":
     # 测试函数
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-
-    # # 如果输入文件不存在，创建一个简单的文档
-    # if not os.path.exists(input_docx):
-    #     from docx import Document
-    #     doc = Document()
-    #     doc.add_paragraph("这是一个测试文档，用于展示表格创建功能。")
-    #     doc.save(input_docx)
-    #     print(f"创建了测试文档: {input_docx}")
+    input_docx = "1.docx"
+    doc=StyleAnalyzer(input_docx)
+    style_info = doc.get_paragraph_complete_style_info(doc.elements[213]['element'])
+    runs = doc.get_runs_from_paragraph(doc.elements[213]['element'])
+    run_style_info = doc.get_run_complete_style_info(doc.elements[213]['element'], runs[3],
+                                                          )
+    direct_style = doc.get_paragraph_style_from_element(doc.elements[213]['element'])
+    effective_style = style_info.get('effective_style', {})
+    para_props = effective_style.get('paragraph_properties', {})
+    print(run_style_info)
+    # for element in doc.elements:
     #
-    create_standard_table_example("sdj-毕业论文(1).docx", 'example_output.docx')
-
-    # # 示例：将input.docx第0段的段前行距设为400twip（约20磅），输出到output.docx
-    # test_set_paragraph_before_line("sdj-毕业论文(1).docx", 'example_output.docx', para_index=0, before_line=800)
+    #   print(doc.get_paragraph_text(element['element']),element['index'])

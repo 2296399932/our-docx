@@ -220,8 +220,8 @@ def main():
         repack_xml_to_docx(args.xml_dir, args.output)
     else:
         # 默认行为，提取示例文件
-        extract_docx("1_fixed.docx")
+        extract_docx("test.docx")
 
 if __name__ == "__main__":
     # 如果没有传入命令行参数，使用默认的文件路径
-    repack_xml_to_docx("2_xml", "新文件.docx")
+    extract_docx("1.docx", )

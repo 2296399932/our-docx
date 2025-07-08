@@ -96,7 +96,9 @@ export class Position {
     const { startIndex, endIndex } = this.draw.getRange().getRange()
     if (startIndex === endIndex) return null
     const positionList = this.getPositionList()
-    return positionList.slice(startIndex + 1, endIndex + 1)
+    const selectionPositions = positionList.slice(startIndex + 1, endIndex + 1)
+    console.log('选区位置列表:', selectionPositions)
+    return selectionPositions
   }
 
   public setPositionList(payload: IElementPosition[]) {
@@ -124,7 +126,7 @@ export class Position {
     const {
       scale,
       table: { tdPadding },
-      defaultIndentWidth
+
     } = this.options
     let x = startX
     let y = startY
@@ -144,18 +146,9 @@ export class Position {
       // 当前行X/Y轴偏移量
       x += curRow.offsetX || 0
       y += curRow.offsetY || 0
-      
-      // 处理段落缩进
-      if (curRow.elementList.length > 0) {
-        const firstElement = curRow.elementList[0];
-        if (firstElement.indent) {
-          // 直接使用indent值作为磅值
-          const indentOffset = firstElement.indent * scale;
-          console.log('Position缩进处理:', { indent: firstElement.indent, offset: indentOffset });
-          x += indentOffset;
-        }
-      }
-      
+
+
+
       // 当前td所在位置
       const tablePreX = x
       const tablePreY = y
@@ -343,9 +336,11 @@ export class Position {
 
   public setCursorPosition(position: IElementPosition | null) {
     this.cursorPosition = position
+    console.log('设置光标位置信息:', position)
   }
 
   public getCursorPosition(): IElementPosition | null {
+    console.log('获取光标位置信息:', this.cursorPosition)
     return this.cursorPosition
   }
 
@@ -354,6 +349,7 @@ export class Position {
   }
 
   public setPositionContext(payload: IPositionContext) {
+    console.log('设置位置上下文:', payload)
     this.eventBus.emit('positionContextChange', {
       value: payload,
       oldValue: this.positionContext
@@ -732,7 +728,9 @@ export class Position {
   public adjustPositionContext(
     payload: IGetPositionByXYPayload
   ): ICurrentPosition | null {
+    console.log('调整位置上下文, 参数:', payload)
     const positionResult = this.getPositionByXY(payload)
+    console.log('位置结果:', positionResult)
     if (!~positionResult.index) return null
     // 移动控件内光标
     if (

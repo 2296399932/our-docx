@@ -116,7 +116,10 @@ export class RangeManager {
     const { startIndex, endIndex } = this.range
     if (startIndex === endIndex) return null
     const elementList = this.draw.getElementList()
-    return elementList.slice(startIndex + 1, endIndex + 1)
+    const selection = elementList.slice(startIndex + 1, endIndex + 1)
+    console.log('选区元素列表:', selection)
+
+    return selection
   }
 
   public getSelectionElementList(): IElement[] | null {
@@ -131,9 +134,12 @@ export class RangeManager {
           elementList.push(...col.value)
         }
       }
+      console.log('表格选区元素列表:', elementList)
       return elementList
     }
-    return this.getSelection()
+    const selection = this.getSelection()
+    console.log('普通选区元素列表:', selection)
+    return selection
   }
 
   public getTextLikeSelection(): IElement[] | null {
@@ -177,7 +183,9 @@ export class RangeManager {
     const { startIndex, endIndex, isCrossRowCol } = this.range
     if (!~startIndex && !~endIndex) return null
     if (isCrossRowCol) {
-      return this.getSelectionElementList()
+      const elements = this.getSelectionElementList();
+      console.log('跨行列选区元素列表:', elements);
+      return elements;
     }
     // 选区行信息
     const rangeRow = this.getRangeRow()
@@ -194,6 +202,8 @@ export class RangeManager {
         rowElementList.push(elementList[p])
       }
     }
+    console.log('选区所在行元素列表:', rowElementList);
+    console.log('选区行数据:', rangeRow);
     return rowElementList
   }
 
@@ -286,18 +296,42 @@ export class RangeManager {
     const rangeRow = this.getRangeParagraph()
     if (!rangeRow) return null
     const elementList = this.draw.getElementList()
+    console.log('rangeRow:', rangeRow)
+    console.log('getElementList:', elementList)
     const positionList = this.position.getPositionList()
-    for (let p = 0; p < positionList.length; p++) {
-      const position = positionList[p]
-      const rowArray = rangeRow.get(position.pageNo)
-      if (!rowArray) continue
-      if (rowArray.includes(position.rowNo)) {
-        if (!~startPositionIndex) {
-          startPositionIndex = position.index
-        }
-        rangeElementList.push(elementList[p])
-      }
+    console.log('positionList:', positionList)
+// 在getRangeParagraphInfo方法中，收集完元素后执行过滤
+
+// 首先收集元素
+for (let p = 0; p < positionList.length; p++) {
+  const position = positionList[p]
+  const rowArray = rangeRow.get(position.pageNo)
+  if (!rowArray) continue
+  if (rowArray.includes(position.rowNo)) {
+    if (!~startPositionIndex) {
+      startPositionIndex = position.index
     }
+    rangeElementList.push(elementList[p])
+  }
+}
+
+// 过滤掉开头的零宽空格元素（如果它属于不同段落）
+if (rangeElementList.length > 1) {
+  const firstElement = rangeElementList[0];
+  const secondElement = rangeElementList[1];
+
+  // 检查第一个元素是否是零宽空格且段落ID与后续元素不同
+  if (firstElement.value === "​" &&
+      firstElement.paragraphId !== secondElement.paragraphId) {
+    // 移除第一个元素
+    rangeElementList.shift();
+    // 如果有起始索引，需要调整
+    if (startPositionIndex >= 0) {
+      startPositionIndex++;
+    }
+  }
+}
+    console.log('rangeElementList:', rangeElementList)
     if (!rangeElementList.length) return null
     return {
       elementList: rangeElementList,
@@ -307,7 +341,67 @@ export class RangeManager {
 
   // 获取选区段落元素列表
   public getRangeParagraphElementList(): IElement[] | null {
-    return this.getRangeParagraphInfo()?.elementList || null
+    console.log('getRangeParagraphElementList被调用');
+    const paragraphInfo = this.getRangeParagraphInfo();
+    if (!paragraphInfo) {
+      console.log('未找到段落信息');
+      return null;
+    }
+
+    const { elementList } = paragraphInfo;
+    console.log('找到段落元素数量:', elementList.length);
+
+    // 确保elementList不为空
+    if (!elementList.length) {
+      console.log('段落元素列表为空');
+      return null;
+    }
+
+    console.log('段落元素列表:', elementList);
+
+    // 确保返回的是所有段落元素，而不仅仅是第一个段落
+    // 过滤出所有独立的段落元素
+    const paragraphElements = [];
+
+    // 安全地获取第一个元素的paragraphId
+    let currentParagraphId = elementList[0]?.paragraphId;
+
+    // 如果没有paragraphId，则使用其他标识区分段落
+    if (currentParagraphId === undefined) {
+      console.log('元素没有paragraphId，将所有元素作为一个段落处理');
+      return elementList;
+    }
+
+    for (let i = 0; i < elementList.length; i++) {
+      const element = elementList[i];
+
+      if (!element) {
+        console.log(`索引 ${i} 处的元素不存在，跳过`);
+        continue;
+      }
+
+      console.log(`处理元素: ${JSON.stringify(element)}`);
+
+      // 如果元素有paragraphId并且与当前paragraphId相同，则添加到结果中
+      if (element.paragraphId === currentParagraphId) {
+        paragraphElements.push(element);
+      } else if (element.paragraphId) {
+        // 如果是新的paragraphId，更新currentParagraphId并添加元素
+        console.log(`发现新的段落ID: ${element.paragraphId}`);
+        currentParagraphId = element.paragraphId;
+        paragraphElements.push(element);
+      } else {
+        // 如果元素没有paragraphId但前面有，则可能属于同一段落
+        console.log(`元素没有段落ID但被视为当前段落的一部分`);
+        paragraphElements.push(element);
+      }
+    }
+
+    console.log('paragraphElements:', paragraphElements);
+    console.log('过滤后的段落元素数量:', paragraphElements.length);
+
+    // 确保返回非空结果
+    return paragraphElements.length ? paragraphElements : null;
   }
 
   // 获取选区表格
@@ -386,15 +480,25 @@ export class RangeManager {
     if (!~startIndex && !~endIndex) return false
     const elementList = this.draw.getElementList()
     const startElement = elementList[startIndex]
+
+    // 添加安全检查，确保startElement存在
+    if (!startElement) return false;
+
     if (startIndex === endIndex) {
+      // 添加安全检查，确保不会访问undefined的属性
       return (
-        (startElement.controlComponent !== ControlComponent.PRE_TEXT ||
+        (!startElement.controlComponent || startElement.controlComponent !== ControlComponent.PRE_TEXT ||
+          !elementList[startIndex + 1]?.controlComponent ||
           elementList[startIndex + 1]?.controlComponent !==
             ControlComponent.PRE_TEXT) &&
-        startElement.controlComponent !== ControlComponent.POST_TEXT
+        (!startElement.controlComponent || startElement.controlComponent !== ControlComponent.POST_TEXT)
       )
     }
+
     const endElement = elementList[endIndex]
+    // 添加安全检查，确保endElement存在
+    if (!endElement) return false;
+
     // 选区前后不是控件 || 选区前不是控件或是后缀&&选区后不是控件或是后缀 || 选区在控件内
     return (
       (!startElement.controlId && !endElement.controlId) ||
@@ -430,6 +534,16 @@ export class RangeManager {
       endTrIndex
     )
     if (isChange) {
+      console.log('设置选区范围:', {
+        startIndex,
+        endIndex,
+        tableId,
+        startTdIndex,
+        endTdIndex,
+        startTrIndex,
+        endTrIndex
+      })
+
       this.range.startIndex = startIndex
       this.range.endIndex = endIndex
       this.range.tableId = tableId
@@ -444,6 +558,16 @@ export class RangeManager {
         endTrIndex
       )
       this.setDefaultStyle(null)
+
+      if (startIndex === endIndex) {
+        console.log('设置光标位置:', startIndex)
+
+        // 获取光标所在元素
+        const elementList = this.draw.getElementList()
+        if (startIndex >= 0 && startIndex < elementList.length) {
+          console.log('光标所在元素:', elementList[startIndex])
+        }
+      }
     }
     this.range.zone = this.draw.getZone().getZone()
     // 激活控件

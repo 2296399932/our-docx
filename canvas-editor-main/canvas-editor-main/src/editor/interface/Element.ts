@@ -38,7 +38,7 @@ export interface IElementStyle {
   rowMargin?: number
   letterSpacing?: number
   textDecoration?: ITextDecoration
-  indent?: number // 新增：缩进级别或宽度
+
 }
 
 export interface IElementGroup {
@@ -150,6 +150,9 @@ export interface IAreaElement {
 export interface IParagraphElement {
   valueList?: IElement[]  // 段落中包含的元素列表
   paragraphId?: string    // 段落ID，用于标识段落
+  indent?: number         // 缩进级别或宽度，段落独有属性
+  line?: number           // 行距值
+  lineRule?: string       // 行距规则，如"multiple"、"exact"、"atLeast"等
 }
 
 export type IElement = IElementBasic &
@@ -230,8 +233,15 @@ export interface IGetElementByIdOption {
 export interface IInsertElementListOption {
   isReplace?: boolean
   isSubmitHistory?: boolean
+  ensureWrapInParagraph?: boolean
 }
 
 export interface ISpliceElementListOption {
   isIgnoreDeletedRule?: boolean
+}
+
+export interface IAppendElementListOption {
+  isPrepend?: boolean
+  isSubmitHistory?: boolean
+  ensureWrapInParagraph?: boolean // 确保添加的文本元素被包裹在段落中
 }

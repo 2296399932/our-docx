@@ -6731,23 +6731,29 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
         <w:adjustRightInd/>
         <w:snapToGrid/>
         <w:spacing w:line="420" w:lineRule="exact"/>
-        <w:ind w:firstLine="400" w:firstLineChars="200"/>
+        <w:ind w:firstLine="360" w:firstLineChars="200"/>
         <w:jc w:val="center"/>
         <w:textAlignment w:val="auto"/>
         <w:rPr>
           <w:rFonts w:hint="eastAsia" w:cs="Times New Roman"/>
+          <w:sz w:val="18"/>
+          <w:szCs w:val="18"/>
           <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
         </w:rPr>
       </w:pPr>
       <w:r>
         <w:rPr>
           <w:rFonts w:hint="eastAsia" w:cs="Times New Roman"/>
+          <w:sz w:val="18"/>
+          <w:szCs w:val="18"/>
         </w:rPr>
         <w:t>图</w:t>
       </w:r>
       <w:r>
         <w:rPr>
           <w:rFonts w:hint="eastAsia" w:cs="Times New Roman"/>
+          <w:sz w:val="18"/>
+          <w:szCs w:val="18"/>
           <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
         </w:rPr>
         <w:t>3</w:t>
@@ -6755,16 +6761,22 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
       <w:r>
         <w:rPr>
           <w:rFonts w:hint="eastAsia" w:cs="Times New Roman"/>
+          <w:sz w:val="18"/>
+          <w:szCs w:val="18"/>
         </w:rPr>
         <w:t>-3</w:t>
       </w:r>
       <w:r>
         <w:rPr>
           <w:rFonts w:hint="eastAsia" w:cs="Times New Roman"/>
+          <w:sz w:val="18"/>
+          <w:szCs w:val="18"/>
           <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
         </w:rPr>
         <w:t xml:space="preserve"> E-R图</w:t>
       </w:r>
+      <w:bookmarkStart w:id="56" w:name="_GoBack"/>
+      <w:bookmarkEnd w:id="56"/>
     </w:p>
     <w:p w14:paraId="1B304A3D">
       <w:pPr>
@@ -9676,12 +9688,6 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
             <w:insideH w:val="none" w:color="auto" w:sz="0" w:space="0"/>
             <w:insideV w:val="none" w:color="auto" w:sz="0" w:space="0"/>
           </w:tblBorders>
-          <w:tblCellMar>
-            <w:top w:w="0" w:type="dxa"/>
-            <w:left w:w="108" w:type="dxa"/>
-            <w:bottom w:w="0" w:type="dxa"/>
-            <w:right w:w="108" w:type="dxa"/>
-          </w:tblCellMar>
         </w:tblPrEx>
         <w:trPr>
           <w:trHeight w:val="224" w:hRule="atLeast"/>
@@ -12971,6 +12977,12 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
             <w:insideH w:val="none" w:color="auto" w:sz="0" w:space="0"/>
             <w:insideV w:val="none" w:color="auto" w:sz="0" w:space="0"/>
           </w:tblBorders>
+          <w:tblCellMar>
+            <w:top w:w="0" w:type="dxa"/>
+            <w:left w:w="108" w:type="dxa"/>
+            <w:bottom w:w="0" w:type="dxa"/>
+            <w:right w:w="108" w:type="dxa"/>
+          </w:tblCellMar>
         </w:tblPrEx>
         <w:trPr>
           <w:trHeight w:val="224" w:hRule="atLeast"/>
@@ -29842,14 +29854,14 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
         <w:ind w:firstLine="480" w:firstLineChars="200"/>
         <w:textAlignment w:val="auto"/>
         <w:rPr>
-          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体"/>
-          <w:sz w:val="28"/>
-          <w:szCs w:val="28"/>
+          <w:rFonts w:hint="eastAsia" w:ascii="宋体" w:hAnsi="宋体" w:eastAsia="宋体" w:cs="宋体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
         </w:rPr>
       </w:pPr>
       <w:r>
         <w:rPr>
-          <w:rFonts w:hint="eastAsia"/>
+          <w:rFonts w:hint="eastAsia" w:ascii="宋体" w:hAnsi="宋体" w:eastAsia="宋体" w:cs="宋体"/>
           <w:sz w:val="24"/>
           <w:szCs w:val="24"/>
         </w:rPr>
@@ -30285,57 +30297,6 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
         <w:jc w:val="center"/>
       </w:pPr>
     </w:p>
-    <w:p w14:paraId="255A25C4">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="312EC169">
-      <w:pPr>
-        <w:pStyle w:val="5"/>
-        <w:keepNext w:val="0"/>
-        <w:keepLines w:val="0"/>
-        <w:widowControl/>
-        <w:suppressLineNumbers w:val="0"/>
-        <w:ind w:firstLine="400" w:firstLineChars="200"/>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="149F6B81">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="0AEDC93A">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="045FF30D">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="30813D37">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="23FE80BC">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="65D13B53">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
-    <w:p w14:paraId="5ABAF29F">
-      <w:pPr>
-        <w:jc w:val="center"/>
-      </w:pPr>
-    </w:p>
     <w:p w14:paraId="619D997E">
       <w:pPr>
         <w:pStyle w:val="5"/>
@@ -30343,8 +30304,8 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
         <w:keepLines w:val="0"/>
         <w:widowControl/>
         <w:suppressLineNumbers w:val="0"/>
-        <w:ind w:firstLine="400" w:firstLineChars="200"/>
-        <w:jc w:val="center"/>
+        <w:ind w:left="0" w:leftChars="0" w:firstLine="0" w:firstLineChars="0"/>
+        <w:jc w:val="both"/>
       </w:pPr>
     </w:p>
     <w:p w14:paraId="713DAA07">
@@ -30648,8 +30609,8 @@ AQAgAAAAJwEAAGRycy9lMm9Eb2MueG1sUEsFBgAAAAAGAAYAWQEAAN8FAAAAAA==
           <w:szCs w:val="28"/>
         </w:rPr>
       </w:pPr>
-      <w:bookmarkStart w:id="48" w:name="_Toc332783530"/>
-      <w:bookmarkStart w:id="49" w:name="_Toc30318203"/>
+      <w:bookmarkStart w:id="48" w:name="_Toc30318203"/>
+      <w:bookmarkStart w:id="49" w:name="_Toc332783530"/>
       <w:r>
         <w:rPr>
           <w:rFonts w:eastAsia="黑体"/>
@@ -34808,8 +34769,8 @@ AAAAAAEAIAAAACkBAABkcnMvZTJvRG9jLnhtbFBLBQYAAAAABgAGAFkBAADjBQAAAAA=
         </w:rPr>
         <w:t>如今，中国的企业也越来越多重视</w:t>
       </w:r>
-      <w:bookmarkStart w:id="54" w:name="OLE_LINK2"/>
-      <w:bookmarkStart w:id="55" w:name="OLE_LINK1"/>
+      <w:bookmarkStart w:id="54" w:name="OLE_LINK1"/>
+      <w:bookmarkStart w:id="55" w:name="OLE_LINK2"/>
       <w:r>
         <w:rPr>
           <w:bCs/>

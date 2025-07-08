@@ -1,22 +1,13 @@
-import io
 import xml.etree.ElementTree as ET
-import zipfile
-from datetime import datetime
-from io import BytesIO
 import re
-import os
-import shutil
 from docx_parser import DocxFile
 import traceback
 import xml.dom.minidom as minidom
 import pandas as pd
-import time
 import os
 import uuid
-import base64
 import time
 from PIL import Image
-import inspect
 
 
 class DocxElementParser(DocxFile):
@@ -182,6 +173,11 @@ class DocxElementParser(DocxFile):
 
             # 根据标签类型处理
             if tag_name == 'p':
+                elem_info['type'] = 'paragraph'
+                self.paragraphs.append(elem_info)
+                # 获取段落ID
+                elem_info['id'] = element.get(f"{{{self.NAMESPACES['w14']}}}paraId", '')
+                self.paragraphs.append(elem_info)
                 # 检查该段落是否包含图片
                 has_image = False
                 # 查找段落中的w:drawing或w:pict元素（图片容器）
@@ -189,19 +185,15 @@ class DocxElementParser(DocxFile):
                 picts = element.findall(f".//{{{self.NAMESPACES['w']}}}pict") or []
 
                 if drawings or picts:
+
                     elem_info['type'] = 'image'
                     # 可以添加额外的图片信息提取
-                    elem_info['image_info'] = {
-                        'drawings_count': len(drawings),
-                        'picts_count': len(picts)
-                    }
+                    elem_info['image_info'] = self.get_image_from_pra(element)
+
                     self.images.append(elem_info)
-                else:
                     elem_info['type'] = 'paragraph'
-                    self.paragraphs.append(elem_info)
-                    # 获取段落ID
-                    elem_info['id'] = element.get(f"{{{self.NAMESPACES['w14']}}}paraId", '')
-                    self.paragraphs.append(elem_info)
+
+
 
 
             elif tag_name == 'tbl':
@@ -1251,7 +1243,7 @@ class DocxElementParser(DocxFile):
             'borders': self.get_paragraph_borders(num),
             'shading': self.get_paragraph_shading(num),
             'numbering': self.get_paragraph_numbering(num),
-            'font': self.get_paragraph_font(num)
+            'fonts': self.get_paragraph_font(num)
         }
 
     def get_element_run_text(self, index):
@@ -2464,22 +2456,26 @@ class DocxElementParser(DocxFile):
 
         return "\n".join(lines)
 
-    def get_table_style(self, table_index):
-        """提取表格的所有样式和属性信息
+    def get_table_style(self, table_index,type="elements"):
+        """提取表格的所有样式和属性信息，包括表格级、行级和单元格级样式
 
         Args:
             table_index: self.tables中的表格索引
 
         Returns:
-            dict: 包含表格样式和属性信息的字典
+            dict: 包含表格样式和属性信息的详细字典
         """
-
         # 获取表格元素
-        table = self.tables[table_index]['element']
+        # 获取表格元素
+        if type == "elements":
+            table = self.elements[table_index]['element']  # 转换为Element对象
+        else:
+            table = self.tables[table_index]['element']
 
         # 创建结果字典
         style_info = {
             'style_id': None,
+            'style_name': None,
             'width': {'value': None, 'type': None},
             'indent': {'value': None, 'type': None},
             'borders': {
@@ -2490,26 +2486,51 @@ class DocxElementParser(DocxFile):
                 'inside_h': {},
                 'inside_v': {}
             },
+            'shading': {
+                'val': None,
+                'color': None,
+                'fill': None,
+                'pattern': None
+            },
             'layout': None,
+            'alignment': None,
             'cell_margins': {
                 'top': {},
                 'left': {},
                 'bottom': {},
                 'right': {}
             },
+            'look': None,
             'grid': [],
             'rows_count': 0,
             'columns_count': 0,
-            'description': []
+            'rows': [],  # 将存储每行的样式信息
+            'cells': {},  # 将存储单元格样式信息，格式为 {(row_idx, col_idx): cell_info}
+            'is_header_row': False,  # 表示第一行是否为标题行
+            'caption': None,  # 表格标题
+            'table_properties': {},  # 其他表格属性
+            'description': [],
+            'is_three_line_table': False
         }
 
         # 查找表格属性
         tblPr = table.find(f".//{{{self.NAMESPACES['w']}}}tblPr")
         if tblPr is not None:
-            # 提取样式ID
+            # 提取样式ID和名称
             style = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblStyle")
             if style is not None:
                 style_info['style_id'] = style.get(f"{{{self.NAMESPACES['w']}}}val")
+
+                # 尝试获取样式名称（如果存在样式表）
+                try:
+                    if hasattr(self, 'styles') and self.styles:
+                        for style_def in self.styles.findall(f".//{{{self.NAMESPACES['w']}}}style"):
+                            if style_def.get(f"{{{self.NAMESPACES['w']}}}styleId") == style_info['style_id']:
+                                name = style_def.find(f".//{{{self.NAMESPACES['w']}}}name")
+                                if name is not None:
+                                    style_info['style_name'] = name.get(f"{{{self.NAMESPACES['w']}}}val")
+                except Exception as e:
+                    print(f"获取表格样式名称时出错: {str(e)}")
 
             # 提取表格宽度
             tblW = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblW")
@@ -2540,13 +2561,28 @@ class DocxElementParser(DocxFile):
                             'val': border.get(f"{{{self.NAMESPACES['w']}}}val"),
                             'color': border.get(f"{{{self.NAMESPACES['w']}}}color"),
                             'size': border.get(f"{{{self.NAMESPACES['w']}}}sz"),
-                            'space': border.get(f"{{{self.NAMESPACES['w']}}}space")
+                            'space': border.get(f"{{{self.NAMESPACES['w']}}}space"),
+                            'shadow': border.get(f"{{{self.NAMESPACES['w']}}}shadow"),
+                            'frame': border.get(f"{{{self.NAMESPACES['w']}}}frame")
                         }
+
+            # 提取表格底纹
+            shd = tblPr.find(f".//{{{self.NAMESPACES['w']}}}shd")
+            if shd is not None:
+                style_info['shading']['val'] = shd.get(f"{{{self.NAMESPACES['w']}}}val")
+                style_info['shading']['color'] = shd.get(f"{{{self.NAMESPACES['w']}}}color")
+                style_info['shading']['fill'] = shd.get(f"{{{self.NAMESPACES['w']}}}fill")
+                style_info['shading']['pattern'] = shd.get(f"{{{self.NAMESPACES['w']}}}pattern")
 
             # 提取表格布局
             tblLayout = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblLayout")
             if tblLayout is not None:
                 style_info['layout'] = tblLayout.get(f"{{{self.NAMESPACES['w']}}}type")
+
+            # 提取表格对齐方式
+            jc = tblPr.find(f".//{{{self.NAMESPACES['w']}}}jc")
+            if jc is not None:
+                style_info['alignment'] = jc.get(f"{{{self.NAMESPACES['w']}}}val")
 
             # 提取单元格边距
             tblCellMar = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblCellMar")
@@ -2559,6 +2595,31 @@ class DocxElementParser(DocxFile):
                             'type': margin.get(f"{{{self.NAMESPACES['w']}}}type")
                         }
 
+            # 提取表格Look属性（控制表格格式应用方式）
+            tblLook = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblLook")
+            if tblLook is not None:
+                look_val = tblLook.get(f"{{{self.NAMESPACES['w']}}}val")
+                style_info['look'] = {
+                    'val': look_val,
+                    'first_row': look_val and (int(look_val, 16) & 0x0020) != 0,
+                    'last_row': look_val and (int(look_val, 16) & 0x0040) != 0,
+                    'first_column': look_val and (int(look_val, 16) & 0x0080) != 0,
+                    'last_column': look_val and (int(look_val, 16) & 0x0100) != 0,
+                    'no_hband': look_val and (int(look_val, 16) & 0x0200) != 0,
+                    'no_vband': look_val and (int(look_val, 16) & 0x0400) != 0
+                }
+                # 如果first_row为True，表示第一行是标题行
+                style_info['is_header_row'] = style_info['look']['first_row']
+
+            # 提取其他表格属性
+            for prop in tblPr:
+                if prop.tag.endswith('}tblCaption'):
+                    style_info['caption'] = prop.get(f"{{{self.NAMESPACES['w']}}}val")
+                elif prop.tag.endswith('}tblDescription'):
+                    style_info['table_properties']['description'] = prop.get(f"{{{self.NAMESPACES['w']}}}val")
+                elif prop.tag.endswith('}tblOverlap'):
+                    style_info['table_properties']['overlap'] = prop.get(f"{{{self.NAMESPACES['w']}}}val")
+
         # 提取表格网格（列定义）
         tblGrid = table.find(f".//{{{self.NAMESPACES['w']}}}tblGrid")
         if tblGrid is not None:
@@ -2569,12 +2630,237 @@ class DocxElementParser(DocxFile):
 
             style_info['columns_count'] = len(grid_cols)
 
-        # 统计行数
+        # 处理行和单元格
         rows = table.findall(f".//{{{self.NAMESPACES['w']}}}tr")
         style_info['rows_count'] = len(rows)
 
+        for row_idx, row in enumerate(rows):
+            row_info = {
+                'height': {'value': None, 'rule': None},
+                'is_header': row_idx == 0 and style_info['is_header_row'],
+                'borders': {},
+                'shading': {},
+                'properties': {}
+            }
+
+            # 提取行属性
+            trPr = row.find(f".//{{{self.NAMESPACES['w']}}}trPr")
+            if trPr is not None:
+                # 行高
+                trHeight = trPr.find(f".//{{{self.NAMESPACES['w']}}}trHeight")
+                if trHeight is not None:
+                    row_info['height']['value'] = trHeight.get(f"{{{self.NAMESPACES['w']}}}val")
+                    row_info['height']['rule'] = trHeight.get(f"{{{self.NAMESPACES['w']}}}hRule")
+
+                # 检查行是否为标题行
+                tblHeader = trPr.find(f".//{{{self.NAMESPACES['w']}}}tblHeader")
+                if tblHeader is not None:
+                    row_info['is_header'] = True
+                    style_info['is_header_row'] = True
+
+                # 检查行级别边框继承
+                row_borders = row.find(f".//{{{self.NAMESPACES['w']}}}tblPrEx/{{{self.NAMESPACES['w']}}}tblBorders")
+                if row_borders is not None:
+                    for border_type, border_key in [
+                        ('top', 'top'),
+                        ('left', 'left'),
+                        ('bottom', 'bottom'),
+                        ('right', 'right'),
+                        ('insideH', 'inside_h'),
+                        ('insideV', 'inside_v')
+                    ]:
+                        border = row_borders.find(f".//{{{self.NAMESPACES['w']}}}{border_type}")
+                        if border is not None:
+                            row_info['borders'][border_key] = {
+                                'val': border.get(f"{{{self.NAMESPACES['w']}}}val"),
+                                'color': border.get(f"{{{self.NAMESPACES['w']}}}color"),
+                                'size': border.get(f"{{{self.NAMESPACES['w']}}}sz"),
+                                'space': border.get(f"{{{self.NAMESPACES['w']}}}space")
+                            }
+
+            # 处理单元格
+            cells = row.findall(f".//{{{self.NAMESPACES['w']}}}tc")
+            for cell_idx, cell in enumerate(cells):
+                cell_key = (row_idx, cell_idx)
+                cell_info = {
+                    'width': {'value': None, 'type': None},
+                    'rowspan': 1,
+                    'colspan': 1,
+                    'borders': {},
+                    'shading': {},
+                    'vertical_align': None,
+                    'text_direction': None,
+                    'margins': {},
+                    'properties': {}
+                }
+
+                # 提取单元格属性
+                tcPr = cell.find(f".//{{{self.NAMESPACES['w']}}}tcPr")
+                if tcPr is not None:
+                    # 单元格宽度
+                    tcW = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcW")
+                    if tcW is not None:
+                        cell_info['width']['value'] = tcW.get(f"{{{self.NAMESPACES['w']}}}w")
+                        cell_info['width']['type'] = tcW.get(f"{{{self.NAMESPACES['w']}}}type")
+
+                    # 合并单元格
+                    gridSpan = tcPr.find(f".//{{{self.NAMESPACES['w']}}}gridSpan")
+                    if gridSpan is not None:
+                        cell_info['colspan'] = int(gridSpan.get(f"{{{self.NAMESPACES['w']}}}val", "1"))
+
+                    vMerge = tcPr.find(f".//{{{self.NAMESPACES['w']}}}vMerge")
+                    if vMerge is not None:
+                        val = vMerge.get(f"{{{self.NAMESPACES['w']}}}val")
+                        # 如果val为"restart"，则是合并起始单元格
+                        # 如果val不存在或为"continue"，则是被合并单元格
+                        cell_info['properties']['vMerge'] = val if val else "continue"
+                        if val == "restart":
+                            # 标记为行合并的起始单元格
+                            cell_info['rowspan'] = 2  # 默认值，实际值需要后处理
+
+                    # 单元格边框
+                    tcBorders = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcBorders")
+                    if tcBorders is not None:
+                        for border_type, border_key in [
+                            ('top', 'top'),
+                            ('left', 'left'),
+                            ('bottom', 'bottom'),
+                            ('right', 'right'),
+                            ('insideH', 'inside_h'),
+                            ('insideV', 'inside_v')
+                        ]:
+                            border = tcBorders.find(f".//{{{self.NAMESPACES['w']}}}{border_type}")
+                            if border is not None:
+                                cell_info['borders'][border_key] = {
+                                    'val': border.get(f"{{{self.NAMESPACES['w']}}}val"),
+                                    'color': border.get(f"{{{self.NAMESPACES['w']}}}color"),
+                                    'size': border.get(f"{{{self.NAMESPACES['w']}}}sz"),
+                                    'space': border.get(f"{{{self.NAMESPACES['w']}}}space")
+                                }
+
+                    # 单元格底纹
+                    shd = tcPr.find(f".//{{{self.NAMESPACES['w']}}}shd")
+                    if shd is not None:
+                        cell_info['shading'] = {
+                            'val': shd.get(f"{{{self.NAMESPACES['w']}}}val"),
+                            'color': shd.get(f"{{{self.NAMESPACES['w']}}}color"),
+                            'fill': shd.get(f"{{{self.NAMESPACES['w']}}}fill"),
+                            'pattern': shd.get(f"{{{self.NAMESPACES['w']}}}pattern")
+                        }
+
+                    # 垂直对齐方式
+                    vAlign = tcPr.find(f".//{{{self.NAMESPACES['w']}}}vAlign")
+                    if vAlign is not None:
+                        cell_info['vertical_align'] = vAlign.get(f"{{{self.NAMESPACES['w']}}}val")
+
+                    # 文本方向
+                    textDirection = tcPr.find(f".//{{{self.NAMESPACES['w']}}}textDirection")
+                    if textDirection is not None:
+                        cell_info['text_direction'] = textDirection.get(f"{{{self.NAMESPACES['w']}}}val")
+
+                    # 单元格边距
+                    tcMar = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcMar")
+                    if tcMar is not None:
+                        for margin_type in ['top', 'left', 'bottom', 'right']:
+                            margin = tcMar.find(f".//{{{self.NAMESPACES['w']}}}{margin_type}")
+                            if margin is not None:
+                                cell_info['margins'][margin_type] = {
+                                    'value': margin.get(f"{{{self.NAMESPACES['w']}}}w"),
+                                    'type': margin.get(f"{{{self.NAMESPACES['w']}}}type")
+                                }
+
+                    # 其他单元格属性
+                    noWrap = tcPr.find(f".//{{{self.NAMESPACES['w']}}}noWrap")
+                    if noWrap is not None:
+                        cell_info['properties']['nowrap'] = True
+
+                    hideMark = tcPr.find(f".//{{{self.NAMESPACES['w']}}}hideMark")
+                    if hideMark is not None:
+                        cell_info['properties']['hidemark'] = True
+
+                # 计算单元格包含的段落数量（但不提取内容）
+                paragraphs = cell.findall(f".//{{{self.NAMESPACES['w']}}}p")
+                cell_info['paragraph_count'] = len(paragraphs)
+
+                style_info['cells'][cell_key] = cell_info
+
+            style_info['rows'].append(row_info)
+
+        # 处理垂直合并单元格的rowspan值
+        # 查找vMerge="restart"的单元格，计算其rowspan
+        for row_idx in range(style_info['rows_count']):
+            for col_idx in range(style_info['columns_count']):
+                cell_key = (row_idx, col_idx)
+                if cell_key in style_info['cells']:
+                    cell = style_info['cells'][cell_key]
+                    if cell['properties'].get('vMerge') == 'restart':
+                        rowspan = 1
+                        for next_row in range(row_idx + 1, style_info['rows_count']):
+                            next_cell_key = (next_row, col_idx)
+                            if (next_cell_key in style_info['cells'] and
+                                    style_info['cells'][next_cell_key]['properties'].get('vMerge') == 'continue'):
+                                rowspan += 1
+                            else:
+                                break
+                        cell['rowspan'] = rowspan
+
+        # 检查是否为三线表
+        try:
+            # 1. 表头上方有线
+            header_top_exists = style_info['borders']['top'].get('val') not in [None, 'none']
+            if not header_top_exists and style_info['rows_count'] > 0:
+                for cell_key in style_info['cells']:
+                    if cell_key[0] == 0:  # 第一行
+                        if style_info['cells'][cell_key]['borders'].get('top', {}).get('val') not in [None, 'none']:
+                            header_top_exists = True
+                            break
+
+            # 2. 表头下方有线
+            header_bottom_exists = False
+            if style_info['rows_count'] > 1:
+                for cell_key in style_info['cells']:
+                    if cell_key[0] == 0:  # 第一行
+                        if style_info['cells'][cell_key]['borders'].get('bottom', {}).get('val') not in [None, 'none']:
+                            header_bottom_exists = True
+                            break
+
+            # 3. 表格底部有线
+            table_bottom_exists = style_info['borders']['bottom'].get('val') not in [None, 'none']
+            if not table_bottom_exists and style_info['rows_count'] > 0:
+                for cell_key in style_info['cells']:
+                    if cell_key[0] == style_info['rows_count'] - 1:  # 最后一行
+                        if style_info['cells'][cell_key]['borders'].get('bottom', {}).get('val') not in [None, 'none']:
+                            table_bottom_exists = True
+                            break
+
+            # 4. 无内部水平线
+            no_inner_h_lines = style_info['borders']['inside_h'].get('val') in [None, 'none']
+
+            # 5. 无垂直线
+            no_vertical_lines = style_info['borders']['inside_v'].get('val') in [None, 'none']
+
+            # 判断是否为三线表
+            style_info['is_three_line_table'] = (
+                    header_top_exists and
+                    header_bottom_exists and
+                    table_bottom_exists and
+                    no_inner_h_lines and
+                    no_vertical_lines
+            )
+
+            if style_info['is_three_line_table']:
+                style_info['description'].append("符合三线表标准")
+        except Exception as e:
+            print(f"检查三线表特征时出错: {str(e)}")
+
         # 格式化描述信息
         style_info['description'].append(f"表格大小: {style_info['rows_count']}行 × {style_info['columns_count']}列")
+
+        if style_info['style_id']:
+            style_desc = f"样式ID: {style_info['style_id']}"
+            if style_info['style_name']:
+                style_desc += f" ({style_info['style_name']})"
+            style_info['description'].append(style_desc)
 
         # 边框描述
         borders_desc = []
@@ -2592,7 +2878,30 @@ class DocxElementParser(DocxFile):
                     'single': '单线',
                     'double': '双线',
                     'thick': '粗线',
-                    'none': '无'
+                    'none': '无',
+                    'thin': '细线',
+                    'dotted': '点线',
+                    'dashed': '虚线',
+                    'dashSmallGap': '短划线',
+                    'dotDash': '点划线',
+                    'dotDotDash': '点点划线',
+                    'triple': '三线',
+                    'thinThickSmallGap': '细粗线(小间隔)',
+                    'thickThinSmallGap': '粗细线(小间隔)',
+                    'thinThickThinSmallGap': '细粗细线(小间隔)',
+                    'thinThickMediumGap': '细粗线(中间隔)',
+                    'thickThinMediumGap': '粗细线(中间隔)',
+                    'thinThickThinMediumGap': '细粗细线(中间隔)',
+                    'thinThickLargeGap': '细粗线(大间隔)',
+                    'thickThinLargeGap': '粗细线(大间隔)',
+                    'thinThickThinLargeGap': '细粗细线(大间隔)',
+                    'wave': '波浪线',
+                    'doubleWave': '双波浪线',
+                    'dashDotStroked': '实心点划线',
+                    'threeDEmboss': '3D浮雕',
+                    'threeDEngrave': '3D刻线',
+                    'outset': '外凸',
+                    'inset': '内凹'
                 }.get(border.get('val'), border.get('val'))
 
                 if border_type != '无':
@@ -2603,6 +2912,12 @@ class DocxElementParser(DocxFile):
         if borders_desc:
             style_info['description'].append("边框: " + ", ".join(borders_desc))
 
+        # 底纹描述
+        if style_info['shading'].get('fill'):
+            fill_color = style_info['shading']['fill']
+            if fill_color != 'auto' and fill_color != '000000':
+                style_info['description'].append(f"底纹颜色: {fill_color}")
+
         # 布局描述
         if style_info['layout']:
             layout_desc = {
@@ -2611,17 +2926,35 @@ class DocxElementParser(DocxFile):
             }.get(style_info['layout'], style_info['layout'])
             style_info['description'].append(f"布局: {layout_desc}")
 
+        # 对齐方式描述
+        if style_info['alignment']:
+            align_desc = {
+                'left': '左对齐',
+                'center': '居中',
+                'right': '右对齐'
+            }.get(style_info['alignment'], style_info['alignment'])
+            style_info['description'].append(f"表格对齐: {align_desc}")
+
         # 列宽描述
         if style_info['grid']:
             col_widths = []
             for i, width in enumerate(style_info['grid']):
-                # 转换为磅
-                pt_width = float(width) / 20
-                col_widths.append(f"列{i+1}: {pt_width:.1f}磅")
+                if width:
+                    # 转换为磅
+                    pt_width = float(width) / 20
+                    col_widths.append(f"列{i + 1}: {pt_width:.1f}磅")
             style_info['description'].append("列宽: " + ", ".join(col_widths))
 
-        return style_info
+        # 单元格合并描述
+        merged_cells = []
+        for (row_idx, col_idx), cell in style_info['cells'].items():
+            if cell['colspan'] > 1 or cell['rowspan'] > 1:
+                merged_cells.append(f"单元格({row_idx + 1},{col_idx + 1}): {cell['rowspan']}行 × {cell['colspan']}列")
 
+        if merged_cells:
+            style_info['description'].append("合并单元格: " + ", ".join(merged_cells))
+
+        return style_info
     def format_table_style(self, style_info):
         """将表格样式信息格式化为易读的字符串
 
@@ -3676,8 +4009,8 @@ class DocxElementParser(DocxFile):
                 success = False
 
         # 更新字体属性
-        if 'font' in style_properties and isinstance(style_properties['font'], dict):
-            if not self.set_paragraph_font(para_index, **style_properties['font']):
+        if 'fonts' in style_properties and isinstance(style_properties['fonts'], dict):
+            if not self.set_paragraph_font(para_index, **style_properties['fonts']):
                 success = False
 
         return success
@@ -3743,8 +4076,8 @@ class DocxElementParser(DocxFile):
 
 
         # 更新字体属性
-        if 'font' in style_properties and isinstance(style_properties['font'], dict):
-            if not self.set_paragraph_font_from_xml(para_element, **style_properties['font']):
+        if 'fonts' in style_properties and isinstance(style_properties['fonts'], dict):
+            if not self.set_paragraph_font_from_xml(para_element, **style_properties['fonts']):
                 success = False
 
         return success
@@ -4843,6 +5176,7 @@ class DocxElementParser(DocxFile):
 
         # 检查文本运行索引是否有效
         if run_index < 0 or run_index >= len(r_elements):
+            print(self.get_paragraph_text(paragraph))
             print(f"错误1：文本运行索引{run_index}超出范围(0-{len(r_elements)-1})")
             return None
 
@@ -4873,6 +5207,7 @@ class DocxElementParser(DocxFile):
 
         # 检查文本运行索引是否有效
         if run_index < 0 or run_index >= len(r_elements):
+            print(self.get_paragraph_text(paragraph))
             print(f"错误1：文本运行索引{run_index}超出范围(0-{len(r_elements) - 1})")
             return None
 
@@ -6093,11 +6428,7 @@ class DocxElementParser(DocxFile):
             print(f"更新段落中Run {run_index} 的样式")
             print(f"样式属性: {style_properties}")
 
-            # 处理字体名称字典
-            # 注意：修复字体属性键名称，如果传入'font'，自动转换为'fonts'
-            if 'font' in style_properties and 'fonts' not in style_properties:
-                style_properties['fonts'] = style_properties.pop('font')
-                print(f"将'font'键自动转换为'fonts'键")
+
 
             # 设置字体
             if 'fonts' in style_properties:
@@ -6158,7 +6489,7 @@ class DocxElementParser(DocxFile):
             run_index: Run元素索引
             **style_properties: 样式属性，可包含以下键：
                 fonts: 字体名称字典 {'ascii': 'Arial', 'eastAsia': '宋体', ...}，
-                       注意：这里需要使用'fonts'而不是'font'
+                       注意：这里需要使用'fonts'而不是'fonts'
                 size: 字体大小
                 bold: 是否加粗
                 italic: 是否斜体
@@ -6189,11 +6520,7 @@ class DocxElementParser(DocxFile):
             print(f"更新段落 {para_index} 中Run {run_index} 的样式")
             print(f"样式属性: {style_properties}")
 
-            # 处理字体名称字典
-            # 注意：修复字体属性键名称，如果传入'font'，自动转换为'fonts'
-            if 'font' in style_properties and 'fonts' not in style_properties:
-                style_properties['fonts'] = style_properties.pop('font')
-                print(f"将'font'键自动转换为'fonts'键")
+
 
             # 设置字体
             if 'fonts' in style_properties:
@@ -6259,7 +6586,7 @@ class DocxElementParser(DocxFile):
                 'alignment': 对齐方式
                 'indentation': 缩进设置字典
                 'spacing': 间距设置字典
-                'font': 字体设置字典，包含'ascii', 'eastAsia'等键
+                'fonts': 字体设置字典，包含'ascii', 'eastAsia'等键
                 'size': 字号值
                 'bold': 是否加粗
                 'color': 字体颜色
@@ -6740,7 +7067,7 @@ class DocxElementParser(DocxFile):
             description: 图片描述
             wrap_text: 图片环绕文字方式
             new_page: 是否在新页开始
-            caption_style: 标题样式属性字典，如{'font': {'eastAsia': '黑体'}, 'size': 24, 'bold': True}
+            caption_style: 标题样式属性字典，如{'fonts': {'eastAsia': '黑体'}, 'size': 24, 'bold': True}
 
         Returns:
             tuple: (图片关系ID, 标题段落索引)，如果失败，相应的值为None
@@ -6793,7 +7120,7 @@ class DocxElementParser(DocxFile):
             position: 插入位置，'before'表示在运行前插入，'after'表示在运行后插入
             text: 要插入的文本内容
             **style_properties: 文本运行的样式属性，可包含以下键：
-                'font': 字体设置字典，包含'ascii', 'eastAsia'等键
+                'fonts': 字体设置字典，包含'ascii', 'eastAsia'等键
                 'size': 字号值(半磅值)
                 'bold': 是否加粗
                 'italic': 是否斜体
@@ -8439,7 +8766,7 @@ class DocxElementParser(DocxFile):
                         elif style_val.isdigit():
                             level = int(style_val)
                             # 通常只有1-9是标题级别
-                            if level > 9 or level<2:
+                            if level > 9:
                                 level = None
 
                         # 其他可能的标题样式模式
@@ -9468,52 +9795,34 @@ class DocxElementParser(DocxFile):
         return None
 
     def get_table_dimensions(self, table_index):
-        """
-        获取表格的行数和列数
-
-        参数:
-            table_index (int): 表格索引
-
-        返回:
-            tuple: (行数, 列数)的元组
-            None: 如果表格不存在
-        """
         try:
-            # 获取所有表格
-
-            if  table_index >= len(self.tables):
+            if table_index >= len(self.tables):
                 return None
 
             table = self.tables[table_index]['element']
 
-            # 获取所有行
-            rows = table.findall('.//w:tr', self.NAMESPACES)
+            # 获取所有行，使用直接子元素查询
+            rows = table.findall('./w:tr', self.NAMESPACES)
             if not rows:
                 return (0, 0)
 
             row_count = len(rows)
 
-            # 获取第一行的单元格数来确定列数
-            # 注意：Word表格可能有合并单元格，所以这只是一个近似值
-            first_row = rows[0]
-            cells = first_row.findall('.//w:tc', self.NAMESPACES)
-            col_count = len(cells)
-
-            # 检查是否有grid信息以获取更准确的列数
-            tblGrid = table.find('.//w:tblGrid', self.NAMESPACES)
+            # 使用tblGrid获取列数（更可靠）
+            tblGrid = table.find('./w:tblGrid', self.NAMESPACES)
             if tblGrid is not None:
-                gridCols = tblGrid.findall('.//w:gridCol', self.NAMESPACES)
-                if gridCols and len(gridCols) > col_count:
-                    col_count = len(gridCols)
+                gridCols = tblGrid.findall('./w:gridCol', self.NAMESPACES)
+                if gridCols:
+                    print(f'gridCols count: {len(gridCols)}')
+                    return (row_count, len(gridCols))
 
-            # 检查其他行的单元格数，取最大值
-            for row in rows[1:]:
-                cells = row.findall('.//w:tc', self.NAMESPACES)
-                if len(cells) > col_count:
-                    col_count = len(cells)
+            # 如果没有tblGrid信息，则从第一行单元格计算
+            first_row = rows[0]
+            cells = first_row.findall('./w:tc', self.NAMESPACES)  # 直接子元素
+            col_count = len(cells)
+            print(f'首行单元格数: {col_count}')
 
             return (row_count, col_count)
-
         except Exception as e:
             print(f"获取表格尺寸时出错: {e}")
             return None
@@ -9711,7 +10020,7 @@ class DocxElementParser(DocxFile):
                 if val is not None:
                     fonts[attr] = val
             if fonts:
-                run_props['font'] = fonts
+                run_props['fonts'] = fonts
 
         # 获取字号
         sz = rPr.find(f".//{{{self.NAMESPACES['w']}}}sz")
@@ -9827,47 +10136,40 @@ class DocxElementParser(DocxFile):
             return None
 
     def get_table_cell_paragraphs(self, table_index, row_idx, col_idx):
-        """
-        获取表格中特定单元格内的所有段落元素
-
-        参数:
-            table_index (int): 表格索引
-            row_idx (int): 行索引
-            col_idx (int): 列索引
-
-        返回:
-            list: 单元格中的所有段落元素列表
-            None: 如果单元格不存在
-        """
         try:
+            print(f"获取表格 {table_index} 的第 {row_idx} 行 第 {col_idx} 列的段落")
             # 获取所有表格
             if table_index >= len(self.tables):
+                print(f"表格索引 {table_index} 超出范围，总表格数: {len(self.tables)}")
                 return None
 
             table = self.tables[table_index]['element']
 
             # 获取行元素
             rows = table.findall('.//w:tr', self.NAMESPACES)
+            print(f"找到 {len(rows)} 行")
             if not rows or row_idx >= len(rows):
+                print(f"行索引 {row_idx} 超出范围，总行数: {len(rows)}")
                 return None
 
             row = rows[row_idx]
 
             # 获取单元格元素
             cells = row.findall('.//w:tc', self.NAMESPACES)
+            print(f"第 {row_idx} 行找到 {len(cells)} 个单元格")
             if not cells or col_idx >= len(cells):
+                print(f"列索引 {col_idx} 超出范围，总列数: {len(cells)}")
                 return None
 
             cell = cells[col_idx]
 
             # 获取单元格中的段落元素
             paragraphs = cell.findall('.//w:p', self.NAMESPACES)
+            print(f"找到 {len(paragraphs)} 个段落")
             return paragraphs
-
         except Exception as e:
             print(f"获取表格单元格段落时出错: {e}")
             return None
-
     def get_table_cell_text(self, table_index, row_idx, col_idx):
         """
         获取表格中特定单元格的文本内容
@@ -10412,11 +10714,221 @@ class DocxElementParser(DocxFile):
                 traceback.print_exc()
                 return False
 
+    def get_image_from_pra(self, element):
+        """从段落元素中提取图片及相关信息。
 
+        此函数分析段落元素中的图片(drawing或pict元素)，提取图片的嵌入ID、尺寸、描述信息，
+        以及确定图片与文本的相对位置关系。
+
+        Args:
+            element: XML段落元素，通常是w:p元素
+
+        Returns:
+            dict: 包含图片详细信息的字典，包括:
+                - drawings_count: drawing元素数量
+                - picts_count: pict元素数量
+                - has_text: 是否包含文本
+                - text_content: 段落中的文本内容(截断至100字符)
+                - standalone_image: 图片是否独立存在(无文本)
+                - text_before_image: 文本是否在图片前
+                - text_after_image: 文本是否在图片后
+                - text_surrounds_image: 图片是否被文本包围
+                - image_position: 图片位置描述('standalone','surrounded_by_text',
+                                  'after_text','before_text'或'unknown')
+                - image_descriptions: 图片描述信息列表，包含name和description
+                - embed_ids: 图片嵌入关系ID列表
+                - dimensions: 图片尺寸信息列表，包含原始EMU单位和转换为厘米的尺寸
+                - embed_types: 图片嵌入类型列表('inline', 'anchor'等)
+                - wrap_types: 图片的文本环绕方式列表
+        """
+        # 检查图片与文本的相对位置
+        text_elements = element.findall(f".//{{{self.NAMESPACES['w']}}}t")
+        text_content = "".join([t.text for t in text_elements if t.text]) if text_elements else ""
+
+        # 分析图片位置上下文
+        drawings_positions = []
+        picts_positions = []
+        all_children = list(element.iter())
+        text_before_image = False
+        text_after_image = False
+        standalone_image = len(text_content.strip()) == 0
+
+        # 收集所有 t 元素的位置和 drawing/pict 元素的位置
+        t_positions = []
+        drawing_positions = []
+        pict_positions = []
+
+        for i, child in enumerate(all_children):
+            tag_with_ns = child.tag
+            tag_name = tag_with_ns.split('}')[-1] if '}' in tag_with_ns else tag_with_ns
+
+            if tag_name == 't' and child.text and child.text.strip():
+                t_positions.append(i)
+            elif tag_name == 'drawing':
+                drawing_positions.append(i)
+            elif tag_name == 'pict':
+                pict_positions.append(i)
+
+        # 确定文本和图片的相对位置关系
+        image_positions = drawing_positions + pict_positions
+        if image_positions and t_positions:
+            min_image_pos = min(image_positions)
+            max_image_pos = max(image_positions)
+            min_text_pos = min(t_positions)
+            max_text_pos = max(t_positions)
+
+            text_before_image = min_text_pos < min_image_pos
+            text_after_image = max_text_pos > max_image_pos
+            text_surrounds_image = text_before_image and text_after_image
+        drawings = element.findall(f".//{{{self.NAMESPACES['w']}}}drawing") or []
+        picts = element.findall(f".//{{{self.NAMESPACES['w']}}}pict") or []
+        # 获取图片描述信息
+        image_descriptions = []
+        embed_ids = []
+        image_dimensions = []
+        embed_types = []
+        wrap_types = []
+
+        for drawing in drawings:
+            docPr = drawing.find(f".//wp:docPr", namespaces=self.NAMESPACES)
+            if docPr is not None:
+                name = docPr.get('name', '')
+                desc = docPr.get('descr', '')
+                image_descriptions.append({"name": name, "description": desc})
+
+        for drawing in drawings:
+            # 提取嵌入关系ID
+            blip = drawing.find(f".//a:blip", namespaces=self.NAMESPACES)
+            embed_id = blip.get(f"{{{self.NAMESPACES['r']}}}embed") if blip is not None else None
+
+            # 提取图片尺寸
+            extent = drawing.find(f".//wp:extent", namespaces=self.NAMESPACES)
+            xfrm_ext = drawing.find(f".//a:ext", namespaces=self.NAMESPACES)
+
+            width = None
+            height = None
+
+            # 尝试从extent获取尺寸
+            if extent is not None:
+                width = extent.get('cx')
+                height = extent.get('cy')
+            # 如果没有找到，尝试从xfrm中获取
+            elif xfrm_ext is not None:
+                width = xfrm_ext.get('cx')
+                height = xfrm_ext.get('cy')
+
+            # 将EMU单位转换为厘米（1厘米 = 360000 EMU）
+            if width is not None and height is not None:
+                try:
+                    width_cm = float(width) / 360000
+                    height_cm = float(height) / 360000
+                    dimensions = {'width_emu': width, 'height_emu': height,
+                                  'width_cm': round(width_cm, 2), 'height_cm': round(height_cm, 2)}
+                except (ValueError, TypeError):
+                    dimensions = {'width_emu': width, 'height_emu': height}
+            else:
+                dimensions = None
+
+            # 提取嵌入类型
+            inline_elem = drawing.find(f".//wp:inline", namespaces=self.NAMESPACES)
+            anchor_elem = drawing.find(f".//wp:anchor", namespaces=self.NAMESPACES)
+
+            if inline_elem is not None:
+                embed_type = "inline"
+                wrap_type = "inline"
+            elif anchor_elem is not None:
+                embed_type = "anchor"
+
+                # 提取环绕方式
+                wrap_none = anchor_elem.find(f".//wp:wrapNone", namespaces=self.NAMESPACES)
+                wrap_square = anchor_elem.find(f".//wp:wrapSquare", namespaces=self.NAMESPACES)
+                wrap_tight = anchor_elem.find(f".//wp:wrapTight", namespaces=self.NAMESPACES)
+                wrap_through = anchor_elem.find(f".//wp:wrapThrough", namespaces=self.NAMESPACES)
+                wrap_top_and_bottom = anchor_elem.find(f".//wp:wrapTopAndBottom", namespaces=self.NAMESPACES)
+
+                if wrap_none is not None:
+                    wrap_type = "none"
+                elif wrap_square is not None:
+                    wrap_type = "square"
+                elif wrap_tight is not None:
+                    wrap_type = "tight"
+                elif wrap_through is not None:
+                    wrap_type = "through"
+                elif wrap_top_and_bottom is not None:
+                    wrap_type = "topAndBottom"
+                else:
+                    wrap_type = "unknown"
+
+                # 检查是否在文本前面或后面
+                behind_doc = anchor_elem.get('behindDoc')
+                if behind_doc == '1':
+                    wrap_type += "-behind"
+
+            else:
+                embed_type = "unknown"
+                wrap_type = "unknown"
+
+            embed_ids.append(embed_id)
+            image_dimensions.append(dimensions)
+            embed_types.append(embed_type)
+            wrap_types.append(wrap_type)
+
+        # 处理pict元素中的图片（如果有）
+        for pict in picts:
+            # 提取嵌入关系ID
+            imagedata = pict.find(f".//*[@src]")
+            embed_id = imagedata.get('src') if imagedata is not None else None
+
+            # pict元素的尺寸通常在shape元素中
+            shape = pict.find(f".//v:shape", namespaces=self.NAMESPACES)
+            width = None
+            height = None
+
+            if shape is not None:
+                style = shape.get('style', '')
+                # 尝试从style属性中提取宽度和高度
+                for style_part in style.split(';'):
+                    if 'width:' in style_part:
+                        width = style_part.split('width:')[1].strip()
+                    elif 'height:' in style_part:
+                        height = style_part.split('height:')[1].strip()
+
+            dimensions = {'width': width, 'height': height} if width or height else None
+
+            # pict元素通常是旧版的内嵌图片
+            embed_type = "pict"
+            wrap_type = "inline"  # 默认为内嵌
+
+            embed_ids.append(embed_id)
+            image_dimensions.append(dimensions)
+            embed_types.append(embed_type)
+            wrap_types.append(wrap_type)
+
+        image_info = {
+            'drawings_count': len(drawings),
+            'picts_count': len(picts),
+            'has_text': len(text_content.strip()) > 0,
+            'text_content': text_content[:100] + '...' if len(text_content) > 100 else text_content,
+            'standalone_image': standalone_image,
+            'text_before_image': text_before_image,
+            'text_after_image': text_after_image,
+            'text_surrounds_image': text_before_image and text_after_image if not standalone_image else False,
+            'image_position': 'standalone' if standalone_image else
+            'surrounded_by_text' if text_before_image and text_after_image else
+            'after_text' if text_before_image else
+            'before_text' if text_after_image else 'unknown',
+            'image_descriptions': image_descriptions,
+            'embed_ids': embed_ids,
+            'dimensions': image_dimensions,
+            'embed_types': embed_types,
+            'wrap_types': wrap_types
+        }
+        return image_info
 # 使用方法示例
-if __name__ == "__main__":
-
-        # 创建一个临时文档对象
-        doc = DocxElementParser("1.docx")
-        print( )
+# if __name__ == "__main__":
+#
+#         # 创建一个临时文档对象
+#         doc = DocxElementParser("test.docx")
+#
+#         print(doc.get_image_from_pra(doc.paragraphs[0]['element']) )
 

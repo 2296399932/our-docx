@@ -1172,8 +1172,8 @@ def extract_table_row_styles(doc, table_index):
                 run_style = doc.get_run_style_from_element(run)
 
                 # 提取字体信息
-                if 'font' in run_style:
-                    font = run_style['font']
+                if 'fonts' in run_style:
+                    font = run_style['fonts']
                     if 'eastAsia' in font:
                         result["列名行文本样式"]["font_chinese"] = font['eastAsia']
                     if 'ascii' in font:
@@ -1277,8 +1277,8 @@ def extract_table_row_styles(doc, table_index):
                     run_style = doc.get_run_style_from_element(run)
 
                     # 提取字体信息
-                    if 'font' in run_style:
-                        font = run_style['font']
+                    if 'fonts' in run_style:
+                        font = run_style['fonts']
                         if 'eastAsia' in font:
                             result["数据行文本样式"]["font_chinese"] = font['eastAsia']
                         if 'ascii' in font:

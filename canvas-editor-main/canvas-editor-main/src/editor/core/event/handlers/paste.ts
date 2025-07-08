@@ -17,6 +17,7 @@ import { IOverrideResult } from '../../override/Override'
 import { normalizeLineBreak } from '../../../utils'
 
 export function pasteElement(host: CanvasEvent, elementList: IElement[]) {
+  console.log('pasteElement1', [...elementList])
   const draw = host.getDraw()
   if (
     draw.isReadonly() ||
@@ -32,6 +33,7 @@ export function pasteElement(host: CanvasEvent, elementList: IElement[]) {
   if (~startIndex && !rangeManager.getIsSelectAll()) {
     // 如果是复制到虚拟元素里，则粘贴列表的虚拟元素需扁平化处理，避免产生新的虚拟元素
     const anchorElement = originalElementList[startIndex]
+
     if (anchorElement?.titleId || anchorElement?.listId) {
       let start = 0
       while (start < elementList.length) {
@@ -61,15 +63,23 @@ export function pasteElement(host: CanvasEvent, elementList: IElement[]) {
       editorOptions: draw.getOptions()
     })
   }
-  draw.insertElementList(elementList)
+
+  // 使用专门的粘贴函数，避免添加额外的零宽空格和换行符
+  console.log('pasteElement', [...elementList])
+
+  draw.insertPastedElementList(elementList)
 }
 
 export function pasteHTML(host: CanvasEvent, htmlText: string) {
   const draw = host.getDraw()
+  console.log('draw', draw)
+  console.log('htmlText', htmlText)
   if (draw.isReadonly() || draw.isDisabled()) return
   const elementList = getElementListByHTML(htmlText, {
     innerWidth: draw.getOriginalInnerWidth()
   })
+ console.log('elementList', [...elementList])
+
   pasteElement(host, elementList)
 }
 

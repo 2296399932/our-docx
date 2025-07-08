@@ -55,6 +55,7 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(document_routes.router)
+print(f"已注册路由: {[route.path for route in app.routes]}")
 
 # 创建上传目录
 UPLOAD_DIR = "uploads"

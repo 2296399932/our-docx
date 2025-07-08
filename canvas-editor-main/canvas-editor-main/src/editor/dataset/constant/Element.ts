@@ -15,7 +15,7 @@ export const EDITOR_ELEMENT_STYLE_ATTR: Array<keyof IElement> = [
   'textDecoration'
 ]
 
-export const EDITOR_ROW_ATTR: Array<keyof IElement> = ['rowFlex', 'rowMargin']
+export const EDITOR_ROW_ATTR: Array<keyof IElement> = ['rowFlex', 'rowMargin', 'line', 'lineRule']
 
 export const EDITOR_ELEMENT_COPY_ATTR: Array<keyof IElement> = [
   'type',
@@ -36,6 +36,8 @@ export const EDITOR_ELEMENT_COPY_ATTR: Array<keyof IElement> = [
   'groupIds',
   'rowMargin',
   'indent',
+  'line',
+  'lineRule',
   'textDecoration'
 ]
 
@@ -52,6 +54,8 @@ export const EDITOR_ELEMENT_ZIP_ATTR: Array<keyof IElement> = [
   'rowFlex',
   'rowMargin',
   'indent',
+  'line',
+  'lineRule',
   'dashArray',
   'trList',
   'tableToolDisabled',
@@ -81,7 +85,24 @@ export const EDITOR_ELEMENT_ZIP_ATTR: Array<keyof IElement> = [
   'extension',
   'externalId',
   'areaId',
-  'area'
+  'area',
+  'indent',
+  'line',
+  'lineRule',
+  'rowMargin',
+  'rowFlex',
+  'underline',
+  'strikeout',
+  'highlight',
+  'font',
+  'size',
+  'color',
+  'bold',
+  'italic',
+  'underline',
+  'strikeout',
+  'paragraphId',
+  'titleId'
 ]
 
 export const TABLE_TD_ZIP_ATTR: Array<keyof ITd> = [

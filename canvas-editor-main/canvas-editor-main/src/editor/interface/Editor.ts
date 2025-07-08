@@ -100,6 +100,7 @@ export interface IEditorOption {
   badge?: IBadgeOption
   modeRule?: IModeRule
   defaultIndentWidth?: number // 每一级缩进的宽度，单位px
+  defaultIndent?: number // 默认缩进级别
 }
 
 export interface IEditorResult {
@@ -131,11 +132,12 @@ export type IUpdateOption = Omit<
 
 export interface ISetValueOption {
   isSetCursor?: boolean
+  isCompute?: boolean
+  isSubmitHistory?: boolean
+  isComposeText?: boolean
+  ensureTextWrapped?: boolean  // 确保所有文本元素被包装在段落中
 }
-export const defaultOptions: IEditorOption = {
-  // ...其它默认配置
-  defaultIndentWidth: 32,
-}
+
 export interface IFocusOption {
   rowNo?: number
   range?: IRange

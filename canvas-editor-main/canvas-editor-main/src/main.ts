@@ -41,6 +41,9 @@ import { Dialog } from './components/dialog/Dialog'
 import { formatPrismToken } from './utils/prism'
 import { Signature } from './components/signature/Signature'
 import { debounce, nextTick, scrollIntoView } from './utils'
+import { TableBorder, TdBorder, TdSlash } from './editor/dataset/enum/table/Table'
+import { VerticalAlign } from './editor/dataset/enum/VerticalAlign'
+
 
 window.onload = function () {
   const isApple =
@@ -72,27 +75,25 @@ window.onload = function () {
   const instance = new Editor(
     container,
     {
-      header: [
-
-      ],
+      header: [],
       main: [
         {
           type: ElementType.PARAGRAPH,
-          value: "",
-          paragraphId: "para-1",
+          value: '',
+          paragraphId: 'pra-1',
           valueList: [
-            { value: "这是一个" },
-            { value: "复杂段落", bold: true },
-            { value: "示例", italic: true },
-            { value: "2", type: "subscript" }
-          ]
-        },
-      {
+            {
+              type: ElementType.TEXT,
+              value: '这是一个段落',
 
-        value: "O",
-        font: "Microsoft YaHei",
-        size: 16
-      }],
+
+
+            },
+          ]
+
+
+        }
+      ],
       footer: [
         {
           value: 'canvas-editor',
@@ -106,8 +107,7 @@ window.onload = function () {
   // cypress使用
   Reflect.set(window, 'editor', instance)
 
-  // 修复所有缩进值
-  instance.command.fixAllIndentValues();
+
 
   // 菜单弹窗销毁
   window.addEventListener(
@@ -154,7 +154,7 @@ window.onload = function () {
       switch (unit) {
         case 'pt': return value;
         case 'cm': return value * 28.35; // 1厘米约等于28.35磅
-        case 'ch': return value * 8; // 假设一个字符约为8磅
+        case 'ch': return value *  3.5; // 假设一个字符约为16磅
         default: return value;
       }
     }
@@ -164,7 +164,7 @@ window.onload = function () {
       switch (unit) {
         case 'pt': return value;
         case 'cm': return value / 28.35;
-        case 'ch': return value / 8;
+        case 'ch': return value / 3.5;
         default: return value;
       }
     }
@@ -187,78 +187,15 @@ window.onload = function () {
       const unit = indentUnitSelect.value;
       const ptValue = toPt(value, unit);
 
-      console.log('应用缩进值:', { value, unit, ptValue });
 
-      // 获取选中段落元素
-      const elementList = instance.command.getRangeParagraph();
-      if (elementList && elementList.length > 0) {
-        console.log('选中的段落元素:', JSON.stringify(elementList));
 
-        // 直接使用command.indent和outdent方法更可靠
-        // 先将缩进值重置为0
-        let currentElements = elementList || [];
-        let currentIndentValue = currentElements.length > 0 ? (currentElements[0].indent || 0) : 0;
+      // 直接使用新添加的setIndentValue方法设置缩进值
+      instance.command.executeSetIndentValue(ptValue);
 
-        console.log('当前缩进值:', currentIndentValue);
 
-        // 减少缩进直到为0
-        let decreaseCount = 0;
-        const maxIterations = 100; // 最大迭代次数，防止无限循环
-        while (currentIndentValue > 0 && decreaseCount < maxIterations) {
-          instance.command.executeOutdent();
-          decreaseCount++;
-          // 重新获取当前缩进值
-          const updatedElements = instance.command.getRangeParagraph();
-          currentElements = updatedElements || [];
-          if (currentElements.length === 0) break;
-          currentIndentValue = currentElements[0].indent || 0;
-          console.log('减少缩进后的值:', currentIndentValue);
-        }
 
-        if (decreaseCount >= maxIterations) {
-          console.warn('达到最大迭代次数限制，可能存在无限循环');
-        }
-
-        // 然后增加到所需的缩进值
-        let targetIndent = Math.max(0, Math.min(ptValue, 100)); // 限制在0-100之间
-        currentElements = instance.command.getRangeParagraph() || [];
-        currentIndentValue = currentElements.length > 0 ? (currentElements[0].indent || 0) : 0;
-
-        console.log('目标缩进值:', targetIndent, '当前缩进值:', currentIndentValue);
-
-        // 增加缩进直到达到目标值
-        let increaseCount = 0;
-        while (currentIndentValue < targetIndent && increaseCount < maxIterations) {
-          instance.command.executeIndent();
-          increaseCount++;
-          // 重新获取当前缩进值
-          const updatedElements = instance.command.getRangeParagraph();
-          currentElements = updatedElements || [];
-          currentIndentValue = currentElements.length > 0 ? (currentElements[0].indent || 0) : 0;
-          console.log('增加缩进后的值:', currentIndentValue);
-
-          // 安全检查，避免无限循环
-          if (currentIndentValue >= 100) break;
-        }
-
-        if (increaseCount >= maxIterations) {
-          console.warn('达到最大迭代次数限制，可能存在无限循环');
-        }
-
-        // 强制更新渲染
-        instance.command.executeForceUpdate({
-          isSubmitHistory: true
-        });
-
-        // 调试输出
-        console.log('缩进应用后的元素:', JSON.stringify(instance.command.getRangeParagraph()));
-        console.log('当前文档值:', JSON.stringify(instance.command.getValue().data.main));
-
-        // 使用我们添加的调试函数
-        window.debugIndent();
-      } else {
-        console.log('未选中段落元素');
-      }
+      // 使用我们添加的调试函数
+      window.debugIndent && window.debugIndent();
 
       indentOptionDom.classList.remove('visible');
     }
@@ -1445,6 +1382,7 @@ window.onload = function () {
   uploadDom.onclick = function () {
     uploadFileDom.click()
   }
+
   uploadFileDom.onchange = function () {
     const file = uploadFileDom.files![0]
     if (!file) return
@@ -1476,6 +1414,7 @@ window.onload = function () {
       // 检查返回数据结构
       if (data && data.analysis && data.analysis.content) {
         try {
+
           // 将返回的文档内容设置到编辑器
           // 构造编辑器需要的数据格式
           const editorData = {
@@ -1491,8 +1430,10 @@ window.onload = function () {
 
           // 使用executeSetValue方法设置编辑器内容
           if (typeof instance.command.executeSetValue === 'function') {
+              console.log('传递给executeSetValue的数据:', JSON.stringify(editorData));
             instance.command.executeSetValue(editorData)
             console.log('文档内容已加载到编辑器')
+
           } else {
             throw new Error('编辑器不支持executeSetValue方法，请检查API版本')
           }
@@ -1511,6 +1452,28 @@ window.onload = function () {
       alert('处理上传文件失败: ' + (error.message || '未知错误'))
     })
     .finally(() => {
+      // 修复第一行段落缩进
+      console.log('尝试修复第一行段落缩进...');
+      setTimeout(() => {
+        try {
+          // 获取元素列表
+          const data = instance.command.getValue();
+          if (data && data.data && data.data.main && data.data.main.length > 0) {
+            // 找到第一个段落
+            const firstParagraph = data.data.main.find(el => el.type === 'paragraph'|| el.type === 'title');
+            if (firstParagraph && typeof firstParagraph.indent === 'number') {
+              // 手动设置一次缩进，强制重新渲染
+              const currentIndent = firstParagraph.indent;
+              console.log('当前第一行缩进:', currentIndent)
+              instance.command.executeSetFirstParagraphIndent(currentIndent);
+              console.log('第一行段落缩进已修复');
+            }
+          }
+        } catch (error) {
+          console.error('修复缩进时出错:', error);
+        }
+      }, 200);
+
       // 移除加载提示
       document.body.removeChild(loadingMessage)
       // 清空上传控件的值，以便可以重复上传相同文件
@@ -2285,16 +2248,7 @@ window.onload = function () {
         })
       }
     },
-    {
-      name: '格式整理',
-      icon: 'word-tool',
-      when: payload => {
-        return !payload.isReadonly
-      },
-      callback: (command: Command) => {
-        command.executeWordTool()
-      }
-    }
+
   ])
 
   // 10. 快捷键注册

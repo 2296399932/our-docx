@@ -5,12 +5,15 @@ import {
   EDITOR_ROW_ATTR
 } from '../../../../dataset/constant/Element'
 import { ControlComponent } from '../../../../dataset/enum/Control'
+import { ElementType } from '../../../../dataset/enum/Element'
 import { IElement } from '../../../../interface/Element'
 import { omitObject } from '../../../../utils'
 import { formatElementContext } from '../../../../utils/element'
 import { CanvasEvent } from '../../CanvasEvent'
+import {  getUUID } from '../../../../utils'
 
 export function enter(evt: KeyboardEvent, host: CanvasEvent) {
+  console.log('enter键被按下');
   const draw = host.getDraw()
   if (draw.isReadonly()) return
   const rangeManager = draw.getRange()
@@ -30,18 +33,31 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
     draw.getListParticle().unsetList()
     return
   }
-  // 列表块内换行
+
+  // 创建新段落元素
   let enterText: IElement = {
-    value: ZERO
+    value: ZERO,
+    type: ElementType.PARAGRAPH,  // 设置为段落类型
+    paragraphId: getUUID(),       // 生成唯一ID
+    indent: draw.getOptions().defaultIndent || 0,  // 设置默认缩进
+    valueList: []  // 初始化空的值列表
   }
+  
+  // 添加标记，表示这是通过Enter键创建的新段落
+  ;(enterText as any).__isNewParagraph = true
+  console.log('创建新段落元素', enterText);
+
+  // 列表块内换行
   if (evt.shiftKey && startElement.listId) {
     enterText.listWrap = true
   }
+
   // 格式化上下文
   formatElementContext(elementList, [enterText], startIndex, {
     isBreakWhenWrap: true,
     editorOptions: draw.getOptions()
   })
+
   // shift长按 && 最后位置回车无需复制区域上下文
   if (
     evt.shiftKey &&
@@ -50,6 +66,7 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
   ) {
     enterText = omitObject(enterText, AREA_CONTEXT_ATTR)
   }
+
   // 标题结尾处回车无需格式化及样式复制
   if (
     !(
@@ -73,21 +90,51 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
       })
     }
   }
+
   // 控件或文档插入换行元素
   const control = draw.getControl()
   const activeControl = control.getActiveControl()
   let curIndex: number
+
   if (activeControl && control.getIsRangeWithinControl()) {
     curIndex = control.setValue([enterText])
     control.emitControlContentChange()
+    console.log('在控件中插入新段落');
   } else {
     const position = draw.getPosition()
     const cursorPosition = position.getCursorPosition()
     if (!cursorPosition) return
     const { index } = cursorPosition
+
     if (isCollapsed) {
+      console.log('在位置插入新段落', index + 1);
       draw.spliceElementList(elementList, index + 1, 0, [enterText])
+
+      // 新增代码：更新后面文本的paragraphId
+      const newParagraphId = enterText.paragraphId;
+      console.log('新段落ID:', newParagraphId);
+
+      // 遍历修改段落ID，直到遇到下一个段落标记或文档结束
+      for (let i = index + 2; i < elementList.length; i++) {
+        const element = elementList[i];
+
+        // 如果遇到新的段落标记或零宽字符，停止修改
+        if (element.type === ElementType.PARAGRAPH ||
+            (element.value === ZERO && element.type)) {
+          console.log('遇到下一个段落标记，停止修改ID', i);
+          break;
+        }
+
+        // 保存旧ID用于日志
+        const oldId = element.paragraphId;
+
+        // 更新段落ID
+        element.paragraphId = newParagraphId;
+        console.log(`将元素 ${i} 的ID从 ${oldId} 改为 ${newParagraphId}`);
+
+      }
     } else {
+      console.log('替换选中内容并插入新段落', startIndex + 1);
       draw.spliceElementList(
         elementList,
         startIndex + 1,
@@ -95,11 +142,36 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
         [enterText]
       )
     }
+     console.log('修改后的元素', elementList)
     curIndex = index + 1
   }
+
   if (~curIndex) {
     rangeManager.setRange(curIndex, curIndex)
+    console.log('设置光标位置并渲染', curIndex);
     draw.render({ curIndex })
+
+    if (~curIndex && !isCollapsed) {
+      // 只在光标在段落中间的情况下需要处理
+      const newParagraphId = enterText.paragraphId;
+
+      // 更新光标位置后的所有元素，直到遇到下一个段落标记
+      for (let i = curIndex + 1; i < elementList.length; i++) {
+        const element = elementList[i];
+
+        // 如果遇到新的段落标记，停止更新
+        if (element.type === ElementType.PARAGRAPH ||
+            (element.value === ZERO && i !== curIndex)) {
+          break;
+        }
+
+        // 更新段落ID
+        element.paragraphId = newParagraphId;
+      }
+
+      console.log('更新后面文本的段落ID为:', newParagraphId);
+    }
   }
+
   evt.preventDefault()
 }

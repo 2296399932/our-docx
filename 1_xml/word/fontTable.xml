@@ -116,4 +116,11 @@
     <w:pitch w:val="default"/>
     <w:sig w:usb0="E4002EFF" w:usb1="C000E47F" w:usb2="00000009" w:usb3="00000000" w:csb0="200001FF" w:csb1="00000000"/>
   </w:font>
+  <w:font w:name="Tahoma">
+    <w:panose1 w:val="020B0604030504040204"/>
+    <w:charset w:val="00"/>
+    <w:family w:val="auto"/>
+    <w:pitch w:val="default"/>
+    <w:sig w:usb0="E1002EFF" w:usb1="C000605B" w:usb2="00000029" w:usb3="00000000" w:csb0="200101FF" w:csb1="20280000"/>
+  </w:font>
 </w:fonts>

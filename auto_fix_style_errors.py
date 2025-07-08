@@ -419,14 +419,14 @@ def extract_style_properties(result, element_type):
                             style_props['spacing'] = {}
                         style_props['spacing']['lineRule'] = correct_value
                     elif attr == 'font_chinese':
-                        if 'font' not in style_props:
-                            style_props['font'] = {}
-                        style_props['font']['eastAsia'] = correct_value
+                        if 'fonts' not in style_props:
+                            style_props['fonts'] = {}
+                        style_props['fonts']['eastAsia'] = correct_value
                     elif attr == 'font_ascii':
-                        if 'font' not in style_props:
-                            style_props['font'] = {}
-                        style_props['font']['ascii'] = correct_value
-                        style_props['font']['hAnsi'] = correct_value
+                        if 'fonts' not in style_props:
+                            style_props['fonts'] = {}
+                        style_props['fonts']['ascii'] = correct_value
+                        style_props['fonts']['hAnsi'] = correct_value
                     elif attr == 'size':
                         # 确保size为整数
                         try:
@@ -442,14 +442,14 @@ def extract_style_properties(result, element_type):
 
                 elif element_type == 'run':
                     if attr == 'font_chinese':
-                        if 'font' not in style_props:
-                            style_props['font'] = {}
-                        style_props['font']['eastAsia'] = correct_value
+                        if 'fonts' not in style_props:
+                            style_props['fonts'] = {}
+                        style_props['fonts']['eastAsia'] = correct_value
                     elif attr == 'font_ascii':
-                        if 'font' not in style_props:
-                            style_props['font'] = {}
-                        style_props['font']['ascii'] = correct_value
-                        style_props['font']['hAnsi'] = correct_value
+                        if 'fonts' not in style_props:
+                            style_props['fonts'] = {}
+                        style_props['fonts']['ascii'] = correct_value
+                        style_props['fonts']['hAnsi'] = correct_value
                     elif attr == 'size':
                         # 确保size为整数
                         try:

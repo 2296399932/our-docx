@@ -39,7 +39,7 @@
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="toc 9"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="Normal Indent"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="footnote text"/>
-    <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="annotation text"/>
+    <w:lsdException w:qFormat="1" w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="annotation text"/>
     <w:lsdException w:qFormat="1" w:unhideWhenUsed="0" w:uiPriority="99" w:semiHidden="0" w:name="header"/>
     <w:lsdException w:qFormat="1" w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="footer"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="index heading"/>
@@ -74,7 +74,7 @@
     <w:lsdException w:qFormat="1" w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="Title"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="Closing"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="Signature"/>
-    <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:name="Default Paragraph Font"/>
+    <w:lsdException w:qFormat="1" w:unhideWhenUsed="0" w:uiPriority="0" w:name="Default Paragraph Font"/>
     <w:lsdException w:qFormat="1" w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="Body Text"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="Body Text Indent"/>
     <w:lsdException w:unhideWhenUsed="0" w:uiPriority="0" w:semiHidden="0" w:name="List Continue"/>
@@ -341,6 +341,7 @@
   <w:style w:type="character" w:default="1" w:styleId="16">
     <w:name w:val="Default Paragraph Font"/>
     <w:semiHidden/>
+    <w:qFormat/>
     <w:uiPriority w:val="0"/>
   </w:style>
   <w:style w:type="table" w:default="1" w:styleId="15">
@@ -371,6 +372,7 @@
   <w:style w:type="paragraph" w:styleId="6">
     <w:name w:val="annotation text"/>
     <w:basedOn w:val="1"/>
+    <w:qFormat/>
     <w:uiPriority w:val="0"/>
     <w:pPr>
       <w:jc w:val="left"/>

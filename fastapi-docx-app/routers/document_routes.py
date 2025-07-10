@@ -78,25 +78,28 @@ async def export_document(request_data: Dict[str, Any]):
     """导出文档为DOCX格式"""
     logger = logging.getLogger(__name__)
     logger.info("接收到导出文档请求")
-    
+
     try:
         content = request_data.get("content")
         options = request_data.get("options", {})
         format_type = options.get("format", "docx")
         file_name = options.get("fileName", f"document-export-{datetime.now().strftime('%Y%m%d%H%M%S')}.{format_type}")
-        
+
         if not content:
             raise HTTPException(status_code=400, detail="文档内容不能为空")
-        
+
         logger.info(f"开始导出文档，格式: {format_type}")
-        
+
         # 调用DocumentService导出文档
         output_path = await DocumentService.export_document(
             content=content,
             format_type=format_type,
+            original_file_path=request_data.get("original_file_path"),  # 添加这个参数
             output_dir=OUTPUT_DIR
         )
+
         
+
         # 获取文件名并设置正确的扩展名
         actual_ext = os.path.splitext(output_path)[1].lstrip('.')
         download_filename = file_name.replace(f".{format_type}", f".{actual_ext}")

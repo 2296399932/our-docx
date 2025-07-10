@@ -110,7 +110,6 @@ class ImageModel(BaseModel):
     """图片模型"""
     id: Optional[str] = Field(None, description="图片ID")
     type : Optional[str] = Field(None, description="类型")
-    description: Optional[str] = Field(None, description="图片描述")
     width: Optional[float] = Field(None, description="宽度(厘米)")
     height: Optional[float] = Field(None, description="高度(厘米)")
     value: Optional[str] = Field(None, description="图片Base64编码数据URI")

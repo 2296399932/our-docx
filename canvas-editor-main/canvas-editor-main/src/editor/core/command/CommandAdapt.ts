@@ -94,6 +94,7 @@ import {
 } from '../../utils'
 import {
     createDomFromElementList,
+    ensureTextInParagraph,
     formatElementContext,
     formatElementList,
     isTextLikeElement,
@@ -2258,7 +2259,12 @@ export class CommandAdapt {
         if (!header && !main && !footer) return
         const {isSetCursor = false,} = options || {}
 
-        const pageComponentData = [header, main, footer]
+        // 先确保所有文本元素都在段落中，并保留空段落
+        const processedHeader = header ? ensureTextInParagraph(header) : undefined;
+        const processedMain = main ? ensureTextInParagraph(main) : undefined;
+        const processedFooter = footer ? ensureTextInParagraph(footer) : undefined;
+
+        const pageComponentData = [processedHeader, processedMain, processedFooter]
 
         pageComponentData.forEach(data => {
             if (!data) return
@@ -2273,9 +2279,9 @@ export class CommandAdapt {
         // 在调用setEditorData前打印最终数据
 
         this.draw.setEditorData({
-            header,
-            main,
-            footer
+            header: processedHeader,
+            main: processedMain,
+            footer: processedFooter
         })
 
         // 渲染&计算&清空历史记录
@@ -2308,11 +2314,15 @@ export class CommandAdapt {
             const paragraphElements = allElementList.filter(el => el.paragraphId === paragraphId);
             if (paragraphElements.length > 0) {
                 const paragraphMarker = paragraphElements[0];
-                paragraphMarker.indent = paragraphElements[1].indent;
-                const indentValue = paragraphElements[1] && typeof paragraphElements[1].indent === 'number'
-                ? paragraphElements[1].indent
-                : 0;
-                if (paragraphElements.length > 1) {
+                
+                // 添加判断，确保paragraphElements[1]存在
+                if (paragraphElements.length > 1 && paragraphElements[1]) {
+                    paragraphMarker.indent = paragraphElements[1].indent;
+                    
+                    const indentValue = typeof paragraphElements[1].indent === 'number'
+                        ? paragraphElements[1].indent
+                        : 0;
+                        
                     const secondElement = paragraphElements[0];
                     const isSpaceElement = secondElement && /^\s+$/.test(secondElement.value);
                     console.log(`检查第一个元素是否是空格元素: ${secondElement.value}`);
@@ -2333,11 +2343,10 @@ export class CommandAdapt {
                             const newSpaceElement: IElement = {
                                 type: ElementType.TEXT,
                                 value: spaceString,
-                                paragraphId: paragraphIdString,
+                                paragraphId: paragraphIdString
                                 // 复制样式属性
                                 // style: contentElement.style,
                                 // metrics: { ...contentElement.metrics },
-                                left: 0
                             };
 
                             // 复制段落标记的对齐方式和其他属性
@@ -2380,10 +2389,8 @@ export class CommandAdapt {
                             allElementList.splice(spaceIndex, 1);
                         }
                     }
-
-
-                }
-            }
+                } // 关闭if (paragraphElements.length > 1 && paragraphElements[1])
+            } // 关闭if (paragraphElements.length > 0)
         }
         this.draw.render({
             curIndex,

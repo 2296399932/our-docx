@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import uuid
 from fastapi import UploadFile, HTTPException
 from models.document_models import DocumentResponse, ParagraphModel, RunModel, TableModel, ImageModel, DocElement, DocumentModel, TableCellModel, TableRowModel, Border, VerticalAlign
@@ -9,9 +9,18 @@ import logging
 from datetime import datetime
 import traceback
 import base64
+import shutil
 
 # 配置日志
 logger = logging.getLogger(__name__)
+
+# API服务器基础URL配置
+# 可以根据环境变量或配置文件进行设置
+API_BASE_URL = "http://localhost:8000"  # 默认值
+
+# 图片服务器域名配置
+# 如果图片需要通过不同的域名访问，可以单独配置
+IMAGE_SERVER_URL = None  # 默认与API_BASE_URL相同
 
 # 添加中文字号到Canvas-Editor字号的映射表
 # 映射关系基于Word中字号（磅值的2倍）到Canvas-Editor要求的数值
@@ -57,6 +66,37 @@ FONT_NAME_MAPPING = {
 
 class DocumentService:
     """文档处理服务"""
+
+    @staticmethod
+    def set_api_base_url(base_url: str):
+        """设置API基础URL
+        
+        Args:
+            base_url: API服务器的基础URL
+        """
+        global API_BASE_URL
+        API_BASE_URL = base_url
+        logger.info(f"API基础URL已设置为: {API_BASE_URL}")
+    
+    @staticmethod
+    def set_image_server_url(image_url: str):
+        """设置图片服务器URL
+        
+        Args:
+            image_url: 图片服务器的URL
+        """
+        global IMAGE_SERVER_URL
+        IMAGE_SERVER_URL = image_url
+        logger.info(f"图片服务器URL已设置为: {IMAGE_SERVER_URL}")
+
+    @staticmethod
+    def get_image_base_url():
+        """获取用于图片的基础URL
+        
+        Returns:
+            str: 图片服务器基础URL
+        """
+        return IMAGE_SERVER_URL if IMAGE_SERVER_URL else API_BASE_URL
 
     @staticmethod
     async def save_uploaded_file(file_content: bytes, filename: str, upload_dir: str = "uploads") -> DocumentResponse:
@@ -135,6 +175,43 @@ class DocumentService:
                 return None
 
     @staticmethod
+    def save_image_to_file(image_data: bytes, file_extension: str = '.png', images_dir: str = "static/images") -> Tuple[str, str]:
+        """将图片数据保存到文件并返回URL路径
+
+        Args:
+            image_data: 图片二进制数据
+            file_extension: 图片文件扩展名
+            images_dir: 图片保存目录
+
+        Returns:
+            Tuple[str, str]: URL路径和文件系统路径
+        """
+        try:
+            # 确保图片目录存在
+            os.makedirs(images_dir, exist_ok=True)
+            
+            # 生成唯一文件名
+            image_filename = f"{uuid.uuid4()}{file_extension}"
+            image_path = os.path.join(images_dir, image_filename)
+            
+            # 保存图片文件
+            with open(image_path, 'wb') as f:
+                f.write(image_data)
+            
+            # 构建完整URL路径，包含图片服务器地址
+            image_base_url = DocumentService.get_image_base_url()
+            url_path = f"{image_base_url}/images/{image_filename}"
+            
+            logger.info(f"图片已保存到: {image_path}, URL: {url_path}")
+            return url_path, image_path
+        except Exception as e:
+            logger.error(f"保存图片失败: {str(e)}", exc_info=True)
+            print(f"ERROR: 保存图片失败: {str(e)}")
+            print(f"ERROR: 错误详情:\n{traceback.format_exc()}")
+            return "", ""
+
+
+    @staticmethod
     async def process_document(file_path: str) -> Dict[str, Any]:
         """处理Word文档并提取内容"""
         try:
@@ -189,6 +266,10 @@ class DocumentService:
             logger.info(f"文档总计 {len(document.elements)} 个元素")
             # 上传文档预存的数据标记对应于element的index属性，所以我们需要根据index来获取对应的元素信息
             result_json=[]
+            # 创建图片保存目录
+            images_dir = os.path.join("static", "images")
+            os.makedirs(images_dir, exist_ok=True)
+            
             for elem_info in document.elements:
                 element_count += 1
                 element_type = elem_info.get('type')
@@ -227,39 +308,27 @@ class DocumentService:
                                     # 生成图片文件名
                                     file_extension = os.path.splitext(original_filename)[1] or '.png'
 
-
                                     # 获取图片数据和保存图片
                                     if embed_id:
+                                        # 获取图片元组(图片名称, 图片二进制数据)
+                                        image_result = document.get_image_by_relation_id(embed_id)
+                                        if image_result and isinstance(image_result, tuple) and len(
+                                                image_result) == 2:
+                                            image_name, image_data = image_result
 
-
-                                            # 获取图片元组(图片名称, 图片二进制数据)
-                                            image_result = document.get_image_by_relation_id(embed_id)
-                                            if image_result and isinstance(image_result, tuple) and len(
-                                                    image_result) == 2:
-                                                image_name, image_data = image_result
-
-                                                if image_data and isinstance(image_data, bytes):
-                                                    mime_type = "image/jpeg"  # 默认MIME类型
-                                                    if file_extension.lower() in ['.png']:
-                                                        mime_type = "image/png"
-                                                    elif file_extension.lower() in ['.jpg', '.jpeg']:
-                                                        mime_type = "image/jpeg"
-                                                    elif file_extension.lower() in ['.gif']:
-                                                        mime_type = "image/gif"
-                                                    elif file_extension.lower() in ['.bmp']:
-                                                        mime_type = "image/bmp"
-                                                    elif file_extension.lower() in ['.tiff', '.tif']:
-                                                        mime_type = "image/tiff"
-                                                    elif file_extension.lower() in ['.svg']:
-                                                        mime_type = "image/svg+xml"
-
-                                                    # 编码为Base64
-                                                    encoded_image = base64.b64encode(image_data).decode('utf-8')
-                                                    data_url = f"data:{mime_type};base64,{encoded_image}"
-                                                else:
-                                                    data_url = ""
+                                            if image_data and isinstance(image_data, bytes):
+                                                # 保存图片到文件并获取URL
+                                                img_url, img_path = DocumentService.save_image_to_file(
+                                                    image_data, 
+                                                    file_extension, 
+                                                    images_dir
+                                                )
+                                                # 如果保存失败，则使用空字符串
+                                                data_url = img_url if img_url else ""
                                             else:
                                                 data_url = ""
+                                        else:
+                                            data_url = ""
 
                                     # 获取环绕方式
                                     img_display_map = {
@@ -314,7 +383,7 @@ class DocumentService:
                                     image_model = ImageModel(
                                         id=f"img-{image_info['embed_ids'][0]}-{image_count}",
 
-                                        description=description,
+
                                         width=width*px_ch_width,
                                         height=height* px_ch_width,
                                         value= data_url,
@@ -336,7 +405,7 @@ class DocumentService:
                                         id=f"img-{image_info['embed_ids'][0]}-error",
                                         file_name="error.png",
                                         type="image",
-                                        description=f"图片处理失败: {str(e)}",
+
                                         value=""
                                     ))
 
@@ -511,6 +580,11 @@ class DocumentService:
                                         embed_id = embed_ids[0] if embed_ids else None
                                         width = image_dimensions.get('width')
                                         height = image_dimensions.get('height')
+                                        
+                                        # 清理宽度和高度值
+                                        width = DocumentService._clean_dimension_value(width)
+                                        height = DocumentService._clean_dimension_value(height)
+                                        
                                         description = image_descriptions[0].get('description',
                                                                                 '') if image_descriptions else ''
                                         original_filename = image_descriptions[0].get('name',
@@ -531,23 +605,14 @@ class DocumentService:
                                                     image_name, image_data = image_result
 
                                                     if image_data and isinstance(image_data, bytes):
-                                                        mime_type = "image/jpeg"  # 默认MIME类型
-                                                        if file_extension.lower() in ['.png']:
-                                                            mime_type = "image/png"
-                                                        elif file_extension.lower() in ['.jpg', '.jpeg']:
-                                                            mime_type = "image/jpeg"
-                                                        elif file_extension.lower() in ['.gif']:
-                                                            mime_type = "image/gif"
-                                                        elif file_extension.lower() in ['.bmp']:
-                                                            mime_type = "image/bmp"
-                                                        elif file_extension.lower() in ['.tiff', '.tif']:
-                                                            mime_type = "image/tiff"
-                                                        elif file_extension.lower() in ['.svg']:
-                                                            mime_type = "image/svg+xml"
-
-                                                        # 编码为Base64
-                                                        encoded_image = base64.b64encode(image_data).decode('utf-8')
-                                                        data_url = f"data:{mime_type};base64,{encoded_image}"
+                                                        # 保存图片到文件并获取URL
+                                                        img_url, img_path = DocumentService.save_image_to_file(
+                                                            image_data, 
+                                                            file_extension, 
+                                                            images_dir
+                                                        )
+                                                        # 如果保存失败，则使用空字符串
+                                                        data_url = img_url if img_url else ""
                                                     else:
                                                         data_url = ""
                                                 else:
@@ -569,7 +634,7 @@ class DocumentService:
                                         image_model = ImageModel(
                                             id=f"img-{image_info['embed_ids'][0]}-{image_count}",
                                             type="image",
-                                            description=description,
+
                                             width=width * px_ch_width,
                                             height=height* px_ch_width,
                                             value=data_url,
@@ -603,7 +668,7 @@ class DocumentService:
                                             id=f"img-{image_info['embed_ids'][0]}-error",
                                             file_name="error.png",
                                             type="image",
-                                            description=f"图片处理失败: {str(e)}",
+
                                             value=""
                                         ))
                         else:
@@ -1154,7 +1219,8 @@ class DocumentService:
             raise HTTPException(status_code=500, detail=f"文档处理失败: {str(e)}")
 
     @staticmethod
-    async def export_document(content: Dict[str, Any], format_type: str = "docx", output_dir: str = "output") -> str:
+    async def export_document(content: Dict[str, Any], format_type: str = "docx", original_file_path: str = None,
+                              output_dir: str = "output") -> str:
         """导出文档内容到指定格式
 
         Args:
@@ -1173,18 +1239,26 @@ class DocumentService:
             
             # 生成唯一文件名
             file_id = uuid.uuid4()
-            
-            if format_type.lower() == "docx":
-                # TODO: 实现docx格式导出
-                # 目前先保存为JSON，后续可以实现转换为DOCX的功能
-                output_path = os.path.join(output_dir, f"{file_id}.json")
-                
-                # 转换为可序列化的字典
-                serializable_content = DocumentService._convert_models_to_dict(content)
-                with open(output_path, 'w', encoding='utf-8') as f:
+
+            if format_type.lower() == "docx" and original_file_path:
+                # 比较并标记差异
+                main_content = content.get('main', [])
+                marked_content = compare_and_merge_json_for_export(main_content, original_file_path)
+
+
+
+                # TODO: 根据标记内容修改原始DOCX文档
+                # 这里需要使用python-docx等库实现DOCX修改
+                output_path = os.path.join(output_dir, f"{file_id}.docx")
+
+                # 暂时仍然导出JSON以便调试
+                debug_path = os.path.join(output_dir, f"{file_id}_marked.json")
+                with open(debug_path, 'w', encoding='utf-8') as f:
+                    serializable_content = DocumentService._convert_models_to_dict(content)
                     json.dump(serializable_content, f, ensure_ascii=False, indent=4)
-                    
-                logger.info(f"文档导出成功: {output_path}")
+
+                # 实际处理DOCX的代码...
+
                 return output_path
             else:
                 # 其他格式导出为JSON
@@ -1202,3 +1276,233 @@ class DocumentService:
             print(f"ERROR: 导出文档失败: {str(e)}")
             print(f"ERROR: 错误详情:\n{traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"导出文档失败: {str(e)}")
+
+
+def compare_and_merge_json_for_export(edited_content, original_file_path):
+    """比较修改后的内容与原始JSON，并标记差异以便导出到DOCX
+
+    Args:
+        edited_content: 修改后的内容(main数组中的元素)
+        original_file_path: 原始文件路径，用于获取index_mapping和原始JSON
+
+    Returns:
+        包含差异标记的内容列表
+    """
+    # 1. 加载原始JSON文件
+    original_json_path = f"{original_file_path[:-5]}.json"
+    with open(original_json_path, 'r', encoding='utf-8') as f:
+        original_content = json.load(f)
+
+    # 2. 加载索引映射文件
+    index_mapping_path = f"{original_file_path[:-5]}_index_mapping.json"
+    with open(index_mapping_path, 'r', encoding='utf-8') as f:
+        index_mapping = json.load(f)
+
+    # 3. 创建ID到索引的映射字典，考虑多种ID字段名
+    id_to_index = {}
+    for item in index_mapping:
+        # 检查各种可能的ID字段
+        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        if item_id and 'index' in item:
+            id_to_index[item_id] = item['index']
+
+    # 4. 创建原始内容ID到元素的映射字典
+    original_id_map = {}
+    for item in original_content:
+        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        if item_id:
+            original_id_map[item_id] = item
+
+    # 5. 创建编辑内容ID到元素的映射字典
+    edited_id_map = {}
+    for item in edited_content:
+        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        if item_id:
+            edited_id_map[item_id] = item
+
+    # 6. 标记差异
+    result = []
+    
+    # 处理编辑后内容中的元素（新增和修改）
+    for item in edited_content:
+        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        # 跳过没有ID的元素
+        if not item_id:
+            continue
+
+        # 检查元素是否在原始内容中
+        if item_id in original_id_map:
+            # ID存在，检查内容是否相同
+            original_item = original_id_map[item_id]
+            if not deep_compare_elements(item, original_item):
+                # 内容不同，标记为修改
+                item['__diff_status'] = 'modified'
+                item['__original_index'] = id_to_index.get(item_id)
+        else:
+            # ID不存在，标记为新增
+            item['__diff_status'] = 'added'
+            # 尝试找到插入位置
+            item['__original_index'] = find_insertion_index(item, id_to_index, index_mapping)
+
+        result.append(item)
+    
+    # 处理原始内容中存在但编辑后内容中不存在的元素（删除）
+    for item_id, original_item in original_id_map.items():
+        if item_id not in edited_id_map:
+            # 复制原始元素，避免修改原始数据
+            deleted_item = original_item.copy() if isinstance(original_item, dict) else original_item
+            # 标记为删除
+            deleted_item['__diff_status'] = 'deleted'
+            deleted_item['__original_index'] = id_to_index.get(item_id)
+            result.append(deleted_item)
+
+    # 7. 按照原始索引排序
+    result.sort(key=lambda x: x.get('__original_index', 999999))
+
+    return result
+
+
+def deep_compare_elements(elem1, elem2):
+    """深度比较两个元素是否相同，根据元素类型使用不同的比较策略
+    
+    Args:
+        elem1: 第一个元素
+        elem2: 第二个元素
+        
+    Returns:
+        bool: 两个元素是否相同
+    """
+    # 先检查类型是否相同
+    if elem1.get('type') != elem2.get('type'):
+        return False
+        
+    element_type = elem1.get('type')
+    
+    # 根据元素类型选择不同的比较策略
+    if element_type == 'paragraph' or element_type == 'title':
+        return compare_paragraph_elements(elem1, elem2)
+    elif element_type == 'image':
+        return compare_image_elements(elem1, elem2)
+    elif element_type == 'table':
+        return compare_table_elements(elem1, elem2)
+    else:
+        # 对于未知类型，使用通用比较
+        return compare_generic_elements(elem1, elem2)
+
+def compare_paragraph_elements(elem1, elem2):
+    """比较段落元素"""
+    # 比较基本属性
+    basic_fields = ['value', 'rowFlex', 'indent', 'lineRule', 'line', 'rowMargin']
+    for field in basic_fields:
+        if field in elem1 or field in elem2:
+            if elem1.get(field) != elem2.get(field):
+                return False
+    
+    # 比较valueList
+    if 'valueList' in elem1 and 'valueList' in elem2:
+        # 长度不同直接返回False
+        if len(elem1['valueList']) != len(elem2['valueList']):
+            return False
+        
+        # 逐一比较valueList中的元素
+        for i in range(len(elem1['valueList'])):
+            val1 = elem1['valueList'][i]
+            val2 = elem2['valueList'][i]
+            
+            # 比较文本运行的关键属性
+            run_fields = ['value', 'font', 'size', 'bold', 'italic', 'underline', 
+                         'strike', 'color', 'highlight', 'rowFlex', 'indent']
+            for field in run_fields:
+                if val1.get(field) != val2.get(field):
+                    return False
+    
+    return True
+
+def compare_image_elements(elem1, elem2):
+    """比较图片元素"""
+    image_fields = ['value', 'width', 'height', 'imgDisplay', 'rowFlex', 'rowMargin']
+    for field in image_fields:
+        if field in elem1 or field in elem2:
+            if elem1.get(field) != elem2.get(field):
+                return False
+    return True
+
+def compare_table_elements(elem1, elem2):
+    """比较表格元素"""
+    # 比较基本属性
+    table_fields = ['borderType', 'borderColor', 'width']
+    for field in table_fields:
+        if field in elem1 or field in elem2:
+            if elem1.get(field) != elem2.get(field):
+                return False
+    
+    # 比较行数
+    if len(elem1.get('trList', [])) != len(elem2.get('trList', [])):
+        return False
+    
+    # 逐行比较
+    for i in range(len(elem1.get('trList', []))):
+        tr1 = elem1['trList'][i]
+        tr2 = elem2['trList'][i]
+        
+        # 比较单元格数量
+        if len(tr1.get('tdList', [])) != len(tr2.get('tdList', [])):
+            return False
+        
+        # 逐单元格比较
+        for j in range(len(tr1.get('tdList', []))):
+            td1 = tr1['tdList'][j]
+            td2 = tr2['tdList'][j]
+            
+            # 比较单元格属性
+            if td1.get('colspan') != td2.get('colspan') or td1.get('rowspan') != td2.get('rowspan'):
+                return False
+                
+            if td1.get('verticalAlign') != td2.get('verticalAlign'):
+                return False
+                
+            if td1.get('backgroundColor') != td2.get('backgroundColor'):
+                return False
+            
+            # 比较单元格内容 (递归比较)
+            cell_content1 = td1.get('value', [])
+            cell_content2 = td2.get('value', [])
+            
+            if len(cell_content1) != len(cell_content2):
+                return False
+                
+            for k in range(len(cell_content1)):
+                if not deep_compare_elements(cell_content1[k], cell_content2[k]):
+                    return False
+    
+    return True
+
+def compare_generic_elements(elem1, elem2):
+    """通用元素比较逻辑"""
+    # 定义需要比较的关键字段
+    key_fields = ['type', 'value', 'width', 'height', 'rowFlex', 'lineRule', 'indent', 'line']
+
+    for field in key_fields:
+        if field in elem1 or field in elem2:
+            if elem1.get(field) != elem2.get(field):
+                return False
+
+    # 特殊处理valueList等数组类型字段
+    if 'valueList' in elem1 and 'valueList' in elem2:
+        if len(elem1['valueList']) != len(elem2['valueList']):
+            return False
+        for i in range(len(elem1['valueList'])):
+            if not deep_compare_elements(elem1['valueList'][i], elem2['valueList'][i]):
+                return False
+
+    return True
+
+def find_insertion_index(item, id_to_index, index_mapping):
+    """为新元素找到合适的插入位置"""
+    # 这里可以实现更复杂的逻辑，例如根据元素类型、内容等找到合适位置
+    # 简单实现：返回最接近的已有元素索引
+
+    # 默认插入到末尾
+    default_index = max(id_to_index.values()) if id_to_index else 0
+
+    return default_index + 1

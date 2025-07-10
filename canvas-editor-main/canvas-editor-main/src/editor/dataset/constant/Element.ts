@@ -87,8 +87,7 @@ export const EDITOR_ELEMENT_ZIP_ATTR: Array<keyof IElement> = [
   'areaId',
   'area',
   'indent',
-  'line',
-  'lineRule',
+
   'rowMargin',
   'rowFlex',
   'underline',
@@ -102,7 +101,8 @@ export const EDITOR_ELEMENT_ZIP_ATTR: Array<keyof IElement> = [
   'underline',
   'strikeout',
   'paragraphId',
-  'titleId'
+  'titleId',
+  'id'
 ]
 
 export const TABLE_TD_ZIP_ATTR: Array<keyof ITd> = [

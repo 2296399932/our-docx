@@ -582,8 +582,7 @@ class DocumentService:
                                         height = image_dimensions.get('height')
                                         
                                         # 清理宽度和高度值
-                                        width = DocumentService._clean_dimension_value(width)
-                                        height = DocumentService._clean_dimension_value(height)
+
                                         
                                         description = image_descriptions[0].get('description',
                                                                                 '') if image_descriptions else ''
@@ -1245,7 +1244,7 @@ class DocumentService:
                 main_content = content.get('main', [])
                 marked_content = compare_and_merge_json_for_export(main_content, original_file_path)
 
-
+                print(f'marked_content:{marked_content}')
 
                 # TODO: 根据标记内容修改原始DOCX文档
                 # 这里需要使用python-docx等库实现DOCX修改

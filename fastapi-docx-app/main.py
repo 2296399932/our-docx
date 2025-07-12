@@ -58,7 +58,8 @@ ALLOW_ALL_ORIGINS = os.getenv("ALLOW_ALL_ORIGINS", "").lower() in ("true", "1", 
 DEFAULT_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://192.168.0.101:3000"  # 添加访问IP
+    "http://192.168.0.101:3000",  # 添加访问IP
+    "http://192.168.0.100:3000"   # 添加新的访问IP
 ]
 # 允许的前端来源列表，包括默认允许的URLs和环境变量中配置的URLs
 EXTRA_ORIGINS = os.getenv("EXTRA_ALLOWED_ORIGINS", "").split(",") if os.getenv("EXTRA_ALLOWED_ORIGINS") else []

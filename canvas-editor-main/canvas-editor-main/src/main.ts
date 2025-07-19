@@ -1584,9 +1584,13 @@ window.onload = function () {
           const a = document.createElement('a')
           a.href = url
           a.download = filename
+          document.body.appendChild(a) // 将元素添加到DOM中
           a.click()
-          URL.revokeObjectURL(url)
-          console.log(`DOCX文档已下载: ${filename}`)
+          setTimeout(() => {
+            document.body.removeChild(a) // 移除元素
+            URL.revokeObjectURL(url) // 延时释放URL对象
+            console.log(`DOCX文档已下载: ${filename}`)
+          }, 100) // 短暂延时
         })
         .catch(err => {
           const error = err as Error

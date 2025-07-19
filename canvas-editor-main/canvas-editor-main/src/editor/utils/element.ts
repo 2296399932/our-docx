@@ -544,8 +544,8 @@ export function formatElementList(
       // 追加节点
       // 修改：即使valueList为空，也创建段落
       // 获取或创建段落ID
-      const paragraphId = el.paragraphId || getUUID()
-      
+        const paragraphId = el.paragraphId || getUUID()
+    
       if (valueList.length) {
         // 确保段落内的所有元素都有正确的paragraphId
         for (let v = 0; v < valueList.length; v++) {
@@ -727,6 +727,7 @@ export function zipElementList(
         if (element.indent !== undefined) titleElement.indent = element.indent;
         if (element.line !== undefined) titleElement.line = element.line;
         if (element.lineRule !== undefined) titleElement.lineRule = element.lineRule;
+        if (element.rowMargin) titleElement.rowMargin = element.rowMargin;
         const valueList: IElement[] = []
         while (e < elementList.length) {
           const titleE = elementList[e]
@@ -754,6 +755,7 @@ export function zipElementList(
         }
         // 复制段落级样式
         if (element.rowFlex) paragraphElement.rowFlex = element.rowFlex;
+        if (element.rowMargin) paragraphElement.rowMargin = element.rowMargin;
         if (element.indent !== undefined) paragraphElement.indent = element.indent;
         // 复制行距属性
         if (element.line !== undefined) paragraphElement.line = element.line;

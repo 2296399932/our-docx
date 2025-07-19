@@ -13,9 +13,8 @@ Word样式分析器 - 解析和可视化Word文档的样式关系
 
 import os
 import json
-from docx_parser import DocxFile
-from docx_namespace import DocxElementParser
-import xml.etree.ElementTree as ET
+
+from util.docx_namespace import DocxElementParser
 
 
 class StyleAnalyzer(DocxElementParser):

@@ -295,7 +295,7 @@ export class CommandAdapt {
                         // const hasTypeProperty = Object.prototype.hasOwnProperty.call(secondElement, 'type');
                         const isParagraphType =
                             (secondElement.type === 'paragraph' ||
-                                secondElement.type === ElementType.PARAGRAPH);
+                                String(secondElement.type) === String(ElementType.PARAGRAPH));
                         if (!isParagraphType) {  // 检查第一个元素是否是空格元素
                             const isSpaceElement = secondElement && /^\s+$/.test(secondElement.value);
                             console.log(`检查第一个元素是否是空格元素: ${secondElement.value}`);
@@ -318,11 +318,10 @@ export class CommandAdapt {
                                     const newSpaceElement: IElement = {
                                         type: ElementType.TEXT,
                                         value: spaceString,
-                                        paragraphId: paragraphIdString,
+                                        paragraphId: paragraphIdString
                                         // 复制样式属性
                                         // style: contentElement.style,
-                                        // metrics: { ...contentElement.metrics },
-                                        left: 0
+                                        // metrics: { ...contentElement.metrics }}
                                     };
 
                                     // 复制段落标记的对齐方式和其他属性
@@ -2318,6 +2317,17 @@ export class CommandAdapt {
                 // 添加判断，确保paragraphElements[1]存在
                 if (paragraphElements.length > 1 && paragraphElements[1]) {
                     paragraphMarker.indent = paragraphElements[1].indent;
+                    // 复制rowMargin属性
+                    if (paragraphElements[1].rowMargin !== undefined) {
+                        paragraphMarker.rowMargin = paragraphElements[1].rowMargin;
+                    }
+                    // 复制line和lineRule属性
+                    if (paragraphElements[1].line !== undefined) {
+                        paragraphMarker.line = paragraphElements[1].line;
+                    }
+                    if (paragraphElements[1].lineRule) {
+                        paragraphMarker.lineRule = paragraphElements[1].lineRule;
+                    }
                     
                     const indentValue = typeof paragraphElements[1].indent === 'number'
                         ? paragraphElements[1].indent
@@ -2334,24 +2344,42 @@ export class CommandAdapt {
                             // 已有空格元素，调整其值
                             console.log(`修改现有空格元素，设置为 ${spaceCount} 个空格`);
                             secondElement.value = spaceString;
+                            
+                            // 确保空格元素也继承行距属性
+                            if (paragraphMarker.line !== undefined) {
+                                secondElement.line = paragraphMarker.line;
+                            }
+                            if (paragraphMarker.lineRule) {
+                                secondElement.lineRule = paragraphMarker.lineRule;
+                            }
                         } else {
                             // 没有空格元素，创建一个新的
                             console.log(`创建新的空格元素，包含 ${spaceCount} 个空格`);
                             const paragraphIdString = String(paragraphId); // 强制转换为字符串
                             // 创建新的空格元素，复制第一个内容元素的样式
-                            // const contentElement = secondElement || paragraphMarker;
                             const newSpaceElement: IElement = {
                                 type: ElementType.TEXT,
                                 value: spaceString,
-                                paragraphId: paragraphIdString
-                                // 复制样式属性
-                                // style: contentElement.style,
-                                // metrics: { ...contentElement.metrics },
+                                                                        paragraphId: paragraphIdString
+                                        // 复制样式属性
+                                        // style: contentElement.style,
+                                        // metrics: { ...contentElement.metrics }
                             };
 
                             // 复制段落标记的对齐方式和其他属性
                             if (paragraphMarker.rowFlex) {
                                 newSpaceElement.rowFlex = paragraphMarker.rowFlex;
+                            }
+                            
+                            // 复制行距属性
+                            if (paragraphMarker.line !== undefined) {
+                                newSpaceElement.line = paragraphMarker.line;
+                            }
+                            if (paragraphMarker.lineRule) {
+                                newSpaceElement.lineRule = paragraphMarker.lineRule;
+                            }
+                            if (paragraphMarker.rowMargin !== undefined) {
+                                newSpaceElement.rowMargin = paragraphMarker.rowMargin;
                             }
                             
                             // 复制字体样式属性

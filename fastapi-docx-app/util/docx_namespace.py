@@ -4015,6 +4015,84 @@ class DocxElementParser(DocxFile):
 
         return success
 
+    def update_paragrstyle(self, para_index,**style_properties):
+        """更新段落的多个样式属性
+
+        Args:
+            para_index: 段落索引
+            **style_properties: 样式属性字典，可包含以下键：
+                style_id: 样式ID
+                alignment: 对齐方式
+                indentation: 缩进设置字典
+                spacing: 间距设置字典
+                borders: 边框设置字典
+                shading: 背景填充字典 (val, color, fill)
+                numbering: 编号设置字典 (id, level)
+                font: 字体设置字典
+
+        Returns:
+            bool: 是否成功更新所有样式
+        """
+        # 检查索引是否有效
+        if para_index < 0 or para_index >= len(self.paragraphs):
+            print(f"错误：段落索引{para_index}超出范围(0-{len(self.paragraphs)-1})")
+            return False
+
+        success = True
+
+        # 更新样式ID
+        if 'style_id' in style_properties:
+            if not self.set_paragraph_style_id(para_index, style_properties['style_id']):
+                success = False
+
+        # 更新对齐方式
+        if 'alignment' in style_properties:
+            if not self.set_paragraph_alignment(para_index, style_properties['alignment']):
+                success = False
+
+        # 更新缩进
+        if 'indentation' in style_properties and isinstance(style_properties['indentation'], dict):
+            if not self.set_paragraph_indentation(para_index, **style_properties['indentation']):
+                success = False
+
+        # 更新间距
+        if 'spacing' in style_properties and isinstance(style_properties['spacing'], dict):
+            if not self.set_paragraph_spacing(para_index, **style_properties['spacing']):
+                success = False
+
+        # 更新边框
+        if 'borders' in style_properties and isinstance(style_properties['borders'], dict):
+            if not self.set_paragraph_borders(para_index, **style_properties['borders']):
+                success = False
+
+        # 更新背景填充
+        if 'shading' in style_properties and isinstance(style_properties['shading'], dict):
+            shading = style_properties['shading']
+            if not self.set_paragraph_shading(
+                para_index,
+                val=shading.get('val'),
+                color=shading.get('color'),
+                fill=shading.get('fill')
+            ):
+                success = False
+
+        # 更新编号
+        if 'numbering' in style_properties and isinstance(style_properties['numbering'], dict):
+            numbering = style_properties['numbering']
+            if not self.set_paragraph_numbering(
+                para_index,
+                num_id=numbering.get('id'),
+                level=numbering.get('level')
+            ):
+                success = False
+
+        # 更新字体属性
+        if 'fonts' in style_properties and isinstance(style_properties['fonts'], dict):
+            if not self.set_paragraph_font(para_index, **style_properties['fonts']):
+                success = False
+
+        return success
+
     def update_paragraph_style_from_xml(self, para_element, **style_properties):
         """更新段落的多个样式属性
 
@@ -5135,20 +5213,10 @@ class DocxElementParser(DocxFile):
         # 获取段落元素
         paragraph = self.paragraphs[para_index]['element']
 
-        # 查找所有w:r元素
-        r_elements = paragraph.findall("./w:r", self.NAMESPACES)
-
-        if not r_elements:
-            print(f"段落{para_index}中没有找到文本运行")
-            return None
-
-        # 检查文本运行索引是否有效
-        if run_index < 0 or run_index >= len(r_elements):
-            print(f"错误222：文本运行索引{run_index}超出范围(0-{len(r_elements)-1})")
-            return None
+        result = self.get_run_element_from_xml(paragraph, run_index)
 
         # 返回特定的文本运行元素
-        return r_elements[run_index]
+        return result
     def _get_run_element(self, para_index, run_index):
         """获取特定段落中的特定文本运行元素
 
@@ -5167,52 +5235,67 @@ class DocxElementParser(DocxFile):
         # 获取段落元素
         paragraph = self.elements[para_index]['element']
 
-        # 查找所有w:r元素
-        r_elements = paragraph.findall("./w:r", self.NAMESPACES)
+        result=self.get_run_element_from_xml(paragraph,run_index)
 
-        if not r_elements:
-            print(f"段落{para_index}中没有找到文本运行")
-            return None
 
-        # 检查文本运行索引是否有效
-        if run_index < 0 or run_index >= len(r_elements):
-            print(f'=========={self.get_paragraph_text(paragraph)}')
-            print(f"错误11：文本运行索引{run_index}超出范围(0-{len(r_elements)-1})")
-            return None
+
+
 
         # 返回特定的文本运行元素
-        return r_elements[run_index]
+        return result
 
     def get_run_element_from_xml(self, para, run_index):
-        """获取特定段落中的特定文本运行元素
+        """获取特定段落中的特定文本运行元素，如果不存在则创建新的run元素
 
         Args:
             para: 段落
             run_index: 文本运行索引
 
         Returns:
-            Element或None: 找到的文本运行元素，未找到则返回None
+            Element: 找到或创建的文本运行元素
         """
-
-
         # 获取段落元素
         paragraph = para
 
         # 查找所有w:r元素
-        r_elements =paragraph.findall("./w:r", self.NAMESPACES)
+        r_elements = paragraph.findall("./w:r", self.NAMESPACES)
 
-        if not r_elements:
-            print(f"段落中没有找到文本运行")
-            return None
+        # 如果段落中没有run元素或索引超出范围，则创建新的run元素
+        if not r_elements or run_index < 0 or run_index >= len(r_elements):
+            # 在创建前记录日志
+            if not r_elements:
+                print(f"段落中没有找到文本运行，将创建新的run元素")
+            else:
+                print(f"文本运行索引{run_index}超出范围(0-{len(r_elements) - 1})，将创建新的run元素")
 
-        # 检查文本运行索引是否有效
-        if run_index < 0 or run_index >= len(r_elements):
-            print(f'=========={self.get_paragraph_text(paragraph)}')
-            print(f"错误11：文本运行索引{run_index}超出范围(0-{len(r_elements) - 1})")
-            return None
+            # 创建新的run元素
+            new_run = ET.Element(f"{{{self.NAMESPACES['w']}}}r")
+
+            # 如果段落中有其他元素，找到最后一个run元素的位置
+            # 如果没有run元素，则直接追加到段落末尾
+            if r_elements:
+                # 如果run_index超过了现有元素数量，添加到最后
+                if run_index >= len(r_elements):
+                    paragraph.append(new_run)
+                # 否则插入到指定位置
+                else:
+                    insert_position = list(paragraph).index(r_elements[0]) + max(0, min(run_index, len(r_elements) - 1))
+                    paragraph.insert(insert_position, new_run)
+            else:
+                # 如果段落中没有任何run元素，直接添加
+                paragraph.append(new_run)
+
+            # 重新获取r_elements以确保新创建的元素也被包含
+            r_elements = paragraph.findall("./w:r", self.NAMESPACES)
+
+            print(f"已创建新的run元素，现在段落中有 {len(r_elements)} 个run元素")
+
+            # 返回新创建的run元素
+            return new_run if run_index >= len(r_elements) else r_elements[run_index]
 
         # 返回特定的文本运行元素
         return r_elements[run_index]
+
     def _get_or_create_rPr(self, r_element):
         """获取或创建文本运行属性元素
 
@@ -6391,6 +6474,102 @@ class DocxElementParser(DocxFile):
         except Exception as e:
             print(f"设置文本运行删除线格式时出错: {e}")
             return False
+
+    def delete_runs_after_index_from_xml(self, para, run_index):
+        """删除指定run索引之后的所有run元素
+
+        Args:
+            para: 段落元素
+            run_index: 开始删除的Run索引（保留该索引，删除之后的）
+
+        Returns:
+            bool: 操作是否成功
+        """
+        try:
+            # 获取段落中的所有run元素
+            r_elements = para.findall(f".//{{{self.NAMESPACES['w']}}}r")
+
+            # 检查索引是否有效
+            if run_index < 0 or run_index >= len(r_elements):
+                print(f"错误：Run索引{run_index}超出范围(0-{len(r_elements) - 1})")
+                return False
+
+            # 特殊处理：如果索引是0，则将第一个run的文本设置为空
+            if run_index == 0:
+                # 获取第一个run元素
+                first_run = r_elements[0]
+
+                # 找出所有t元素（文本元素）
+                t_elements = first_run.findall(f".//{{{self.NAMESPACES['w']}}}t")
+
+                # 如果存在t元素，设置第一个为空，删除其他的
+                if t_elements:
+                    # 保留第一个t元素但清空其内容
+                    first_t = t_elements[0]
+                    first_t.text = ""
+                    # 确保space属性为preserve以保留空格
+                    first_t.set(f"{{{self.NAMESPACES['xml']}}}space", "preserve")
+
+                    # 删除其他t元素（如果有）
+                    for i in range(len(t_elements) - 1, 0, -1):
+                        t_parent = t_elements[i].getparent()
+                        if t_parent is not None:
+                            t_parent.remove(t_elements[i])
+                else:
+                    # 如果没有t元素，创建一个
+                    t_element = ET.SubElement(first_run, f"{{{self.NAMESPACES['w']}}}t")
+                    t_element.set(f"{{{self.NAMESPACES['xml']}}}space", "preserve")
+                    t_element.text = ""
+
+                print(f"已将第一个Run元素的文本内容设置为空")
+
+            # 删除指定索引之后的所有run元素
+            deleted_count = 0
+            for i in range(len(r_elements) - 1, run_index, -1):  # 从后向前删除，避免索引变化
+                parent = r_elements[i].getparent()
+                if parent is not None:
+                    parent.remove(r_elements[i])
+                    deleted_count += 1
+
+            # 打印删除数量
+            print(f"已从段落中删除 {deleted_count} 个Run元素")
+
+            # 更新XML
+            self.update_document_xml()
+
+            return True
+        except Exception as e:
+            print(f"删除Run元素时出错: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def delete_runs_after_index(self, para_index, run_index):
+        """删除指定段落中指定run索引之后的所有run元素
+
+        Args:
+            para_index: 段落索引
+            run_index: 开始删除的Run索引（保留该索引，删除之后的）
+
+        Returns:
+            bool: 操作是否成功
+        """
+        try:
+            # 检查段落索引是否有效
+            if para_index < 0 or para_index >= len(self.paragraphs):
+                print(f"错误：段落索引{para_index}超出范围(0-{len(self.paragraphs) - 1})")
+                return False
+
+            # 获取段落元素
+            para = self.paragraphs[para_index]
+
+            # 调用XML版本的函数
+            return self.delete_runs_after_index_from_xml(para, run_index)
+        except Exception as e:
+            print(f"删除Run元素时出错: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
     def update_run_style_from_xml(self, para, run_index, **style_properties):
         """更新Run元素的样式
 
@@ -6428,7 +6607,9 @@ class DocxElementParser(DocxFile):
             print(f"更新段落中Run {run_index} 的样式")
             print(f"样式属性: {style_properties}")
 
-
+            # 设置文本内容
+            if 'text' in style_properties:
+                self.set_run_text_from_xml(para, run_index, style_properties['text'])
 
             # 设置字体
             if 'fonts' in style_properties:
@@ -6519,8 +6700,9 @@ class DocxElementParser(DocxFile):
             # 打印调试信息
             print(f"更新段落 {para_index} 中Run {run_index} 的样式")
             print(f"样式属性: {style_properties}")
-
-
+            # 设置文本内容
+            if 'text' in style_properties:
+                self.set_run_text(para_index, run_index, style_properties['text'])
 
             # 设置字体
             if 'fonts' in style_properties:
@@ -6574,6 +6756,77 @@ class DocxElementParser(DocxFile):
             traceback.print_exc()
             return False
 
+    def set_run_text(self, para_index, run_index, text):
+        """设置Run元素的文本内容
+
+        Args:
+            para_index: 段落索引
+            run_index: Run元素索引
+            text: 要设置的文本内容
+
+        Returns:
+            bool: 是否成功设置
+        """
+        try:
+            # 获取run元素
+            run = self.get_run_element(para_index, run_index)
+            if run is None:
+                return False
+
+            # 查找现有的t元素
+            t_element = run.find(f".//{{{self.NAMESPACES['w']}}}t")
+            if t_element is None:
+                # 如果不存在则创建
+                t_element = ET.SubElement(run, f"{{{self.NAMESPACES['w']}}}t")
+                # 设置space属性为preserve以保留空格
+                t_element.set(f"{{{self.NAMESPACES['xml']}}}space", "preserve")
+
+            # 设置文本内容
+            t_element.text = text
+            print(f"设置文本内容: '{text}'")
+
+            return True
+        except Exception as e:
+            print(f"设置Run文本时出错: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def set_run_text_from_xml(self, para, run_index, text):
+        """设置Run元素的文本内容
+
+        Args:
+            para: 段落元素
+            run_index: Run元素索引
+            text: 要设置的文本内容
+
+        Returns:
+            bool: 是否成功设置
+        """
+        try:
+            # 获取run元素
+            run = self.get_run_element_from_xml(para, run_index)
+            if run is None:
+                return False
+
+            # 查找现有的t元素
+            t_element = run.find(f".//{{{self.NAMESPACES['w']}}}t")
+            if t_element is None:
+                # 如果不存在则创建
+                t_element = ET.SubElement(run, f"{{{self.NAMESPACES['w']}}}t")
+                # 设置space属性为preserve以保留空格
+                t_element.set(f"{{{self.NAMESPACES['xml']}}}space", "preserve")
+
+            # 设置文本内容
+            t_element.text = text
+            print(f"设置文本内容: '{text}'")
+
+            return True
+        except Exception as e:
+            print(f"设置Run文本时出错: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
     def insert_paragraph(self, element_index=-1, position='after', text='', **style_properties):
         """在文档中插入新段落
 
@@ -7052,6 +7305,144 @@ class DocxElementParser(DocxFile):
             traceback.print_exc()
             return None
 
+    def replace_image(self, rel_id, image_path, width=None, height=None, description=None):
+        """替换文档中已有的图片
+
+        Args:
+            rel_id: 要替换的图片关系ID
+            image_path: 新图片文件的路径
+            width: 新图片宽度(厘米)，不指定则使用原始大小
+            height: 新图片高度(厘米)，不指定则使用原始大小
+            description: 新的图片描述，不指定则保留原描述
+
+        Returns:
+            bool: 是否成功替换
+        """
+        # 检查图片文件是否存在
+        if not os.path.exists(image_path):
+            print(f"错误：图片文件 {image_path} 不存在")
+            return False
+
+        # 获取新图片信息
+        try:
+            img = Image.open(image_path)
+            img_format = img.format.lower()
+            img_width, img_height = img.size
+
+            # 如果没有指定宽高，使用原始尺寸（转换为EMU单位，1厘米=360000 EMU）
+            if width is None:
+                # 默认分辨率为96 DPI，即96像素/英寸
+                # 1英寸 = 2.54厘米，所以1厘米 = 96/2.54 像素
+                # 因此，像素到厘米的转换：厘米 = 像素 * 2.54 / 96
+                width_cm = img_width * 2.54 / 96
+                width_emu = int(width_cm * 360000)
+            else:
+                width_emu = int(width * 360000)
+
+            if height is None:
+                height_cm = img_height * 2.54 / 96
+                height_emu = int(height_cm * 360000)
+            else:
+                height_emu = int(height * 360000)
+        except Exception as e:
+            print(f"获取新图片信息时出错: {e}")
+            return False
+
+        try:
+            # 验证关系ID格式
+            if not rel_id.startswith("rId"):
+                print(f"错误：无效的关系ID格式: {rel_id}")
+                return False
+
+            # 获取关系文件
+            if 'relationships' not in self.parts:
+                print("错误：找不到document.xml.rels文件")
+                return False
+
+            rels_tree = self.parts['relationships']
+            rels_root = rels_tree.getroot()
+
+            # 查找要替换的图片关系
+            rel_element = None
+            for rel in rels_root.findall("./Relationship",
+                                         {'': "http://schemas.openxmlformats.org/package/2006/relationships"}):
+                if rel.get("Id") == rel_id:
+                    rel_element = rel
+                    break
+
+            if rel_element is None:
+                print(f"错误：找不到ID为 {rel_id} 的图片关系")
+                return False
+
+            # 获取原图片的Target路径
+            old_target = rel_element.get("Target")
+            if not old_target or not old_target.startswith("media/"):
+                print(f"错误：图片关系的Target不是有效的media路径: {old_target}")
+                return False
+
+            old_image_name = old_target.replace("media/", "")
+
+            # 生成新图片文件名（保留扩展名）
+            img_name = os.path.basename(image_path)
+
+            # 读取新图片文件
+            with open(image_path, 'rb') as img_file:
+                img_data = img_file.read()
+
+            # 更新media文件夹中的图片
+            if 'media' not in self.parts:
+                self.parts['media'] = {}
+
+            # 替换媒体文件
+            self.parts['media'][old_image_name] = img_data
+
+            # 查找文档中引用该图片的所有位置
+            updated_count = 0
+            for element in self.document_root.findall(
+                    f".//{{{self.NAMESPACES['a']}}}blip[@{{{self.NAMESPACES['r']}}}embed='{rel_id}']", self.NAMESPACES):
+                # 查找该图片的尺寸元素
+                try:
+                    # 遍历向上找到pic元素
+                    pic_elem = element
+                    while pic_elem is not None and pic_elem.tag != f"{{{self.NAMESPACES['pic']}}}pic":
+                        pic_elem = pic_elem.getparent()
+
+                    if pic_elem is not None:
+                        # 更新描述信息
+                        if description is not None:
+                            # 更新cNvPr的descr属性
+                            cnvpr = pic_elem.find(f".//{{{self.NAMESPACES['pic']}}}cNvPr", self.NAMESPACES)
+                            if cnvpr is not None:
+                                cnvpr.set("descr", description)
+
+                        # 更新尺寸
+                        # 查找ext元素
+                        ext_elements = pic_elem.findall(f".//{{{self.NAMESPACES['a']}}}ext", self.NAMESPACES)
+                        for ext in ext_elements:
+                            ext.set("cx", str(width_emu))
+                            ext.set("cy", str(height_emu))
+
+                        # 查找extent元素
+                        extent_elements = pic_elem.findall(f".//{{{self.NAMESPACES['wp']}}}extent", self.NAMESPACES)
+                        for extent in extent_elements:
+                            extent.set("cx", str(width_emu))
+                            extent.set("cy", str(height_emu))
+
+                        updated_count += 1
+                except Exception as e:
+                    print(f"更新图片尺寸时出错: {e}")
+                    # 继续处理其他图片引用
+
+            # 更新文档XML
+            self.update_document_xml()
+
+            print(f"成功替换图片 {rel_id}，更新了 {updated_count} 个图片引用")
+            return True
+        except Exception as e:
+            print(f"替换图片时出错: {e}")
+            traceback.print_exc()
+            return False
+
     def insert_image_with_caption(self, para_index, image_path, caption_text, chapter_num="1",
                                   width=None, height=None, description=None, wrap_text='inline',
                                   new_page=False, caption_style=None):
@@ -7346,7 +7737,531 @@ class DocxElementParser(DocxFile):
 
 
         return True
+    def set_table_style_from_xml(self, table, **style_properties):
+        """设置表格的样式和属性
 
+        Args:
+            table: table元素
+            **style_properties: 可以包含以下属性:
+                - style_id: 表格样式ID
+                - width: 表格宽度(dict): {'value': '值', 'type': '类型'}
+                - indent: 表格缩进(dict): {'value': '值', 'type': '类型'}
+                - borders: 表格边框(dict): {
+                    'top': {'val': '类型', 'color': '颜色', 'sz': '粗细', 'space': '间距'},
+                    'left': {...},
+                    'bottom': {...},
+                    'right': {...},
+                    'inside_h': {...},
+                    'inside_v': {...}
+                  }
+                - layout: 表格布局类型('autofit' or 'fixed')
+                - cell_margins: 单元格边距(dict): {
+                    'top': {'value': '值', 'type': '类型'},
+                    'left': {...},
+                    'bottom': {...},
+                    'right': {...}
+                  }
+
+        Returns:
+            bool: 操作是否成功
+        """
+
+
+        # 获取表格元素
+
+
+        # 获取或创建tblPr元素
+        tblPr = table.find(f".//{{{self.NAMESPACES['w']}}}tblPr")
+        if tblPr is None:
+            tblPr = ET.Element(f"{{{self.NAMESPACES['w']}}}tblPr")
+            table.insert(0, tblPr)
+
+        # 设置样式ID
+        if 'style_id' in style_properties:
+            style_element = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblStyle")
+            if style_element is None:
+                style_element = ET.SubElement(tblPr, f"{{{self.NAMESPACES['w']}}}tblStyle")
+            style_element.set(f"{{{self.NAMESPACES['w']}}}val", style_properties['style_id'])
+
+        # 设置表格宽度
+        if 'width' in style_properties:
+            width_info = style_properties['width']
+            tblW = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblW")
+            if tblW is None:
+                tblW = ET.SubElement(tblPr, f"{{{self.NAMESPACES['w']}}}tblW")
+
+            if 'value' in width_info:
+                tblW.set(f"{{{self.NAMESPACES['w']}}}w", str(width_info['value']))
+            if 'type' in width_info:
+                tblW.set(f"{{{self.NAMESPACES['w']}}}type", width_info['type'])
+
+        # 设置表格缩进
+        if 'indent' in style_properties:
+            indent_info = style_properties['indent']
+            tblInd = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblInd")
+            if tblInd is None:
+                tblInd = ET.SubElement(tblPr, f"{{{self.NAMESPACES['w']}}}tblInd")
+
+            if 'value' in indent_info:
+                tblInd.set(f"{{{self.NAMESPACES['w']}}}w", str(indent_info['value']))
+            if 'type' in indent_info:
+                tblInd.set(f"{{{self.NAMESPACES['w']}}}type", indent_info['type'])
+
+        # 设置表格边框
+        if 'borders' in style_properties:
+            borders_info = style_properties['borders']
+            tblBorders = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblBorders")
+            if tblBorders is None:
+                tblBorders = ET.SubElement(tblPr, f"{{{self.NAMESPACES['w']}}}tblBorders")
+
+            border_mapping = {
+                'top': 'top',
+                'left': 'left',
+                'bottom': 'bottom',
+                'right': 'right',
+                'inside_h': 'insideH',
+                'inside_v': 'insideV'
+            }
+
+            for border_key, border_xml_name in border_mapping.items():
+                if border_key in borders_info:
+                    border_info = borders_info[border_key]
+                    border_element = tblBorders.find(f".//{{{self.NAMESPACES['w']}}}{border_xml_name}")
+                    if border_element is None:
+                        border_element = ET.SubElement(tblBorders, f"{{{self.NAMESPACES['w']}}}{border_xml_name}")
+
+                    for attr_name, xml_attr in [
+                        ('val', 'val'),
+                        ('color', 'color'),
+                        ('sz', 'sz'),
+                        ('space', 'space')
+                    ]:
+                        if attr_name in border_info:
+                            border_element.set(f"{{{self.NAMESPACES['w']}}}{xml_attr}", str(border_info[attr_name]))
+
+        # 设置表格布局
+        if 'layout' in style_properties:
+            tblLayout = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblLayout")
+            if tblLayout is None:
+                tblLayout = ET.SubElement(tblPr, f"{{{self.NAMESPACES['w']}}}tblLayout")
+            tblLayout.set(f"{{{self.NAMESPACES['w']}}}type", style_properties['layout'])
+
+        # 设置单元格边距
+        if 'cell_margins' in style_properties:
+            margin_info = style_properties['cell_margins']
+            tblCellMar = tblPr.find(f".//{{{self.NAMESPACES['w']}}}tblCellMar")
+            if tblCellMar is None:
+                tblCellMar = ET.SubElement(tblPr, f"{{{self.NAMESPACES['w']}}}tblCellMar")
+
+            for margin_type in ['top', 'left', 'bottom', 'right']:
+                if margin_type in margin_info:
+                    margin_element = tblCellMar.find(f".//{{{self.NAMESPACES['w']}}}{margin_type}")
+                    if margin_element is None:
+                        margin_element = ET.SubElement(tblCellMar, f"{{{self.NAMESPACES['w']}}}{margin_type}")
+
+                    margin_data = margin_info[margin_type]
+                    if 'value' in margin_data:
+                        margin_element.set(f"{{{self.NAMESPACES['w']}}}w", str(margin_data['value']))
+                    if 'type' in margin_data:
+                        margin_element.set(f"{{{self.NAMESPACES['w']}}}type", margin_data['type'])
+
+
+
+        return True
+
+    def set_table_row_style_from_xml(self, table, row_index, **style_properties):
+        """设置表格行的样式和属性
+
+        Args:
+            table: 表格元素
+            row_index: 行索引
+            **style_properties: 可以包含以下属性:
+                - height: 行高设置(dict): {'value': '值', 'rule': '规则'}
+                    rule可选值: 'auto', 'atLeast', 'exact'
+                - cannot_split: 布尔值，是否禁止跨页分割
+                - is_header: 布尔值，是否为表头行
+                - borders: 行边框(dict): 结构同表格边框
+
+        Returns:
+            bool: 操作是否成功
+        """
+
+
+        # 获取所有行
+        tr_elements = table.findall(f".//{{{self.NAMESPACES['w']}}}tr")
+
+        # 检查行索引是否有效
+        if row_index < 0 or row_index >= len(tr_elements):
+            print(f"错误：行索引{row_index}超出范围(0-{len(tr_elements) - 1})")
+            return False
+
+        # 获取目标行
+        tr = tr_elements[row_index]
+
+        # 获取或创建trPr元素（行属性）
+        trPr = tr.find(f".//{{{self.NAMESPACES['w']}}}trPr")
+        if trPr is None:
+            trPr = ET.Element(f"{{{self.NAMESPACES['w']}}}trPr")
+            tr.insert(0, trPr)
+
+        # 设置行高
+        if 'height' in style_properties:
+            height_info = style_properties['height']
+            trHeight = trPr.find(f".//{{{self.NAMESPACES['w']}}}trHeight")
+            if trHeight is None:
+                trHeight = ET.SubElement(trPr, f"{{{self.NAMESPACES['w']}}}trHeight")
+
+            if 'value' in height_info:
+                trHeight.set(f"{{{self.NAMESPACES['w']}}}val", str(height_info['value']))
+            if 'rule' in height_info:
+                # 规则可以是: 'auto', 'atLeast', 'exact'
+                trHeight.set(f"{{{self.NAMESPACES['w']}}}hRule", height_info['rule'])
+
+        # 设置是否允许跨页分割
+        if 'cannot_split' in style_properties:
+            cantSplit = trPr.find(f".//{{{self.NAMESPACES['w']}}}cantSplit")
+            if style_properties['cannot_split']:
+                if cantSplit is None:
+                    cantSplit = ET.SubElement(trPr, f"{{{self.NAMESPACES['w']}}}cantSplit")
+                # Word中不需要属性值，仅标记存在即可
+            else:
+                # 移除不能分割标记
+                if cantSplit is not None:
+                    trPr.remove(cantSplit)
+
+        # 设置是否为表头行（重复行）
+        if 'is_header' in style_properties:
+            tblHeader = trPr.find(f".//{{{self.NAMESPACES['w']}}}tblHeader")
+            if style_properties['is_header']:
+                if tblHeader is None:
+                    tblHeader = ET.SubElement(trPr, f"{{{self.NAMESPACES['w']}}}tblHeader")
+                # Word中不需要属性值，仅标记存在即可
+            else:
+                # 移除表头行标记
+                if tblHeader is not None:
+                    trPr.remove(tblHeader)
+
+        # 设置行边框（如果需要）
+        if 'borders' in style_properties:
+            # 行级边框通常应用到每个单元格
+            # 这里需要遍历行中的每个单元格，为每个单元格设置边框
+            td_elements = tr.findall(f".//{{{self.NAMESPACES['w']}}}tc")
+            for cell_index, td in enumerate(td_elements):
+                self.set_table_cell_borders(table, row_index, cell_index, **style_properties['borders'])
+
+        # 更新XML
+        self.update_document_xml()
+        return True
+
+    def set_table_cell_style_from_xml(self, table, row_index, cell_index, **style_properties):
+        """设置表格单元格的样式和属性
+
+        Args:
+            table: 的表格
+            row_index: 行索引
+            cell_index: 单元格索引
+            **style_properties: 可以包含以下属性:
+                - width: 单元格宽度(dict): {'value': '值', 'type': '类型'}
+                - vertical_align: 垂直对齐方式，可选值: 'top', 'center', 'bottom'
+                - text_direction: 文本方向，可选值: 'lr', 'rl', 'tb', 'bt'
+                - shading: 背景填充(dict): {'fill': '填充颜色', 'color': '文本颜色', 'val': '填充类型'}
+                - borders: 单元格边框(dict): 结构同表格边框
+                - margins: 单元格内边距(dict): 结构同表格单元格边距
+                - rowspan: 跨行数量
+                - colspan: 跨列数量
+
+        Returns:
+            bool: 操作是否成功
+        """
+
+
+        # 获取所有行
+        tr_elements = table.findall(f".//{{{self.NAMESPACES['w']}}}tr")
+
+        # 检查行索引是否有效
+        if row_index < 0 or row_index >= len(tr_elements):
+            print(f"错误：行索引{row_index}超出范围(0-{len(tr_elements) - 1})")
+            return False
+
+        # 获取目标行
+        tr = tr_elements[row_index]
+
+        # 获取行中的所有单元格
+        tc_elements = tr.findall(f".//{{{self.NAMESPACES['w']}}}tc")
+
+        # 检查单元格索引是否有效
+        if cell_index < 0 or cell_index >= len(tc_elements):
+            print(f"错误：单元格索引{cell_index}超出范围(0-{len(tc_elements) - 1})")
+            return False
+
+        # 获取目标单元格
+        tc = tc_elements[cell_index]
+
+        # 获取或创建tcPr元素（单元格属性）
+        tcPr = tc.find(f".//{{{self.NAMESPACES['w']}}}tcPr")
+        if tcPr is None:
+            tcPr = ET.Element(f"{{{self.NAMESPACES['w']}}}tcPr")
+            tc.insert(0, tcPr)
+
+        # 设置单元格宽度
+        if 'width' in style_properties:
+            width_info = style_properties['width']
+            tcW = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcW")
+            if tcW is None:
+                tcW = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}tcW")
+
+            if 'value' in width_info:
+                tcW.set(f"{{{self.NAMESPACES['w']}}}w", str(width_info['value']))
+            if 'type' in width_info:
+                tcW.set(f"{{{self.NAMESPACES['w']}}}type", width_info['type'])
+
+        # 设置垂直对齐方式
+        if 'vertical_align' in style_properties:
+            vAlign = tcPr.find(f".//{{{self.NAMESPACES['w']}}}vAlign")
+            if vAlign is None:
+                vAlign = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}vAlign")
+
+            # 可选值: 'top', 'center', 'bottom'
+            vAlign.set(f"{{{self.NAMESPACES['w']}}}val", style_properties['vertical_align'])
+
+        # 设置文本方向
+        if 'text_direction' in style_properties:
+            textDirection = tcPr.find(f".//{{{self.NAMESPACES['w']}}}textDirection")
+            if textDirection is None:
+                textDirection = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}textDirection")
+
+            # 可选值: 'lr'(左到右), 'rl'(右到左), 'tb'(上到下), 'bt'(下到上)
+            textDirection.set(f"{{{self.NAMESPACES['w']}}}val", style_properties['text_direction'])
+
+        # 设置背景填充
+        if 'shading' in style_properties:
+            shading_info = style_properties['shading']
+            shd = tcPr.find(f".//{{{self.NAMESPACES['w']}}}shd")
+            if shd is None:
+                shd = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}shd")
+
+            if 'val' in shading_info:
+                shd.set(f"{{{self.NAMESPACES['w']}}}val", shading_info['val'])
+            if 'color' in shading_info:
+                shd.set(f"{{{self.NAMESPACES['w']}}}color", shading_info['color'])
+            if 'fill' in shading_info:
+                shd.set(f"{{{self.NAMESPACES['w']}}}fill", shading_info['fill'])
+
+        # 设置单元格边框
+        if 'borders' in style_properties:
+            borders_info = style_properties['borders']
+            tcBorders = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcBorders")
+            if tcBorders is None:
+                tcBorders = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}tcBorders")
+
+            border_mapping = {
+                'top': 'top',
+                'left': 'left',
+                'bottom': 'bottom',
+                'right': 'right',
+                'inside_h': 'insideH',
+                'inside_v': 'insideV',
+                'tl2br': 'tl2br',  # 左上到右下的对角线
+                'tr2bl': 'tr2bl'  # 右上到左下的对角线
+            }
+
+            for border_key, border_xml_name in border_mapping.items():
+                if border_key in borders_info:
+                    border_info = borders_info[border_key]
+                    border_element = tcBorders.find(f".//{{{self.NAMESPACES['w']}}}{border_xml_name}")
+                    if border_element is None:
+                        border_element = ET.SubElement(tcBorders, f"{{{self.NAMESPACES['w']}}}{border_xml_name}")
+
+                    for attr_name, xml_attr in [
+                        ('val', 'val'),
+                        ('color', 'color'),
+                        ('sz', 'sz'),
+                        ('space', 'space')
+                    ]:
+                        if attr_name in border_info:
+                            border_element.set(f"{{{self.NAMESPACES['w']}}}{xml_attr}", str(border_info[attr_name]))
+
+        # 设置单元格内边距
+        if 'margins' in style_properties:
+            margin_info = style_properties['margins']
+            tcMar = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcMar")
+            if tcMar is None:
+                tcMar = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}tcMar")
+
+            for margin_type in ['top', 'left', 'bottom', 'right']:
+                if margin_type in margin_info:
+                    margin_element = tcMar.find(f".//{{{self.NAMESPACES['w']}}}{margin_type}")
+                    if margin_element is None:
+                        margin_element = ET.SubElement(tcMar, f"{{{self.NAMESPACES['w']}}}{margin_type}")
+
+                    margin_data = margin_info[margin_type]
+                    if 'value' in margin_data:
+                        margin_element.set(f"{{{self.NAMESPACES['w']}}}w", str(margin_data['value']))
+                    if 'type' in margin_data:
+                        margin_element.set(f"{{{self.NAMESPACES['w']}}}type", margin_data['type'])
+
+        # 设置跨行和跨列
+        # 注意: 这些属性通常在表格创建时设置，修改现有表格的合并单元格需要更复杂的处理
+
+        # 设置跨列(水平合并)
+        if 'colspan' in style_properties:
+            gridSpan = tcPr.find(f".//{{{self.NAMESPACES['w']}}}gridSpan")
+            if style_properties['colspan'] > 1:
+                if gridSpan is None:
+                    gridSpan = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}gridSpan")
+                gridSpan.set(f"{{{self.NAMESPACES['w']}}}val", str(style_properties['colspan']))
+            else:
+                # 移除跨列标记
+                if gridSpan is not None:
+                    tcPr.remove(gridSpan)
+
+        # 设置跨行(垂直合并)
+        if 'rowspan' in style_properties:
+            if style_properties['rowspan'] > 1:
+                # 对于起始单元格，需要设置vMerge="restart"
+                vMerge = tcPr.find(f".//{{{self.NAMESPACES['w']}}}vMerge")
+                if vMerge is None:
+                    vMerge = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}vMerge")
+                vMerge.set(f"{{{self.NAMESPACES['w']}}}val", "restart")
+
+                # 对于后续的跨行单元格，需要设置vMerge而不指定值
+                # 这需要在后续行的相应单元格上设置
+                for i in range(1, style_properties['rowspan']):
+                    next_row_index = row_index + i
+                    if next_row_index < len(tr_elements):
+                        next_row = tr_elements[next_row_index]
+                        next_cells = next_row.findall(f".//{{{self.NAMESPACES['w']}}}tc")
+
+                        if cell_index < len(next_cells):
+                            next_cell = next_cells[cell_index]
+                            next_tcPr = next_cell.find(f".//{{{self.NAMESPACES['w']}}}tcPr")
+                            if next_tcPr is None:
+                                next_tcPr = ET.Element(f"{{{self.NAMESPACES['w']}}}tcPr")
+                                next_cell.insert(0, next_tcPr)
+
+                            next_vMerge = next_tcPr.find(f".//{{{self.NAMESPACES['w']}}}vMerge")
+                            if next_vMerge is None:
+                                next_vMerge = ET.SubElement(next_tcPr, f"{{{self.NAMESPACES['w']}}}vMerge")
+                            # 不设置值，表示这是被合并的单元格
+            else:
+                # 移除垂直合并标记
+                vMerge = tcPr.find(f".//{{{self.NAMESPACES['w']}}}vMerge")
+                if vMerge is not None:
+                    tcPr.remove(vMerge)
+
+        # 更新XML
+        self.update_document_xml()
+        return True
+
+    def create_paragraph_in_cell(self, table, row_index, cell_index, **paragraph_properties):
+        """在指定表格单元格中创建新的段落元素
+
+        Args:
+            table: 表格元素
+            row_index: 行索引
+            cell_index: 单元格索引
+            **paragraph_properties: 可选的段落属性，可包含以下参数:
+                - text: 段落文本内容
+                - alignment: 对齐方式，可选值: 'left', 'center', 'right', 'both', 'justify'
+                - indent_left: 左缩进值
+                - indent_right: 右缩进值
+                - indent_first_line: 首行缩进值
+                - spacing_before: 段前间距
+                - spacing_after: 段后间距
+                - line_spacing: 行间距
+                - line_rule: 行距规则，可选值: 'auto', 'atLeast', 'exact'
+
+        Returns:
+            tuple: (bool, paragraph_element)，表示操作是否成功及创建的段落元素
+        """
+        try:
+            # 获取所有行
+            tr_elements = table.findall(f".//{{{self.NAMESPACES['w']}}}tr")
+
+            # 检查行索引是否有效
+            if row_index < 0 or row_index >= len(tr_elements):
+                print(f"错误：行索引{row_index}超出范围(0-{len(tr_elements) - 1})")
+                return False, None
+
+            # 获取目标行
+            tr = tr_elements[row_index]
+
+            # 获取行中的所有单元格
+            tc_elements = tr.findall(f".//{{{self.NAMESPACES['w']}}}tc")
+
+            # 检查单元格索引是否有效
+            if cell_index < 0 or cell_index >= len(tc_elements):
+                print(f"错误：单元格索引{cell_index}超出范围(0-{len(tc_elements) - 1})")
+                return False, None
+
+            # 获取目标单元格
+            tc = tc_elements[cell_index]
+
+            # 创建新段落元素
+            paragraph = ET.SubElement(tc, f"{{{self.NAMESPACES['w']}}}p")
+
+            # 如果有提供段落样式属性，创建段落属性元素
+            if any(key in paragraph_properties for key in
+                   ['alignment', 'indent_left', 'indent_right', 'indent_first_line',
+                    'spacing_before', 'spacing_after', 'line_spacing', 'line_rule']):
+                pPr = ET.SubElement(paragraph, f"{{{self.NAMESPACES['w']}}}pPr")
+
+                # 设置对齐方式
+                if 'alignment' in paragraph_properties:
+                    jc = ET.SubElement(pPr, f"{{{self.NAMESPACES['w']}}}jc")
+                    jc.set(f"{{{self.NAMESPACES['w']}}}val", paragraph_properties['alignment'])
+
+                # 设置缩进
+                if any(key in paragraph_properties for key in ['indent_left', 'indent_right', 'indent_first_line']):
+                    ind = ET.SubElement(pPr, f"{{{self.NAMESPACES['w']}}}ind")
+
+                    if 'indent_left' in paragraph_properties:
+                        ind.set(f"{{{self.NAMESPACES['w']}}}left", str(paragraph_properties['indent_left']))
+
+                    if 'indent_right' in paragraph_properties:
+                        ind.set(f"{{{self.NAMESPACES['w']}}}right", str(paragraph_properties['indent_right']))
+
+                    if 'indent_first_line' in paragraph_properties:
+                        ind.set(f"{{{self.NAMESPACES['w']}}}firstLine", str(paragraph_properties['indent_first_line']))
+
+                # 设置段落间距
+                if any(key in paragraph_properties for key in
+                       ['spacing_before', 'spacing_after', 'line_spacing', 'line_rule']):
+                    spacing = ET.SubElement(pPr, f"{{{self.NAMESPACES['w']}}}spacing")
+
+                    if 'spacing_before' in paragraph_properties:
+                        spacing.set(f"{{{self.NAMESPACES['w']}}}before", str(paragraph_properties['spacing_before']))
+
+                    if 'spacing_after' in paragraph_properties:
+                        spacing.set(f"{{{self.NAMESPACES['w']}}}after", str(paragraph_properties['spacing_after']))
+
+                    if 'line_spacing' in paragraph_properties:
+                        spacing.set(f"{{{self.NAMESPACES['w']}}}line", str(paragraph_properties['line_spacing']))
+
+                    if 'line_rule' in paragraph_properties:
+                        spacing.set(f"{{{self.NAMESPACES['w']}}}lineRule", paragraph_properties['line_rule'])
+
+            # 如果提供了文本内容，添加一个文本运行
+            if 'text' in paragraph_properties:
+                run = ET.SubElement(paragraph, f"{{{self.NAMESPACES['w']}}}r")
+                t = ET.SubElement(run, f"{{{self.NAMESPACES['w']}}}t")
+                # 设置space属性为preserve以保留空格
+                t.set(f"{{{self.NAMESPACES['xml']}}}space", "preserve")
+                t.text = paragraph_properties['text']
+
+                # 如果有其他运行样式属性，可以在这里设置
+
+            # 更新XML
+            self.update_document_xml()
+
+            print(f"在表格单元格({row_index}, {cell_index})中创建了新段落")
+            return True, paragraph
+
+        except Exception as e:
+            print(f"在表格单元格中创建段落时出错: {e}")
+            import traceback
+            traceback.print_exc()
+            return False, None
     def set_table_grid(self, table_index, column_widths):
         """设置表格的列宽
 
@@ -7668,7 +8583,92 @@ class DocxElementParser(DocxFile):
             print(f"设置表格单元格边框时出错: {e}")
             traceback.print_exc()
             return False
+    def set_table_cell_borders_from_xml(self, table, row_index, cell_index, **borders):
+        """设置表格特定单元格的边框样式
 
+        Args:
+            table: 表格元素
+            row_index: 行索引，从0开始
+            cell_index: 单元格索引，从0开始
+            **borders: 可以包含以下属性:
+                - top: 上边框 {'val': 类型, 'color': 颜色, 'sz': 粗细, 'space': 间距}
+                - left: 左边框
+                - bottom: 下边框
+                - right: 右边框
+
+                边框类型(val)可选值: 'single', 'double', 'thick', 'none' 等
+                颜色(color)格式: 'auto' 或 六位十六进制颜色值如 '000000'
+                粗细(sz)单位: 1/8点，常用值: 4(0.5pt), 8(1pt), 12(1.5pt), 16(2pt)等
+
+        Returns:
+            bool: 操作是否成功
+        """
+        # 检查表格索引是否有效
+
+
+        # 查找所有行
+        rows = table.findall(f".//{{{self.NAMESPACES['w']}}}tr")
+
+        # 检查行索引是否有效
+        if row_index < 0 or row_index >= len(rows):
+            print(f"错误：行索引{row_index}超出范围(0-{len(rows)-1})")
+            return False
+
+        # 获取目标行
+        row = rows[row_index]
+
+        # 查找所有单元格
+        cells = row.findall(f".//{{{self.NAMESPACES['w']}}}tc")
+
+        # 检查单元格索引是否有效
+        if cell_index < 0 or cell_index >= len(cells):
+            print(f"错误：单元格索引{cell_index}超出范围(0-{len(cells)-1})")
+            return False
+
+        # 获取目标单元格
+        cell = cells[cell_index]
+
+        try:
+            # 获取或创建tcPr元素
+            tcPr = cell.find(f".//{{{self.NAMESPACES['w']}}}tcPr")
+            if tcPr is None:
+                tcPr = ET.Element(f"{{{self.NAMESPACES['w']}}}tcPr")
+                cell.insert(0, tcPr)
+
+            # 获取或创建tcBorders元素
+            tcBorders = tcPr.find(f".//{{{self.NAMESPACES['w']}}}tcBorders")
+            if tcBorders is None:
+                tcBorders = ET.SubElement(tcPr, f"{{{self.NAMESPACES['w']}}}tcBorders")
+
+            # 设置边框
+            for border_key, border_xml_name in [
+                ('top', 'top'),
+                ('left', 'left'),
+                ('bottom', 'bottom'),
+                ('right', 'right')
+            ]:
+                if border_key in borders:
+                    border_info = borders[border_key]
+                    border_element = tcBorders.find(f".//{{{self.NAMESPACES['w']}}}{border_xml_name}")
+                    if border_element is None:
+                        border_element = ET.SubElement(tcBorders, f"{{{self.NAMESPACES['w']}}}{border_xml_name}")
+
+                    for attr_name, xml_attr in [
+                        ('val', 'val'),
+                        ('color', 'color'),
+                        ('sz', 'sz'),
+                        ('space', 'space')
+                    ]:
+                        if attr_name in border_info:
+                            border_element.set(f"{{{self.NAMESPACES['w']}}}{xml_attr}", str(border_info[attr_name]))
+
+
+            return True
+
+        except Exception as e:
+            print(f"设置表格单元格边框时出错: {e}")
+            traceback.print_exc()
+            return False
     def create_three_line_table(self, table_index):
         """将表格样式设置为标准三线表
 

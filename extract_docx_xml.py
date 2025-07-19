@@ -224,4 +224,4 @@ def main():
 
 if __name__ == "__main__":
     # 如果没有传入命令行参数，使用默认的文件路径
-    extract_docx("1.docx", )
+    extract_docx(r"F:\danzi\our-docx\fastapi-docx-app\output\b69d6464-52a9-4b7c-9fd5-3e54f56f51f7.docx", )

@@ -89,21 +89,38 @@ export function pasteImage(host: CanvasEvent, file: File | Blob) {
   const rangeManager = draw.getRange()
   const { startIndex } = rangeManager.getRange()
   const elementList = draw.getElementList()
-  // 创建文件读取器
-  const fileReader = new FileReader()
-  fileReader.readAsDataURL(file)
-  fileReader.onload = () => {
-    // 计算宽高
+  
+  // 创建FormData对象用于上传
+  const formData = new FormData()
+  formData.append('file', file)
+  
+  // 上传图片到服务器
+  fetch(`http://localhost:8000/documents/upload_image/`, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`上传图片失败: ${response.status} ${response.statusText}`)
+    }
+    return response.json()
+  })
+  .then(data => {
+    // 获取服务器返回的图片URL
+    const imageUrl = data.image_url
+    
+    // 创建图片对象计算宽高
     const image = new Image()
-    const value = fileReader.result as string
-    image.src = value
+    image.src = imageUrl
+    
     image.onload = () => {
       const imageElement: IElement = {
-        value,
+        value: imageUrl, // 使用服务器返回的URL替代base64
         type: ElementType.IMAGE,
         width: image.width,
         height: image.height
       }
+      
       if (~startIndex) {
         formatElementContext(elementList, [imageElement], startIndex, {
           editorOptions: draw.getOptions()
@@ -111,7 +128,58 @@ export function pasteImage(host: CanvasEvent, file: File | Blob) {
       }
       draw.insertElementList([imageElement])
     }
-  }
+    
+    image.onerror = () => {
+      console.error('加载图片失败:', imageUrl)
+      // 回退到原始方法，使用base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+      fileReader.onload = () => {
+        const image = new Image()
+        const value = fileReader.result as string
+        image.src = value
+        image.onload = () => {
+          const imageElement: IElement = {
+            value,
+            type: ElementType.IMAGE,
+            width: image.width,
+            height: image.height
+          }
+          if (~startIndex) {
+            formatElementContext(elementList, [imageElement], startIndex, {
+              editorOptions: draw.getOptions()
+            })
+          }
+          draw.insertElementList([imageElement])
+        }
+      }
+    }
+  })
+  .catch(error => {
+    console.error('上传图片失败:', error)
+    // 上传失败时回退到原始方法，使用base64
+    const fileReader = new FileReader()
+    fileReader.readAsDataURL(file)
+    fileReader.onload = () => {
+      const image = new Image()
+      const value = fileReader.result as string
+      image.src = value
+      image.onload = () => {
+        const imageElement: IElement = {
+          value,
+          type: ElementType.IMAGE,
+          width: image.width,
+          height: image.height
+        }
+        if (~startIndex) {
+          formatElementContext(elementList, [imageElement], startIndex, {
+            editorOptions: draw.getOptions()
+          })
+        }
+        draw.insertElementList([imageElement])
+      }
+    }
+  })
 }
 
 export function pasteByEvent(host: CanvasEvent, evt: ClipboardEvent) {

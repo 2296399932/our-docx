@@ -8170,6 +8170,7 @@ class DocxElementParser(DocxFile):
                 - spacing_after: 段后间距
                 - line_spacing: 行间距
                 - line_rule: 行距规则，可选值: 'auto', 'atLeast', 'exact'
+                - style_id: 段落样式ID，如'1'表示正文，'2'表示标题1等
 
         Returns:
             tuple: (bool, paragraph_element)，表示操作是否成功及创建的段落元素
@@ -8203,8 +8204,13 @@ class DocxElementParser(DocxFile):
             # 如果有提供段落样式属性，创建段落属性元素
             if any(key in paragraph_properties for key in
                    ['alignment', 'indent_left', 'indent_right', 'indent_first_line',
-                    'spacing_before', 'spacing_after', 'line_spacing', 'line_rule']):
+                    'spacing_before', 'spacing_after', 'line_spacing', 'line_rule', 'style_id']):
                 pPr = ET.SubElement(paragraph, f"{{{self.NAMESPACES['w']}}}pPr")
+
+                # 设置段落样式ID
+                if 'style_id' in paragraph_properties:
+                    style = ET.SubElement(pPr, f"{{{self.NAMESPACES['w']}}}pStyle")
+                    style.set(f"{{{self.NAMESPACES['w']}}}val", paragraph_properties['style_id'])
 
                 # 设置对齐方式
                 if 'alignment' in paragraph_properties:

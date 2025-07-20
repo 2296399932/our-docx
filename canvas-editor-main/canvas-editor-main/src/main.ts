@@ -1589,7 +1589,7 @@ window.onload = function () {
           setTimeout(() => {
             document.body.removeChild(a) // 移除元素
             URL.revokeObjectURL(url) // 延时释放URL对象
-            console.log(`DOCX文档已下载: ${filename}`)
+          console.log(`DOCX文档已下载: ${filename}`)
           }, 100) // 短暂延时
         })
         .catch(err => {

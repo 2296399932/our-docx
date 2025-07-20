@@ -23,8 +23,10 @@ router = APIRouter(
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "output"
+IMAGES_DIR = "static/images"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(IMAGES_DIR, exist_ok=True)
 
 @router.post("/upload/", response_model=Dict[str, Any])
 async def upload_document(file: UploadFile = File(...)):
@@ -119,6 +121,40 @@ async def export_document(request_data: Dict[str, Any]):
         print(f"ERROR: 导出文档失败: {str(e)}")
         print(f"ERROR: 错误详情:\n{error_traceback}")
         raise HTTPException(status_code=500, detail=f"导出文档失败: {str(e)}")
+
+@router.post("/upload_image/", response_model=Dict[str, str])
+async def upload_image(file: UploadFile = File(...)):
+    """上传图片并返回URL"""
+    logger = logging.getLogger(__name__)
+    logger.info(f"接收到图片: {file.filename}")
+    
+    # 检查文件类型
+    if not file.content_type or not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="只接受图片文件")
+    
+    try:
+        # 生成唯一文件名
+        file_extension = os.path.splitext(file.filename)[1] if file.filename else '.png'
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join(IMAGES_DIR, unique_filename)
+        
+        # 保存文件
+        content = await file.read()
+        async with aiofiles.open(file_path, 'wb') as out_file:
+            await out_file.write(content)
+        
+        # 构建图片URL
+        image_url = f"http://localhost:8000/images/{unique_filename}"
+        logger.info(f"图片上传成功: {file_path}, URL: {image_url}")
+        
+        return {"image_url": image_url}
+    except Exception as e:
+        logger.error(f"图片上传失败: {str(e)}", exc_info=True)
+        error_traceback = traceback.format_exc()
+        logger.error(f"错误详情:\n{error_traceback}")
+        print(f"ERROR: 图片上传失败: {str(e)}")
+        print(f"ERROR: 错误详情:\n{error_traceback}")
+        raise HTTPException(status_code=500, detail=f"图片上传失败: {str(e)}")
 
 
 

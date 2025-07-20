@@ -10,6 +10,7 @@ from datetime import datetime
 import traceback
 import base64
 import shutil
+import requests
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -1096,16 +1097,16 @@ class DocumentService:
                                     table_width = float(width_info.get('value')) / width_num
                                 except (ValueError, TypeError):
                                     pass
-                            
+
                             # 处理表格边框类型和颜色
                             border_type = None
                             border_color = None
-                            
+
                             # 检查表格边框
                             table_borders = table_style.get('borders', {})
                             has_border = False
                             border_sides = []
-                            
+
                             # 检查表格边框情况 - 只有val不为"none"时才计入有效边框
                             for border_key, border_data in table_borders.items():
                                 if border_data and border_data.get('val') and border_data.get('val') != 'nil' and border_data.get('val') != 'none':
@@ -1122,7 +1123,7 @@ class DocumentService:
                                         border_sides.append('insideH')
                                     elif border_key == 'insideV':
                                         border_sides.append('insideV')
-                            
+
                             # 根据边框情况决定边框类型
                             # if table_style.get('is_three_line_table'):
                             #     border_type = ['three-line']
@@ -1139,19 +1140,19 @@ class DocumentService:
                                 border_type = 'internal'
                             else:
                                 border_type = 'external'
-                            
+
                             # 检查是否为虚线边框
                             for border_key, border_data in table_borders.items():
                                 if border_data and border_data.get('val') == 'dashed':
                                     border_type = 'dash'
                                     break
-                            
+
                             # 获取表格边框颜色
                             for border_key, border_data in table_borders.items():
                                 if border_data and border_data.get('color'):
                                     border_color = f"#{border_data.get('color')}"
                                     break
-                            
+
                             # 创建列组
                             colgroup = []
                             grid_widths = table_style.get('grid', [])
@@ -1161,7 +1162,7 @@ class DocumentService:
                                     colgroup.append({'width': col_width})
                                 except (ValueError, TypeError):
                                     colgroup.append({'width': 100})  # 默认宽度
-                            
+
                             table_model = TableModel(
                                 id=f"table-{table_count}",
                                 width=table_width,
@@ -1171,11 +1172,11 @@ class DocumentService:
                                 borderColor=border_color,
                                 type="table"
                             )
-                            
+
                             # 添加表格到文档内容
                             result_json.append({'id': table_model.id, "index": elem_info['index']})
                             content.append(table_model)
-                            
+
                         except Exception as e:
                             logger.error(f"处理表格 {elem_info['index']} 失败: {str(e)}", exc_info=True)
                             # 添加一个空表格，避免完全跳过
@@ -1188,7 +1189,7 @@ class DocumentService:
 
                 except Exception as e:
                     logger.error(f"处理元素 {element_count} 失败: {str(e)}", exc_info=True)
-       
+
             # 更新图片计数和总元素计数
             file_path_json = f'{file_path[:-5]}.json'
             # 保存原始数据
@@ -1196,12 +1197,12 @@ class DocumentService:
                 # 转换为可序列化的字典
                 serializable_content = DocumentService._convert_models_to_dict(content)
                 json.dump(serializable_content, f, ensure_ascii=False, indent=4)
-            
+
             # 保存索引映射关系
             index_mapping_path = f"{file_path[:-5]}_index_mapping.json"
             with open(index_mapping_path, 'w', encoding='utf-8') as f:
                 json.dump(result_json, f, ensure_ascii=False, indent=4)
-                
+
             return {
                 "filename": os.path.basename(file_path),
                 "content": content,
@@ -1212,7 +1213,7 @@ class DocumentService:
                     "tables": table_count
                 }
             }
-        
+
         except Exception as e:
             logger.error(f"文档处理失败: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"文档处理失败: {str(e)}")
@@ -1232,7 +1233,7 @@ class DocumentService:
         """
         try:
             logger.info(f"开始导出文档，格式: {format_type}")
-            
+
             # 确保输出目录存在
             os.makedirs(output_dir, exist_ok=True)
             print(f'original_file_path:{original_file_path}')
@@ -1337,7 +1338,7 @@ class DocumentService:
                     serializable_content = DocumentService._convert_models_to_dict(content)
                     with open(output_path, 'w', encoding='utf-8') as f:
                         json.dump(serializable_content, f, ensure_ascii=False, indent=4)
-                    
+
                 return output_path
         except Exception as e:
             logger.error(f"导出文档失败: {str(e)}", exc_info=True)
@@ -1399,7 +1400,7 @@ def compare_and_merge_json_for_export(edited_content, original_file_path):
 
     # 7. 标记差异
     result = []
-    
+
     # 处理编辑后内容中的元素（新增和修改）
     for idx, item in enumerate(edited_content):
         item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
@@ -1427,7 +1428,7 @@ def compare_and_merge_json_for_export(edited_content, original_file_path):
             item['__original_index'] = main_index + sub_index * 0.001
 
         result.append(item)
-    
+
     # 处理原始内容中存在但编辑后内容中不存在的元素（删除）
     for item_id, original_item in original_id_map.items():
         if item_id not in edited_id_map:
@@ -1446,20 +1447,20 @@ def compare_and_merge_json_for_export(edited_content, original_file_path):
 
 def deep_compare_elements(elem1, elem2):
     """深度比较两个元素是否相同，根据元素类型使用不同的比较策略
-    
+
     Args:
         elem1: 第一个元素
         elem2: 第二个元素
-        
+
     Returns:
         bool: 两个元素是否相同
     """
     # 先检查类型是否相同
     if elem1.get('type') != elem2.get('type'):
         return False
-        
+
     element_type = elem1.get('type')
-    
+
     # 根据元素类型选择不同的比较策略
     if element_type == 'paragraph' or element_type == 'title':
         return compare_paragraph_elements(elem1, elem2)
@@ -1480,7 +1481,7 @@ def compare_paragraph_elements(elem1, elem2):
             # 对数值型字段进行转换后比较
             val1 = elem1.get(field)
             val2 = elem2.get(field)
-            
+
             # 数值类型转换 - 尝试将字符串转为数值进行比较
             if isinstance(val1, (int, float)) or isinstance(val2, (int, float)):
                 try:
@@ -1490,51 +1491,51 @@ def compare_paragraph_elements(elem1, elem2):
                         val2 = float(val2)
                 except:
                     pass  # 转换失败时保持原值
-                
+
                 # 都是数值时尝试浮点数比较
                 if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
                     if abs(float(val1) - float(val2)) > 0.0001:  # 允许小误差
                         return False
                     continue  # 数值相近，视为相同
-            
+
             # 对于非数值字段，如果两个都是None或空字符串或False，视为相同
             if (val1 is None or val1 == '' or val1 is False) and (val2 is None or val2 == '' or val2 is False):
                 continue
-                
-            # 其他情况，标准比较    
+
+            # 其他情况，标准比较
             if val1 != val2:
                 return False
-    
+
     # 比较valueList
     if 'valueList' in elem1 and 'valueList' in elem2:
         # 长度不同直接返回False
         if len(elem1['valueList']) != len(elem2['valueList']):
             return False
-        
+
         # 逐一比较valueList中的元素
         for i in range(len(elem1['valueList'])):
             val1 = elem1['valueList'][i]
             val2 = elem2['valueList'][i]
-            
+
             # 如果是valueList的最后一个元素，且值为换行符或零宽空格，则完全跳过该元素比较
             if i == len(elem1['valueList']) - 1 and (
                 (val1.get('value') == '\n' or val1.get('value') == '\u200B') and
                 (val2.get('value') == '\n' or val2.get('value') == '\u200B')
             ):
                 continue  # 跳过最后一个元素的所有比较
-            
+
             # 对非最后元素或非换行符/零宽空格的元素进行详细比较
-            run_fields = ['value', 'font', 'size', 'bold', 'italic', 'underline', 
+            run_fields = ['value', 'font', 'size', 'bold', 'italic', 'underline',
                          'strike', 'color', 'highlight', 'rowFlex', 'indent']
             for field in run_fields:
                 # 特殊处理换行符和零宽空格的等价比较
                 if field == 'value' and (val1.get(field) == '\n' or val1.get(field) == '\u200B') and (val2.get(field) == '\n' or val2.get(field) == '\u200B'):
                     continue  # 视为相同，继续下一个属性比较
-                
+
                 # 获取两边的值
                 field_val1 = val1.get(field)
                 field_val2 = val2.get(field)
-                
+
                 # 数值类型转换处理
                 if field == 'size' or field == 'indent' or field == 'rowMargin' or field == 'line':
                     try:
@@ -1545,23 +1546,23 @@ def compare_paragraph_elements(elem1, elem2):
                             field_val2 = float(field_val2)
                     except:
                         pass  # 转换失败时保持原值
-                    
+
                     # 如果都是数值类型，进行浮点数比较
                     if isinstance(field_val1, (int, float)) and isinstance(field_val2, (int, float)):
                         if abs(float(field_val1) - float(field_val2)) > 0.0001:  # 允许小误差
                             return False
                         continue  # 数值相近，视为相同
-                
+
                 # 处理缺失字段与False/None的等价性
                 # strike, superscript, subscript字段如果一边是缺失(None)一边是False，视为相同
                 if field in ['strike', 'superscript', 'subscript']:
                     if (field_val1 is None or field_val1 is False) and (field_val2 is None or field_val2 is False):
                         continue
-                
+
                 # 其他情况的标准比较
                 if field_val1 != field_val2:
                     return False
-    
+
     return True
 
 def compare_image_elements(elem1, elem2):
@@ -1581,46 +1582,46 @@ def compare_table_elements(elem1, elem2):
         if field in elem1 or field in elem2:
             if elem1.get(field) != elem2.get(field):
                 return False
-    
+
     # 比较行数
     if len(elem1.get('trList', [])) != len(elem2.get('trList', [])):
         return False
-    
+
     # 逐行比较
     for i in range(len(elem1.get('trList', []))):
         tr1 = elem1['trList'][i]
         tr2 = elem2['trList'][i]
-        
+
         # 比较单元格数量
         if len(tr1.get('tdList', [])) != len(tr2.get('tdList', [])):
             return False
-        
+
         # 逐单元格比较
         for j in range(len(tr1.get('tdList', []))):
             td1 = tr1['tdList'][j]
             td2 = tr2['tdList'][j]
-            
+
             # 比较单元格属性
             if td1.get('colspan') != td2.get('colspan') or td1.get('rowspan') != td2.get('rowspan'):
                 return False
-                
+
             if td1.get('verticalAlign') != td2.get('verticalAlign'):
                 return False
-                
+
             if td1.get('backgroundColor') != td2.get('backgroundColor'):
                 return False
-            
+
             # 比较单元格内容 (递归比较)
             cell_content1 = td1.get('value', [])
             cell_content2 = td2.get('value', [])
-            
+
             if len(cell_content1) != len(cell_content2):
                 return False
-                
+
             for k in range(len(cell_content1)):
                 if not deep_compare_elements(cell_content1[k], cell_content2[k]):
                     return False
-    
+
     return True
 
 def compare_generic_elements(elem1, elem2):
@@ -1689,15 +1690,15 @@ def find_insertion_index(idx, id_to_index, edited_content):
 
 def convert_editor_to_docx_paragraph(paragraph_data):
     """将Canvas-Editor格式的段落数据转换为DOCX需要的格式
-    
+
     Args:
         paragraph_data: Canvas-Editor格式的段落数据
-        
+
     Returns:
         dict: DOCX格式的段落样式属性
     """
     style_properties = {}
-    
+
     # 转换对齐方式 - 从Canvas-Editor格式转回DOCX格式
     if 'rowFlex' in paragraph_data:
         reverse_align_map = {
@@ -1710,7 +1711,7 @@ def convert_editor_to_docx_paragraph(paragraph_data):
         alignment = reverse_align_map.get(paragraph_data['rowFlex'])
         if alignment:
             style_properties['alignment'] = alignment
-    
+
     # 转换缩进 - 从Canvas-Editor格式转回DOCX格式
     if 'indent' in paragraph_data and paragraph_data['indent'] is not None:
         # 将Canvas-Editor的缩进值转换回DOCX格式 (乘以转换常数)
@@ -1718,48 +1719,48 @@ def convert_editor_to_docx_paragraph(paragraph_data):
             'firstLine': int(paragraph_data['indent'] * indent_num)  # 使用全局转换常数
         }
         style_properties['indentation'] = indentation
-    
+
     # 转换行距和间距 - 从Canvas-Editor格式转回DOCX格式
     spacing = {}
-    
+
     if 'lineRule' in paragraph_data and paragraph_data['lineRule'] is not None:
         spacing['lineRule'] = paragraph_data['lineRule']
-        
+
     if 'line' in paragraph_data and paragraph_data['line'] is not None:
         spacing['line'] = paragraph_data['line']
-        
+
     if 'rowMargin' in paragraph_data and paragraph_data['rowMargin'] is not None:
         # 将Canvas-Editor的行间距转换回DOCX格式 (乘以转换常数)
         line_value = int(paragraph_data['rowMargin'] * line_spacing_num)  # 使用全局转换常数
         spacing['line'] = line_value
-    
+
     if spacing:
         style_properties['spacing'] = spacing
-    
+
     # 获取差异状态和原始索引
     if 'diff_status' in paragraph_data:
         style_properties['diff_status'] = paragraph_data['diff_status']
-        
+
     if 'original_index' in paragraph_data:
         style_properties['original_index'] = paragraph_data['original_index']
-    
+
     return style_properties
 
 def convert_editor_to_docx_run(run_data):
     """将Canvas-Editor格式的Run数据转换为DOCX需要的格式
-    
+
     Args:
         run_data: Canvas-Editor格式的Run数据
-        
+
     Returns:
         dict: DOCX格式的Run样式属性
     """
     style_properties = {}
-    
+
     # 设置文本内容
     if 'value' in run_data:
         style_properties['text'] = run_data['value']
-    
+
     # 转换字体
     if 'font' in run_data and run_data['font']:
         # 需要将单个字体名称转换为字体字典
@@ -1770,15 +1771,15 @@ def convert_editor_to_docx_run(run_data):
             if mapped == font_name:
                 original_font = orig
                 break
-        
+
         if not original_font:
             original_font = font_name  # 如果没找到映射，使用原始名称
-        
+
         # 创建字体字典
         style_properties['fonts'] = {
             'eastAsia': original_font
         }
-    
+
     # 转换字体大小
     if 'size' in run_data and run_data['size'] is not None:
         size_value = run_data['size']
@@ -1789,47 +1790,56 @@ def convert_editor_to_docx_run(run_data):
                 style_properties['size'] = chinese_size
                 found_chinese_size = True
                 break
-        
+
         if not found_chinese_size:
             # 如果不是标准中文字号，转换为Word磅值的2倍
             style_properties['size'] = str(int(size_value * 2))
-    
-    # 转换粗体
+
+    # 转换粗体 - 修改为返回布尔值而不是字符串
     if 'bold' in run_data:
-        style_properties['bold'] = 'true' if run_data['bold'] else 'false'
-    
-    # 转换斜体
+        style_properties['bold'] = bool(run_data['bold'])
+
+    # 转换斜体 - 修改为返回布尔值而不是字符串
     if 'italic' in run_data:
-        style_properties['italic'] = 'true' if run_data['italic'] else 'false'
-    
+        style_properties['italic'] = bool(run_data['italic'])
+
     # 转换下划线
     if 'underline' in run_data and run_data['underline']:
         style_properties['underline'] = 'single'  # 可以根据需要设置其他下划线类型
-    
-    # 转换删除线
+
+    # 转换删除线 - 修改为返回布尔值而不是字符串
     if 'strike' in run_data:
-        style_properties['strike'] = 'true' if run_data['strike'] else 'false'
-    
+        style_properties['strike'] = bool(run_data['strike'])
+
     # 转换颜色 - 确保颜色值没有#前缀
     if 'color' in run_data and run_data['color']:
         color = run_data['color']
-        if color.startswith('#'):
+        # 处理rgb格式的颜色
+        if color.startswith('rgb('):
+            # 从rgb(r, g, b)格式提取十六进制颜色
+            try:
+                r, g, b = map(int, color.strip('rgb()').split(','))
+                color = f"{r:02x}{g:02x}{b:02x}"
+            except:
+                # 如果解析失败，使用默认黑色
+                color = "000000"
+        elif color.startswith('#'):
             color = color[1:]  # 移除#前缀
         style_properties['color'] = color
-    
+
     # 转换高亮颜色
     if 'highlight' in run_data and run_data['highlight']:
         highlight = run_data['highlight']
         if highlight.startswith('#'):
             highlight = highlight[1:]  # 移除#前缀
         style_properties['highlight'] = highlight
-    
-    # 转换上标/下标
-    if 'superscript' in run_data and run_data['superscript']:
+
+    # 转换上标/下标 - 修改为使用布尔值检查
+    if 'superscript' in run_data and bool(run_data['superscript']):
         style_properties['vert_align'] = 'superscript'
-    elif 'subscript' in run_data and run_data['subscript']:
+    elif 'subscript' in run_data and bool(run_data['subscript']):
         style_properties['vert_align'] = 'subscript'
-    
+
     return style_properties
 
 
@@ -1837,7 +1847,7 @@ def update_document_content(marked_content, original_file_path,output_path):
     """匹配更新项目文档"""
     # 创建原始文档的StyleAnalyzer对象副本
     document_copy = StyleAnalyzer(original_file_path)
-    
+
     # 将元素按照diff_status分类
     deleted_elements = []
     modified_elements = []
@@ -1846,7 +1856,7 @@ def update_document_content(marked_content, original_file_path,output_path):
     for i in range(len(marked_content)):
         item = marked_content[i]
         diff_status = item.get('__diff_status')
-        
+
         if diff_status == 'deleted':
             deleted_elements.append(item)
         elif diff_status == 'modified':
@@ -1856,29 +1866,29 @@ def update_document_content(marked_content, original_file_path,output_path):
         else:
             # 默认按照已有元素处理
             modified_elements.append(item)
-    
+
     # 1. 首先处理删除操作 - 按照索引从大到小排序，避免删除操作影响后续元素的索引
     deleted_elements.sort(key=lambda x: x.get('__original_index', 0), reverse=True)
-    
+
     # 记录删除的元素索引，用于后续索引调整
     deleted_indices = set()
-    
+
     for item in deleted_elements:
         original_index = item.get('__original_index')
         if original_index is not None:
             element_type = item.get('type')
             logger.info(f"删除元素: 类型={element_type}, 索引={original_index}")
-            
+
             # 执行删除操作
             if element_type == 'image':
                 # 查找图片所在段落和图片索引
                 paragraph_index = original_index
                 image_index = 0  # 默认为第一个图片
-                
+
                 # 如果有额外信息指定图片索引，则使用指定值
                 if 'image_index' in item:
                     image_index = item['image_index']
-                
+
                 success = document_copy.remove_image_at_paragraph(paragraph_index, image_index)
                 if success:
                     deleted_indices.add(original_index)
@@ -1893,25 +1903,25 @@ def update_document_content(marked_content, original_file_path,output_path):
                     logger.info(f"成功删除元素: 索引={original_index}")
                 else:
                     logger.error(f"删除元素失败: 索引={original_index}")
-    
+
     # 2. 处理修改操作
     for item in modified_elements:
         element_type = item.get('type')
         original_index = item.get('__original_index')
-        
+
         # 由于前面的删除操作，需要调整索引
         adjusted_index = original_index
         if original_index is not None:
             # 计算有多少个小于当前索引的元素已被删除
             offset = sum(1 for idx in deleted_indices if idx < original_index)
             adjusted_index = original_index - offset
-            
+
             logger.info(f"更新元素: 类型={element_type}, 原始索引={original_index}, 调整后索引={adjusted_index}")
-            
+
             if element_type == 'paragraph' or element_type == 'title':
                 # 处理段落或标题元素
                 element_data = {}
-                
+
                 # 提取基本属性
                 if 'id' in item:
                     element_data['id'] = item['id']
@@ -1919,27 +1929,27 @@ def update_document_content(marked_content, original_file_path,output_path):
                     element_data['id'] = item['paragraphId']
                 elif 'titleId' in item:
                     element_data['id'] = item['titleId']
-                    
+
                 # 提取元素类型
                 element_data['type'] = item.get('type')
-                
+
                 # 提取元素值
                 element_data['value'] = item.get('value', '')
-                
+
                 # 提取样式属性
                 element_data['rowFlex'] = item.get('rowFlex')  # 对齐方式
                 element_data['indent'] = item.get('indent')    # 缩进
                 element_data['lineRule'] = item.get('lineRule', 'auto')  # 行距规则
                 element_data['line'] = item.get('line')        # 行距大小
                 element_data['rowMargin'] = item.get('rowMargin')  # 行间距
-                
+
                 # 如果是标题，提取标题级别
                 if element_type == 'title' and 'level' in item:
                     element_data['level'] = item.get('level')
-                
+
                 # 使用调整后的索引
                 element_data['original_index'] = adjusted_index
-                
+
                 # 处理valueList - 遍历所有子元素
                 if 'valueList' in item and item['valueList']:
                     # 根据元素类型选择适当的转换函数
@@ -1947,44 +1957,44 @@ def update_document_content(marked_content, original_file_path,output_path):
                         style_properties = convert_editor_to_docx_title(element_data)
                     else:
                         style_properties = convert_editor_to_docx_paragraph(element_data)
-                    
+
                     # 首先更新段落样式
                     document_copy.update_paragraph_style_from_xml(document_copy.elements[adjusted_index]['element'], **style_properties)
-                    
+
                     # 标题样式已通过style_id参数设置，不需要额外处理
                     # if element_type == 'title' and 'heading_level' in style_properties:
                     #     document_copy.set_paragraph_as_heading(
-                    #         document_copy.elements[adjusted_index]['element'], 
+                    #         document_copy.elements[adjusted_index]['element'],
                     #         style_properties['heading_level']
                     #     )
-                    
+
                     # 处理子元素
                     value_list = item['valueList']
-                    
+
                     # 标题类型特殊处理：可能包含段落，段落再包含文本runs
                     if element_type == 'title' and len(value_list) > 0 and value_list[0].get('type') == 'paragraph':
                         # 标题内嵌段落结构处理
                         for para_idx, para in enumerate(value_list):
                             if 'valueList' in para and para['valueList']:
                                 para_runs = para['valueList']
-                                
+
                                 # 处理段落中的每个run
                                 for run_idx, run in enumerate(para_runs):
                                     # 跳过空的Run或最后一个换行符
-                                    if not run.get('value') or (run_idx == len(para_runs) - 1 and 
+                                    if not run.get('value') or (run_idx == len(para_runs) - 1 and
                                                               (run.get('value') == '\n' or run.get('value') == '\u200B')):
                                         continue
-                                    
+
                                     # 转换Run样式
                                     run_style = convert_editor_to_docx_run(run)
-                                    
+
                                     # 应用标题的默认字体大小
                                     if 'default_size' in style_properties and 'size' not in run_style:
                                         run_style['size'] = str(style_properties['default_size'] * 2)  # Word中字号是磅值的2倍
-                                    
+
                                     # 更新Run样式
                                     document_copy.update_run_style_from_xml(document_copy.elements[adjusted_index]['element'], run_idx, **run_style)
-                                
+
                                 # 删除多余的runs
                                 if para_runs:
                                     document_copy.delete_runs_after_index_from_xml(
@@ -1993,20 +2003,20 @@ def update_document_content(marked_content, original_file_path,output_path):
                         # 普通段落或简单标题处理
                         for run_idx, run in enumerate(value_list):
                             # 跳过空的Run或最后一个换行符
-                            if not run.get('value') or (run_idx == len(value_list) - 1 and 
+                            if not run.get('value') or (run_idx == len(value_list) - 1 and
                                                       (run.get('value') == '\n' or run.get('value') == '\u200B')):
                                 continue
-                            
+
                             # 转换Run样式
                             run_style = convert_editor_to_docx_run(run)
-                            
+
                             # 如果是标题且有默认字体大小，使用默认大小
                             if element_type == 'title' and 'default_size' in style_properties and 'size' not in run_style:
                                 run_style['size'] = str(style_properties['default_size'] * 2)  # Word中字号是磅值的2倍
 
                             # 更新Run样式
                             document_copy.update_run_style_from_xml(document_copy.elements[adjusted_index]['element'], run_idx, **run_style)
-                        
+
                         # 删除多余的runs
                         if value_list:
                             document_copy.delete_runs_after_index_from_xml(
@@ -2017,17 +2027,17 @@ def update_document_content(marked_content, original_file_path,output_path):
                         style_properties = convert_editor_to_docx_title(element_data)
                     else:
                         style_properties = convert_editor_to_docx_paragraph(element_data)
-                    
+
                     document_copy.update_paragraph_style_from_xml(document_copy.elements[adjusted_index]['element'],
                                                                   **style_properties)
-                    
+
                     # 标题样式已通过style_id参数设置，不需要额外处理
                     # if element_type == 'title' and 'heading_level' in style_properties:
                     #     document_copy.set_paragraph_as_heading(
-                    #         document_copy.elements[adjusted_index]['element'], 
+                    #         document_copy.elements[adjusted_index]['element'],
                     #         style_properties['heading_level']
                     #     )
-                    
+
                     document_copy.delete_runs_after_index_from_xml(
                         document_copy.elements[adjusted_index]['element'], 0)
 
@@ -2036,69 +2046,69 @@ def update_document_content(marked_content, original_file_path,output_path):
                 # 使用调整后的索引更新表格
                 table_data = item.copy()
                 table_data['original_index'] = adjusted_index
-                
+
                 # 转换Canvas-Editor表格格式为DOCX格式
                 table_style_properties = convert_editor_to_docx_table(table_data)
-                
+
                 # 获取表格元素
                 table_element = document_copy.elements[adjusted_index]['element']
-                
+
                 # 应用表格样式
                 document_copy.set_table_style_from_xml(table_element, **table_style_properties)
-                
+
                 # 如果表格有行数据，处理每一行
                 if 'trList' in table_data and table_data['trList']:
                     for row_idx, row_data in enumerate(table_data['trList']):
                         # 转换行样式
                         row_style_properties = convert_editor_to_docx_table_row(row_data)
-                        
+
                         # 应用行样式
                         document_copy.set_table_row_style_from_xml(table_element, row_idx, **row_style_properties)
-                        
+
                         # 如果行有单元格数据，处理每个单元格
                         if 'tdList' in row_data and row_data['tdList']:
                             for cell_idx, cell_data in enumerate(row_data['tdList']):
                                 # 转换单元格样式
                                 cell_style_properties = convert_editor_to_docx_table_cell(cell_data)
-                                
+
                                 # 应用单元格样式
                                 document_copy.set_table_cell_style_from_xml(table_element, row_idx, cell_idx, **cell_style_properties)
-                                
+
                                 # 处理单元格内容
                                 if 'value' in cell_data and cell_data['value']:
                                     # 获取单元格中的段落元素
                                     cell_paragraphs = document_copy.get_table_cell_paragraphs_from_xml(table_element, row_idx, cell_idx)
-                                    
+
                                     # 处理每个内容段落
                                     for para_idx, para_data in enumerate(cell_data['value']):
                                         if para_idx < len(cell_paragraphs):
                                             # 转换段落样式
                                             para_style = convert_editor_to_docx_paragraph(para_data)
-                                            
+
                                             # 应用段落样式
                                             document_copy.update_paragraph_style_from_xml(cell_paragraphs[para_idx], **para_style)
-                                            
+
                                             # 处理段落中的文本运行
                                             if 'valueList' in para_data and para_data['valueList']:
                                                 for run_idx, run_data in enumerate(para_data['valueList']):
                                                     # 跳过空的Run或最后一个换行符
-                                                    if not run_data.get('value') or (run_idx == len(para_data['valueList']) - 1 and 
+                                                    if not run_data.get('value') or (run_idx == len(para_data['valueList']) - 1 and
                                                                                   (run_data.get('value') == '\n' or run_data.get('value') == '\u200B')):
                                                         continue
-                                                        
+
                                                     # 转换Run样式
                                                     run_style = convert_editor_to_docx_run(run_data)
-                                                    
+
                                                     # 更新Run样式
                                                     document_copy.update_run_style_from_xml(cell_paragraphs[para_idx], run_idx, **run_style)
                                                     document_copy.delete_runs_after_index_from_xml(
                                                         document_copy.elements[adjusted_index]['element'], run_idx)
-                
+
             elif element_type == 'image':
                 # 使用调整后的索引更新图片
                 image_data = item.copy()
                 image_data['original_index'] = adjusted_index
-                
+
                 # 从图片ID中提取关系ID
                 image_id = item.get('id', '')
                 rel_id = None
@@ -2107,19 +2117,19 @@ def update_document_content(marked_content, original_file_path,output_path):
                     parts = image_id.split('-')
                     if len(parts) >= 2 and parts[1].startswith('rId'):
                         rel_id = parts[1]
-                
+
                 if rel_id:
                     # 获取图片URL和属性
                     image_url = item.get('value', '')
                     width = item.get('width')
                     height = item.get('height')
-                    
+
                     # 如果宽高单位是像素，转换为厘米
                     if width is not None:
                         width = width / px_ch_width
                     if height is not None:
                         height = height / px_ch_width
-                    
+
                     # 获取图片显示方式
                     img_display = item.get('imgDisplay', 'inline')
                     wrap_text_map = {
@@ -2130,18 +2140,18 @@ def update_document_content(marked_content, original_file_path,output_path):
                         'float-top': 'inFront'
                     }
                     wrap_text = wrap_text_map.get(img_display, 'inline')
-                    
+
                     # 如果图片URL是本地服务器上的图片，获取图片路径
                     local_image_path = None
                     if image_url and image_url.startswith((API_BASE_URL, IMAGE_SERVER_URL or API_BASE_URL)):
                         # 从URL提取文件名
                         image_filename = image_url.split('/')[-1]
                         local_image_path = os.path.join("static", "images", image_filename)
-                        
+
                         if not os.path.exists(local_image_path):
                             logger.warning(f"本地图片文件不存在: {local_image_path}")
                             local_image_path = None
-                    
+
                     # 替换图片
                     if local_image_path:
                         document_copy.replace_image(
@@ -2155,35 +2165,35 @@ def update_document_content(marked_content, original_file_path,output_path):
                         logger.error(f"无法替换图片，未找到有效的图片路径: {image_url}")
                 else:
                     logger.error(f"无法从图片ID中提取关系ID: {image_id}")
-    
+
     # 3. 最后处理新增操作
 
     # 这里需要根据 StyleAnalyzer 提供的 API 来实现新增元素的功能
-    
+
     # 按索引排序处理新增元素，从小到大
     added_elements.sort(key=lambda x: x.get('__original_index', float('inf')))
-    
+
     # 记录已插入元素引起的索引变化
     inserted_count = 0
     print(f'added_elements:{added_elements}')
     for item in added_elements:
         element_type = item.get('type')
         original_index = item.get('__original_index')
-        
+
         if original_index is None:
             # 如果没有指定索引，默认添加到文档末尾
             original_index = len(document_copy.elements)
-        
+
         # 调整索引：减去删除元素造成的偏移，加上前面插入元素的数量
         deleted_before = sum(1 for idx in deleted_indices if idx < original_index)
         adjusted_index = original_index - deleted_before + inserted_count
-        
+
         logger.info(f"新增元素: 类型={element_type}, 目标索引={original_index}, 调整后索引={adjusted_index}")
-        
+
         if element_type == 'paragraph' or element_type == 'title':
             # 构造段落文本和样式
             text = ''
-            
+
             # 获取实际文本内容，处理嵌套结构
             if element_type == 'title' and 'valueList' in item and item['valueList']:
                 # 标题可能有嵌套结构：title -> paragraph -> runs
@@ -2199,37 +2209,37 @@ def update_document_content(marked_content, original_file_path,output_path):
             elif 'valueList' in item:
                 # 从valueList合并文本
                 text = ''.join(run.get('value', '') for run in item['valueList'] if run.get('value'))
-            
+
             # 转换样式属性
             if element_type == 'title':
                 style_properties = convert_editor_to_docx_title(item)
             else:
                 style_properties = convert_editor_to_docx_paragraph(item)
-            
+
             # 插入段落
             position = 'after'
             target_index = adjusted_index - 1 if position == 'after' else 0
             target_index = max(0, min(target_index, len(document_copy.elements) - 1))
-            
+
             logger.info(f"准备插入{element_type}: 文本='{text}', 目标索引={target_index}")
-            
+            print(f'style_properties:{style_properties}')
             success = document_copy.insert_paragraph(
                 element_index=target_index,
                 position=position,
                 text=text,
                 **style_properties,
             )
-            
+
             if success:
                 logger.info(f"成功插入{element_type}: 索引={target_index}, 位置={position}")
                 inserted_count += 1
-                
+
                 # 获取新插入的段落索引
                 new_para_index = target_index + (1 if position == 'after' else 0)
                 new_para = document_copy.elements[new_para_index]['element']
-                
+
                 # 标题样式已通过style_id参数设置，不需要额外处理
-                
+
                 # 处理样式
                 if element_type == 'title' and 'valueList' in item and item['valueList']:
                     # 标题嵌套结构处理
@@ -2238,23 +2248,23 @@ def update_document_content(marked_content, original_file_path,output_path):
                         paragraph = title_value_list[0]
                         if 'valueList' in paragraph and paragraph['valueList']:
                             para_runs = paragraph['valueList']
-                            
+
                             logger.info(f"处理标题嵌套结构: 包含 {len(para_runs)} 个文本运行")
-                            
+
                             # 处理每个run
                             for run_idx, run in enumerate(para_runs):
                                 if not run.get('value'):
                                     continue
-                                
+
                                 # 转换Run样式
                                 run_style = convert_editor_to_docx_run(run)
-                                
+
                                 # 应用标题默认字体大小
                                 if 'default_size' in style_properties and 'size' not in run_style:
                                     run_style['size'] = str(style_properties['default_size'] * 2)
-                                
+
                                 logger.info(f"更新标题中的Run {run_idx}: 文本='{run.get('value')}', 样式={run_style}")
-                                
+
                                 # 更新Run样式
                                 document_copy.update_run_style_from_xml(new_para, run_idx, **run_style)
                 elif 'valueList' in item and item['valueList']:
@@ -2262,28 +2272,28 @@ def update_document_content(marked_content, original_file_path,output_path):
                     for run_idx, run in enumerate(item['valueList']):
                         if not run.get('value'):
                             continue
-                        
+
                         # 转换Run样式
                         run_style = convert_editor_to_docx_run(run)
-                        
+
                         # 如果是标题，应用默认字体大小
                         if element_type == 'title' and 'default_size' in style_properties and 'size' not in run_style:
                             run_style['size'] = str(style_properties['default_size'] * 2)
-                        
+
                         logger.info(f"更新Run {run_idx}: 文本='{run.get('value')}', 样式={run_style}")
-                        
+
                         # 更新Run样式
                         document_copy.update_run_style_from_xml(new_para, run_idx, **run_style)
             else:
                 logger.error(f"插入{element_type}失败: 索引={target_index}, 位置={position}")
-                
+
         elif element_type == 'table':
             # 处理表格插入
             # 获取表格数据
             if 'trList' not in item or not item['trList']:
                 logger.error("表格数据不完整，缺少行数据")
                 continue
-                
+
             # 确定表格维度
             rows_count = len(item['trList'])
             cols_count = 0
@@ -2291,27 +2301,27 @@ def update_document_content(marked_content, original_file_path,output_path):
             for row in item['trList']:
                 if 'tdList' in row and row['tdList']:
                     cols_count = max(cols_count, len(row['tdList']))
-            
+
             if rows_count == 0 or cols_count == 0:
                 logger.error(f"表格维度无效: 行={rows_count}, 列={cols_count}")
                 continue
-                
+
             # 准备表格样式
             table_style_properties = convert_editor_to_docx_table(item)
-            
+
             # 构建表格内容 - 一个简单的二维文本数组
             table_content = []
             for row_idx in range(rows_count):
                 row_content = []
                 row_data = item['trList'][row_idx]
-                
+
                 # 如果该行有单元格数据
                 if 'tdList' in row_data and row_data['tdList']:
                     for cell_idx in range(cols_count):
                         # 如果单元格存在
                         if cell_idx < len(row_data['tdList']):
                             cell_data = row_data['tdList'][cell_idx]
-                            
+
                             # 提取单元格文本内容
                             cell_text = ""
                             if 'value' in cell_data and cell_data['value']:
@@ -2322,21 +2332,22 @@ def update_document_content(marked_content, original_file_path,output_path):
                                                 cell_text += run['value']
                                     elif 'value' in para:
                                         cell_text += para['value']
-                            
+
                             row_content.append(cell_text)
                         else:
                             row_content.append("")  # 空单元格
                 else:
                     # 整行为空，填充空单元格
                     row_content = [""] * cols_count
-                
+
                 table_content.append(row_content)
-            
+
             # 根据需要计算插入位置
             position = 'after' if adjusted_index > 0 else 'before'
-            target_index = adjusted_index - 1 if position == 'after' else 0
-            target_index = max(0, min(target_index, len(document_copy.elements) - 1))
-            
+            # target_index = adjusted_index - 1 if position == 'after' else 0
+            # target_index = max(0, min(target_index, len(document_copy.elements) - 1))
+            print("adjusted_index:",adjusted_index)
+            target_index=adjusted_index - 1
             # 插入表格
             success = document_copy.insert_table(
                 element_index=target_index,
@@ -2346,48 +2357,57 @@ def update_document_content(marked_content, original_file_path,output_path):
                 table_content=table_content,
                 **table_style_properties
             )
-            
-            if success:
+            print("success:",success)
+            if success!=-1:
                 logger.info(f"成功插入表格: 索引={target_index}, 位置={position}, 尺寸={rows_count}x{cols_count}")
                 inserted_count += 1
-                
+
                 # 获取新插入的表格元素索引
                 new_table_index = target_index + (1 if position == 'after' else 0)
                 # 如果新表格索引有效，获取表格元素
                 if new_table_index < len(document_copy.elements):
                     new_table_element = document_copy.elements[new_table_index]['element']
-                    
+
                     # 应用表格样式、行样式和单元格样式
                     # 这部分代码可以重用表格更新时的代码，实现表格、行、单元格样式设置
                     # 这里只展示基本思路，完整实现需要更多的代码
                     for row_idx, row_data in enumerate(item['trList']):
                         if row_idx >= rows_count:
                             break
-                            
+
                         # 设置行样式
                         row_style = convert_editor_to_docx_table_row(row_data)
                         document_copy.set_table_row_style_from_xml(new_table_element, row_idx, **row_style)
-                        
+
                         # 设置单元格样式和内容
                         if 'tdList' in row_data and row_data['tdList']:
                             for cell_idx, cell_data in enumerate(row_data['tdList']):
                                 if cell_idx >= cols_count:
                                     break
-                                    
+
                                 # 设置单元格样式
                                 cell_style = convert_editor_to_docx_table_cell(cell_data)
                                 document_copy.set_table_cell_style_from_xml(new_table_element, row_idx, cell_idx, **cell_style)
-                                
+
                                 # 处理单元格内容
                                 if 'value' in cell_data and cell_data['value']:
                                     # 清除单元格中可能存在的默认段落
-                                    existing_paragraphs = document_copy.get_table_cell_paragraphs_from_xml(new_table_element, row_idx, cell_idx)
+                                    existing_paragraphs = document_copy.get_table_cell_paragraphs(success, row_idx, cell_idx)
+                                    print('existing_paragraphs:', existing_paragraphs)
+                                    print("cell_data['value']:", cell_data['value'])
                                     
                                     # 为每个内容段落创建新段落
                                     for para_idx, para_data in enumerate(cell_data['value']):
-                                        # 转换段落样式
-                                        para_style = convert_editor_to_docx_paragraph(para_data)
+                                        # 检查是否是段落类型包裹的数据还是只有run列表
+                                        is_paragraph_type = para_data.get('type') == 'paragraph'
                                         
+                                        # 转换段落样式 - 如果是段落类型则使用段落样式，否则使用默认样式
+                                        if is_paragraph_type:
+                                            para_style = convert_editor_to_docx_paragraph(para_data)
+                                        else:
+                                            # 使用默认段落样式
+                                            para_style = {'style_id': '1'}
+
                                         # 如果是第一个段落且已有段落存在，则更新现有段落
                                         if para_idx == 0 and existing_paragraphs:
                                             # 应用段落样式到现有段落
@@ -2399,54 +2419,74 @@ def update_document_content(marked_content, original_file_path,output_path):
                                             if not success or not paragraph:
                                                 logger.error(f"在单元格({row_idx}, {cell_idx})中创建段落失败")
                                                 continue
-                                                
+                                            print('para_style:', para_style)
                                             # 应用段落样式
                                             document_copy.update_paragraph_style_from_xml(paragraph, **para_style)
                                         
-                                        # 处理段落中的文本运行
-                                        if 'valueList' in para_data and para_data['valueList']:
+                                        # 处理段落中的文本运行或直接处理run列表
+                                        if is_paragraph_type and 'valueList' in para_data and para_data['valueList']:
+                                            run_list = para_data['valueList']
+                                        elif 'value' in para_data:
+                                            # 如果只有value字段，创建一个简单的run列表
+                                            run_list = [{'value': para_data['value']}]
+                                        else:
+                                            # 没有有效内容，跳过
+                                            continue
 
+                                        # 处理每个run
+                                        for run_idx, run_data in enumerate(run_list):
+                                            # 跳过空的Run或最后一个换行符
+                                            if not run_data.get('value') or (run_idx == len(run_list) - 1 and
+                                                                            (run_data.get('value') == '\n' or run_data.get('value') == '\u200B')):
+                                                continue
                                             
-                                            # 处理每个run
-                                            for run_idx, run_data in enumerate(para_data['valueList']):
-                                                # 跳过空的Run或最后一个换行符
-                                                if not run_data.get('value') or (run_idx == len(para_data['valueList']) - 1 and 
-                                                                                (run_data.get('value') == '\n' or run_data.get('value') == '\u200B')):
-                                                    continue
-                                                
-                                                # 转换Run样式
-                                                run_style = convert_editor_to_docx_run(run_data)
-                                                
-                                                # 如果是第一个run，更新现有run
-
-                                                document_copy.update_run_style_from_xml(paragraph, run_idx, **run_style)
+                                            # 转换Run样式
+                                            run_style = convert_editor_to_docx_run(run_data)
+                                            print('run_style:', run_style)
+                                            
+                                            # 更新Run样式
+                                            document_copy.update_run_style_from_xml(paragraph, run_idx, **run_style)
 
 
             else:
                 logger.error(f"插入表格失败: 索引={target_index}, 位置={position}")
-            
+
         elif element_type == 'image':
             # 处理图片插入
             # 获取图片数据
-            image_path = item.get('value', '')
+            image_url = item.get('value', '')
             
+            # 检查是否是URL格式的图片路径
+            if image_url.startswith('http://') or image_url.startswith('https://'):
+                # 从URL中提取文件名
+                image_filename = image_url.split('/')[-1]
+                # 构造本地路径 - 直接使用static/images目录
+                image_path = os.path.join("static", "images", image_filename)
+                
+                # 检查本地文件是否存在
+                if not os.path.exists(image_path):
+                    logger.warning(f"本地图片文件不存在: {image_path}，URL: {image_url}")
+            else:
+                # 使用原始路径
+                image_path = image_url
+
             # 确保图片路径是系统路径
             if not os.path.exists(image_path):
                 logger.error(f"图片文件不存在: {image_path}")
                 continue
-            
+
             # 获取图片参数
             width = item.get('width')
             height = item.get('height')
-            
+
             # 如果宽高单位是像素或其他单位，转换为厘米
             if width is not None:
                 width = width / px_ch_width
             if height is not None:
                 height = height / px_ch_width
-                
+
             description = item.get('description', '')
-            
+
             # 获取环绕方式并转换为DOCX格式
             img_display = item.get('imgDisplay', 'inline')
             wrap_text_map = {
@@ -2457,16 +2497,16 @@ def update_document_content(marked_content, original_file_path,output_path):
                 'float-top': 'inFront'
             }
             wrap_text = wrap_text_map.get(img_display, 'inline')
-            
+
             # 获取行距和行距规则
             line_rule = item.get('lineRule', 'auto')
             line_spacing = item.get('line', 240)
-            
+
             # 根据需要计算插入位置
             position = 'after' if adjusted_index > 0 else 'before'
             target_index = adjusted_index - 1 if position == 'after' else 0
             target_index = max(0, min(target_index, len(document_copy.elements) - 1))
-            
+
             # 插入图片
             success = document_copy.insert_image(
                 ele_index=target_index,
@@ -2480,7 +2520,7 @@ def update_document_content(marked_content, original_file_path,output_path):
                 line_spacing=line_spacing,
                 line_rule=line_rule
             )
-            
+
             if success:
                 logger.info(f"成功插入图片: 索引={target_index}, 位置={position}")
                 inserted_count += 1
@@ -2493,19 +2533,19 @@ def update_document_content(marked_content, original_file_path,output_path):
     # 将Canvas-Editor格式转换为DOCX格式
 def convert_editor_to_docx_title(title_data):
     """将Canvas-Editor格式的标题数据转换为DOCX需要的格式
-    
+
     Args:
         title_data: Canvas-Editor格式的标题数据
-        
+
     Returns:
         dict: DOCX格式的标题样式属性
     """
     style_properties = {}
-    
+
     # 基本属性与段落相同
     paragraph_props = convert_editor_to_docx_paragraph(title_data)
     style_properties.update(paragraph_props)
-    
+
     # 处理标题级别
     if 'level' in title_data:
         # 直接使用Canvas-Editor的标题级别映射到Word样式ID
@@ -2516,12 +2556,12 @@ def convert_editor_to_docx_title(title_data):
             'fourth': '5',   # 四级标题
 
         }
-        
+
         level = title_data.get('level')
-        
+
         # 设置标题样式ID
         style_properties['style_id'] = level_to_style_id.get(level, '2')
-        
+
         # 标题通常有特定的字体大小
         # 根据标题级别设置默认字体大小
         default_sizes = {
@@ -2534,31 +2574,27 @@ def convert_editor_to_docx_title(title_data):
         }
         default_size = default_sizes.get(level, 16)
         style_properties['default_size'] = default_size
-    
+
     return style_properties
 
 def convert_editor_to_docx_table(table_data):
     """将Canvas-Editor格式的表格数据转换为DOCX需要的格式
-    
+
     Args:
         table_data: Canvas-Editor格式的表格数据
-        
+
     Returns:
         dict: DOCX格式的表格样式属性
     """
     style_properties = {}
-    
-    # 处理表格宽度
-    if 'width' in table_data and table_data['width'] is not None:
-        # 将Canvas-Editor的宽度值转换回DOCX格式 (乘以转换常数)
-        width_value = int(table_data['width'] * width_num)  # 使用全局转换常数
-        style_properties['width'] = {'value': width_value, 'type': 'dxa'}
-    
+
+    # 不设置表格宽度，让docx自动适应
+
     # 处理表格边框类型
     if 'borderType' in table_data:
         border_type = table_data['borderType']
         borders = {}
-        
+
         # 根据边框类型设置不同的边框样式
         if border_type == 'all':
             # 所有边框都设置
@@ -2586,7 +2622,7 @@ def convert_editor_to_docx_table(table_data):
             # 虚线边框
             for border_pos in ['top', 'left', 'bottom', 'right', 'inside_h', 'inside_v']:
                 borders[border_pos] = {'val': 'dashed', 'sz': '4', 'color': '000000'}
-        
+
         # 如果有边框颜色，覆盖默认颜色
         if 'borderColor' in table_data and table_data['borderColor']:
             color = table_data['borderColor']
@@ -2595,13 +2631,13 @@ def convert_editor_to_docx_table(table_data):
             for border_pos in borders:
                 if borders[border_pos]['val'] != 'nil':
                     borders[border_pos]['color'] = color
-        
+
         if borders:
             style_properties['borders'] = borders
-    
-    # 设置表格布局
-    style_properties['layout'] = 'fixed'  # 默认固定布局
-    
+
+          # 设置表格布局
+    style_properties['layout'] = 'autofit'  # 使用自动适应布局
+    style_properties['width'] = {'value': '5000', 'type': 'pct'}
     # 默认单元格边距
     style_properties['cell_margins'] = {
         'top': {'value': '0', 'type': 'dxa'},

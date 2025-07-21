@@ -379,7 +379,7 @@ export class Draw {
             return !!(
                 (startElement?.title?.disabled &&
                     nextElement?.title?.disabled &&
-                    startElement.titleId === nextElement.titleId) ||
+                    startElement.id === nextElement.id) ||
                 (startElement?.control?.disabled &&
                     nextElement?.control?.disabled &&
                     startElement.controlId === nextElement.controlId)
@@ -849,36 +849,36 @@ export class Draw {
                 value: cursorElement?.value,
                 charCode: cursorElement?.value ? Array.from(cursorElement.value).map(c => c.charCodeAt(0)) : []
             });
-            
-            if (cursorElement && cursorElement.paragraphId) {
+
+            if (cursorElement && cursorElement.id) {
                 // 直接检查cursorElement是否有实际内容
                 let paragraphHasContent = false;
                 const value = cursorElement.value;
-                
+
                 // 更严格的空内容检查
                 let isEmptyOrInvisible = true;
-                
+
                 if (value) {
                     // 检查是否只包含零宽字符或空白字符
                     const zeroWidthChars = [ZERO, '​', '\u200B', '\u200C', '\u200D', '\uFEFF'];
-                    
+
                     // 如果不是零宽字符之一并且不是纯空白
-                    if (!zeroWidthChars.includes(value) && 
+                    if (!zeroWidthChars.includes(value) &&
                         (typeof value !== 'string' || value.trim() !== '')) {
                         isEmptyOrInvisible = false;
                     }
                 }
-                
+
                 // 检查是否是零宽字符的元素
                 const isZeroWidthElement = value === '​' || value === ZERO || value === '\u200B';
-                
+
                 console.log('检查cursorElement:', {
                     value,
                     charCode: value ? Array.from(value).map(c => c.charCodeAt(0)) : [],
                     isEmptyOrInvisible,
                     isZeroWidthElement
                 });
-                
+
                 // 只有当元素有实际内容时才认为段落有内容
                 // 如果元素是空的或仅包含零宽字符，则认为段落没有内容
                 paragraphHasContent = !isEmptyOrInvisible;
@@ -901,17 +901,17 @@ export class Draw {
 
                     if (targetHasContentInParagraph) {
                         // 如果目标段落有内容，第一个段落不生成新ID，让formatElementContext处理
-                        currentParagraphId = element.paragraphId || getUUID();
+                        currentParagraphId = element.id || getUUID();
                     } else {
                         // 如果目标段落没有内容，第一个段落也需要新ID
                         currentParagraphId = getUUID();
-                        element.paragraphId = currentParagraphId;
+                        element.id = currentParagraphId;
 
                         // 更新段落内元素的ID
                         if (element.valueList && element.valueList.length > 0) {
                             element.valueList.forEach(subElement => {
                                 if (subElement) {
-                                    subElement.paragraphId = currentParagraphId;
+                                    subElement.id = currentParagraphId;
                                 }
                             });
                         }
@@ -919,13 +919,13 @@ export class Draw {
                 } else {
                     // 后续段落生成新的唯一ID
                     currentParagraphId = getUUID();
-                    element.paragraphId = currentParagraphId;
+                    element.id = currentParagraphId;
 
                     // 确保段落内的元素都有相同ID
                     if (element.valueList && element.valueList.length > 0) {
                         element.valueList.forEach(subElement => {
                             if (subElement) {
-                                subElement.paragraphId = currentParagraphId;
+                                subElement.id = currentParagraphId;
                             }
                         });
                     }
@@ -944,8 +944,8 @@ export class Draw {
             }
 
             // 为非段落元素设置正确的paragraphId
-            if (currentParagraphId && !element.paragraphId) {
-                element.paragraphId = currentParagraphId;
+            if (currentParagraphId && !element.id) {
+                element.id = currentParagraphId;
             }
         }
 
@@ -2075,12 +2075,18 @@ export class Draw {
                 element.imgDisplay === ImageDisplay.INLINE ||
                 preElement?.listId !== element.listId ||
                 (preElement?.areaId !== element.areaId && !element.area?.hide) ||
-                
+
                 (element.control?.flexDirection === FlexDirection.COLUMN &&
                     (element.controlComponent === ControlComponent.CHECKBOX ||
                         element.controlComponent === ControlComponent.RADIO) &&
                     preElement?.controlComponent === ControlComponent.VALUE) ||
-                (i !== 0 && element.value === ZERO && !element.area?.hide)
+                // 修改零宽空格换行逻辑：
+                // 1. 如果零宽空格是当前段落的一部分(与前一元素ID相同)，不换行
+                // 2. 如果零宽空格是新段落的开始(与前一元素ID不同)，仍然换行
+                // 3. 对于非零宽空格元素，如果ID与前一元素不同(新段落开始)，强制换行
+                ((i !== 0 && element.value === ZERO && !element.area?.hide && 
+                  preElement && preElement.id !== element.id) ||
+                 (i !== 0 && element.id !== preElement?.id && element.id && preElement?.id))
             // 是否宽度不足导致换行
             const isWidthNotEnough = curRowWidth > availableWidth
             const isWrap = isForceBreak || isWidthNotEnough

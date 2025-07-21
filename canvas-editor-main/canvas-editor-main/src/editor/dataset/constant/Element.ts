@@ -100,9 +100,9 @@ export const EDITOR_ELEMENT_ZIP_ATTR: Array<keyof IElement> = [
   'italic',
   'underline',
   'strikeout',
-  'paragraphId',
-  'titleId',
-  'id'
+
+  'id',
+
 ]
 
 export const TABLE_TD_ZIP_ATTR: Array<keyof ITd> = [
@@ -125,7 +125,7 @@ export const TABLE_CONTEXT_ATTR: Array<keyof IElement> = [
 
 export const TITLE_CONTEXT_ATTR: Array<keyof IElement> = [
   'level',
-  'titleId',
+  'id',
   'title'
 ]
 

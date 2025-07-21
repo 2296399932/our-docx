@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<w:footnotes xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" mc:Ignorable="w14 w15 wp14">
+  <w:footnote w:type="separator" w:id="0">
+    <w:p>
+      <w:pPr>
+        <w:spacing w:line="240" w:lineRule="auto"/>
+        <w:ind w:firstLine="480"/>
+      </w:pPr>
+      <w:r>
+        <w:separator/>
+      </w:r>
+    </w:p>
+  </w:footnote>
+  <w:footnote w:type="continuationSeparator" w:id="1">
+    <w:p>
+      <w:pPr>
+        <w:spacing w:line="240" w:lineRule="auto"/>
+        <w:ind w:firstLine="480"/>
+      </w:pPr>
+      <w:r>
+        <w:continuationSeparator/>
+      </w:r>
+    </w:p>
+  </w:footnote>
+</w:footnotes>

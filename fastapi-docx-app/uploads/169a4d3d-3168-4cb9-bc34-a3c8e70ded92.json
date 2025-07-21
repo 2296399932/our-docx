@@ -1,0 +1,1339 @@
+[
+    {
+        "value": "",
+        "valueList": [
+            {
+                "value": "用户表（User）如表",
+                "font": "SimSun",
+                "size": 16.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "alignment",
+                "indent": 7.0,
+                "paragraphId": "para-1",
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "3",
+                "font": "SimSun",
+                "size": 16.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "alignment",
+                "indent": 7.0,
+                "paragraphId": "para-1",
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "-1所示。该表存储系统中所有用户的基本信息，包括管理员、教师和学生，是系统中最核心的表之一。",
+                "font": "SimSun",
+                "size": 16.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "alignment",
+                "indent": 7.0,
+                "paragraphId": "para-1",
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "​",
+                "font": null,
+                "size": null,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "auto",
+                "line": null,
+                "rowFlex": null,
+                "indent": null,
+                "paragraphId": "para-1",
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": null
+            }
+        ],
+        "rowFlex": "alignment",
+        "indent": 7.0,
+        "lineRule": "exact",
+        "line": "420",
+        "rowMargin": 1.75,
+        "type": "paragraph",
+        "paragraphId": "para-1"
+    },
+    {
+        "value": "",
+        "valueList": [
+            {
+                "value": "表",
+                "font": "SimHei",
+                "size": 10.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "center",
+                "indent": 3.6842105263157894,
+                "paragraphId": null,
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "3",
+                "font": "SimHei",
+                "size": 10.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "center",
+                "indent": 3.6842105263157894,
+                "paragraphId": null,
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "-",
+                "font": "SimHei",
+                "size": 10.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "center",
+                "indent": 3.6842105263157894,
+                "paragraphId": null,
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "8",
+                "font": "SimHei",
+                "size": 10.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "center",
+                "indent": 3.6842105263157894,
+                "paragraphId": null,
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": " 试卷学生关联表",
+                "font": "SimHei",
+                "size": 10.0,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "exact",
+                "line": 420.0,
+                "rowFlex": "center",
+                "indent": 3.6842105263157894,
+                "paragraphId": null,
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": 1.75
+            },
+            {
+                "value": "​",
+                "font": null,
+                "size": null,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "strike": false,
+                "color": null,
+                "highlight": null,
+                "lineRule": "auto",
+                "line": null,
+                "rowFlex": null,
+                "indent": null,
+                "paragraphId": null,
+                "superscript": false,
+                "subscript": false,
+                "rowMargin": null
+            }
+        ],
+        "rowFlex": "center",
+        "indent": 3.6842105263157894,
+        "lineRule": "exact",
+        "line": "420",
+        "rowMargin": 1.75,
+        "type": "title",
+        "level": "fourth",
+        "titleId": "title-7e1cc0a7-8c29-4316-8de2-793cdf96bf27"
+    },
+    {
+        "id": "table-1",
+        "width": null,
+        "trList": [
+            {
+                "minHeight": null,
+                "tdList": [
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "bottom",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [
+                            "top",
+                            "bottom"
+                        ],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "列名",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": 300.0,
+                                        "rowFlex": "center",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.25
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "center",
+                                "indent": 7.0,
+                                "lineRule": "auto",
+                                "line": "300"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "bottom",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [
+                            "top",
+                            "bottom"
+                        ],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "数据类型",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": 300.0,
+                                        "rowFlex": "center",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.25
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "center",
+                                "indent": 7.0,
+                                "lineRule": "auto",
+                                "line": "300"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "bottom",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [
+                            "top",
+                            "bottom"
+                        ],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "描述",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": 300.0,
+                                        "rowFlex": "center",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.25
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "center",
+                                "indent": 7.0,
+                                "lineRule": "auto",
+                                "line": "300"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "minHeight": null,
+                "tdList": [
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [
+                            "top"
+                        ],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "id",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [
+                            "top"
+                        ],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "INT",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [
+                            "top"
+                        ],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "主键，自增",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "minHeight": null,
+                "tdList": [
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "paper_id",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "INT",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "外键, 关联 exam_paper 表",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "minHeight": null,
+                "tdList": [
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "user_id",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "INT",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "外键, 关联 user 表 (学生)",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "minHeight": null,
+                "tdList": [
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "created_at",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "TIMESTAMP",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "提交时间",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "minHeight": null,
+                "tdList": [
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "score",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "INT",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    },
+                    {
+                        "rowspan": 1,
+                        "colspan": 1,
+                        "verticalAlign": "center",
+                        "backgroundColor": "#FFFFFF",
+                        "borderTypes": [],
+                        "value": [
+                            {
+                                "type": "paragraph",
+                                "value": "",
+                                "paragraphId": "para-2",
+                                "valueList": [
+                                    {
+                                        "value": "得分",
+                                        "font": "SimSun",
+                                        "size": 11.0,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "exact",
+                                        "line": 420.0,
+                                        "rowFlex": "left",
+                                        "indent": 7.0,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": 1.75
+                                    },
+                                    {
+                                        "value": "​",
+                                        "font": null,
+                                        "size": null,
+                                        "bold": false,
+                                        "italic": false,
+                                        "underline": false,
+                                        "strike": false,
+                                        "color": null,
+                                        "highlight": null,
+                                        "lineRule": "auto",
+                                        "line": null,
+                                        "rowFlex": null,
+                                        "indent": null,
+                                        "paragraphId": "para-2",
+                                        "superscript": false,
+                                        "subscript": false,
+                                        "rowMargin": null
+                                    }
+                                ],
+                                "rowFlex": "left",
+                                "indent": 7.0,
+                                "lineRule": "exact",
+                                "line": "420"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "borderType": "external",
+        "colgroup": [
+            {
+                "width": 138.9
+            },
+            {
+                "width": 103.65
+            },
+            {
+                "width": 179.65
+            }
+        ],
+        "borderColor": "#auto",
+        "border_width": null,
+        "height": null,
+        "type": "table"
+    },
+    {
+        "value": "",
+        "valueList": [],
+        "rowFlex": "alignment",
+        "indent": 7.0,
+        "lineRule": "exact",
+        "line": "420",
+        "rowMargin": 1.75,
+        "type": "paragraph",
+        "paragraphId": "para-3"
+    }
+]

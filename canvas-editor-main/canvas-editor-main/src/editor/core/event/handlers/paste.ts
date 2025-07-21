@@ -34,11 +34,11 @@ export function pasteElement(host: CanvasEvent, elementList: IElement[]) {
     // 如果是复制到虚拟元素里，则粘贴列表的虚拟元素需扁平化处理，避免产生新的虚拟元素
     const anchorElement = originalElementList[startIndex]
 
-    if (anchorElement?.titleId || anchorElement?.listId) {
+    if (anchorElement?.id || anchorElement?.listId) {
       let start = 0
       while (start < elementList.length) {
         const pasteElement = elementList[start]
-        if (anchorElement.titleId && /^\n/.test(pasteElement.value)) {
+        if (anchorElement.id && /^\n/.test(pasteElement.value)) {
           break
         }
         if (VIRTUAL_ELEMENT_TYPE.includes(pasteElement.type!)) {
@@ -89,11 +89,11 @@ export function pasteImage(host: CanvasEvent, file: File | Blob) {
   const rangeManager = draw.getRange()
   const { startIndex } = rangeManager.getRange()
   const elementList = draw.getElementList()
-  
+
   // 创建FormData对象用于上传
   const formData = new FormData()
   formData.append('file', file)
-  
+
   // 上传图片到服务器
   fetch(`http://localhost:8000/documents/upload_image/`, {
     method: 'POST',
@@ -108,11 +108,11 @@ export function pasteImage(host: CanvasEvent, file: File | Blob) {
   .then(data => {
     // 获取服务器返回的图片URL
     const imageUrl = data.image_url
-    
+
     // 创建图片对象计算宽高
     const image = new Image()
     image.src = imageUrl
-    
+
     image.onload = () => {
       const imageElement: IElement = {
         value: imageUrl, // 使用服务器返回的URL替代base64
@@ -120,7 +120,7 @@ export function pasteImage(host: CanvasEvent, file: File | Blob) {
         width: image.width,
         height: image.height
       }
-      
+
       if (~startIndex) {
         formatElementContext(elementList, [imageElement], startIndex, {
           editorOptions: draw.getOptions()
@@ -128,7 +128,7 @@ export function pasteImage(host: CanvasEvent, file: File | Blob) {
       }
       draw.insertElementList([imageElement])
     }
-    
+
     image.onerror = () => {
       console.error('加载图片失败:', imageUrl)
       // 回退到原始方法，使用base64

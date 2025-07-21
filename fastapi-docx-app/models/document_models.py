@@ -56,7 +56,7 @@ class RunModel(BaseModel):
     line: Optional[float] = Field(None, description="行距大小(磅)")
     rowFlex: Optional[str] = Field(None, description="段落对齐方式")
     indent: Optional[float] = Field(None, description="缩进(磅)")
-    paragraphId: Optional[str] = Field(None, description="段落ID")
+    id: Optional[str] = Field(None, description="段落ID")
     superscript: bool = Field(False, description="是否上标")
     subscript: bool = Field(False, description="是否下标")
     rowMargin: Optional[float] = Field(None, description="行间距(磅)")

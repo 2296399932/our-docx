@@ -231,7 +231,7 @@ export class RangeManager {
       if (
         (element.value === ZERO && !element.listWrap) ||
         element.listId !== preElement?.listId ||
-        element.titleId !== preElement?.titleId
+        element.id !== preElement?.id
       ) {
         break
       }
@@ -266,7 +266,7 @@ export class RangeManager {
       if (
         (element.value === ZERO && !element.listWrap) ||
         element.listId !== nextElement?.listId ||
-        element.titleId !== nextElement?.titleId
+        element.id !== nextElement?.id
       ) {
         break
       }
@@ -322,7 +322,7 @@ if (rangeElementList.length > 1) {
 
   // 检查第一个元素是否是零宽空格且段落ID与后续元素不同
   if (firstElement.value === "​" &&
-      firstElement.paragraphId !== secondElement.paragraphId) {
+      firstElement.id !== secondElement.id) {
     // 移除第一个元素
     rangeElementList.shift();
     // 如果有起始索引，需要调整
@@ -363,12 +363,13 @@ if (rangeElementList.length > 1) {
     // 过滤出所有独立的段落元素
     const paragraphElements = [];
 
-    // 安全地获取第一个元素的paragraphId
-    let currentParagraphId = elementList[0]?.paragraphId;
+    // Id
+    let currentId = elementList[0]?.id;
+    let prevElement = null;
 
-    // 如果没有paragraphId，则使用其他标识区分段落
-    if (currentParagraphId === undefined) {
-      // console.log('元素没有paragraphId，将所有元素作为一个段落处理');
+    // Id，则使用其他标识区分段落
+    if (currentId === undefined) {
+      // console.log('Id，将所有元素作为一个段落处理');
       return elementList;
     }
 
@@ -380,21 +381,35 @@ if (rangeElementList.length > 1) {
         continue;
       }
 
-      // console.log(`处理元素: ${JSON.stringify(element)}`);
+      // 处理零宽空格元素
+      if (element.value === "\u200B" || element.value === "​") {
+        // 如果零宽空格有ID且与当前段落ID不同，修正它的ID
+        if (element.id && element.id !== currentId && prevElement) {
+          element.id = currentId;
+          // 复制前一个元素的格式属性
+          if (prevElement.rowFlex) element.rowFlex = prevElement.rowFlex;
+          if (prevElement.indent !== undefined) element.indent = prevElement.indent;
+          if (prevElement.line) element.line = prevElement.line;
+          if (prevElement.lineRule) element.lineRule = prevElement.lineRule;
+          if (prevElement.rowMargin) element.rowMargin = prevElement.rowMargin;
+        }
+      }
 
       // 如果元素有paragraphId并且与当前paragraphId相同，则添加到结果中
-      if (element.paragraphId === currentParagraphId) {
+      if (element.id === currentId) {
         paragraphElements.push(element);
-      } else if (element.paragraphId) {
+      } else if (element.id) {
         // 如果是新的paragraphId，更新currentParagraphId并添加元素
         // console.log(`发现新的段落ID: ${element.paragraphId}`);
-        currentParagraphId = element.paragraphId;
+        currentId = element.id;
         paragraphElements.push(element);
       } else {
-        // 如果元素没有paragraphId但前面有，则可能属于同一段落
+        // 如果元素没有Id但前面有，则可能属于同一段落
         // console.log(`元素没有段落ID但被视为当前段落的一部分`);
         paragraphElements.push(element);
       }
+      
+      prevElement = element;
     }
 
     console.log('paragraphElements:', paragraphElements);

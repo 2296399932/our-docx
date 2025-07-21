@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="2" name="KSOProductBuildVer">
+    <vt:lpwstr>2052-12.1.0.21541</vt:lpwstr>
+  </property>
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="3" name="ICV">
+    <vt:lpwstr>B0ABB4DEFD7E419C89A81F57F8A59CE9_11</vt:lpwstr>
+  </property>
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="4" name="KSOTemplateDocerSaveRecord">
+    <vt:lpwstr>eyJoZGlkIjoiZDdkMzBjNWFmODNjOThjZGJiNjEyNjMxMWNhZTQ4YWMiLCJ1c2VySWQiOiI3OTA1MTY1ODAifQ==</vt:lpwstr>
+  </property>
+</Properties>

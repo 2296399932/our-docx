@@ -6496,6 +6496,7 @@ class DocxElementParser(DocxFile):
 
             # 特殊处理：如果索引是0，则将第一个run的文本设置为空
             if run_index == 0:
+                # 处理第一个run的逻辑保持不变...
                 # 获取第一个run元素
                 first_run = r_elements[0]
 
@@ -6523,13 +6524,11 @@ class DocxElementParser(DocxFile):
 
                 print(f"已将第一个Run元素的文本内容设置为空")
 
-            # 删除指定索引之后的所有run元素
+            # 修改这部分：直接从para中删除run元素
             deleted_count = 0
             for i in range(len(r_elements) - 1, run_index, -1):  # 从后向前删除，避免索引变化
-                parent = r_elements[i].getparent()
-                if parent is not None:
-                    parent.remove(r_elements[i])
-                    deleted_count += 1
+                para.remove(r_elements[i])
+                deleted_count += 1
 
             # 打印删除数量
             print(f"已从段落中删除 {deleted_count} 个Run元素")
@@ -11141,15 +11140,8 @@ class DocxElementParser(DocxFile):
             print(f"获取表格单元格样式时出错: {e}")
             return None
 
-    def get_table_cell_paragraphs(self, table_index, row_idx, col_idx):
+    def get_table_cell_paragraphs_from_xml(self, table, row_idx, col_idx):
         try:
-            print(f"获取表格 {table_index} 的第 {row_idx} 行 第 {col_idx} 列的段落")
-            # 获取所有表格
-            if table_index >= len(self.tables):
-                print(f"表格索引 {table_index} 超出范围，总表格数: {len(self.tables)}")
-                return None
-
-            table = self.tables[table_index]['element']
 
             # 获取行元素
             rows = table.findall('.//w:tr', self.NAMESPACES)
@@ -11170,12 +11162,37 @@ class DocxElementParser(DocxFile):
             cell = cells[col_idx]
 
             # 获取单元格中的段落元素
-            paragraphs = cell.findall('.//w:p', self.NAMESPACES)
-            print(f"找到 {len(paragraphs)} 个段落")
-            return paragraphs
+            all_paragraphs = cell.findall('.//w:p', self.NAMESPACES)
+
+            # 过滤掉没有paraId属性或没有内容的段落
+            non_empty_paragraphs = []
+            for p in all_paragraphs:
+                # 检查是否有paraId属性
+                has_para_id = any(attr.endswith('paraId') for attr in p.attrib)
+
+                # 检查是否有内容（文本或其他子元素）
+                has_content = len(p) > 0 or (p.text and p.text.strip())
+
+                if has_para_id or has_content:
+                    non_empty_paragraphs.append(p)
+
+            print(f"找到 {len(all_paragraphs)} 个段落，其中 {len(non_empty_paragraphs)} 个非空段落")
+            return non_empty_paragraphs
         except Exception as e:
             print(f"获取表格单元格段落时出错: {e}")
             return None
+
+    def get_table_cell_paragraphs(self, table_index, row_idx, col_idx):
+
+        print(f"获取表格 {table_index} 的第 {row_idx} 行 第 {col_idx} 列的段落")
+        # 获取所有表格
+        if table_index >= len(self.tables):
+            print(f"表格索引 {table_index} 超出范围，总表格数: {len(self.tables)}")
+            return None
+
+        table = self.tables[table_index]['element']
+
+        return self.get_table_cell_paragraphs_from_xml(table, row_idx, col_idx)
     def get_table_cell_text(self, table_index, row_idx, col_idx):
         """
         获取表格中特定单元格的文本内容
@@ -11936,5 +11953,4 @@ class DocxElementParser(DocxFile):
 #         # 创建一个临时文档对象
 #         doc = DocxElementParser("test.docx")
 #
-#         print(doc.get_image_from_pra(doc.paragraphs[0]['element']) )
-
+#         print(doc.get_image_from_pra(doc.paragrap

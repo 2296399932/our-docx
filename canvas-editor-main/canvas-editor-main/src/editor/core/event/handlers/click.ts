@@ -165,7 +165,7 @@ function threeClick(host: CanvasEvent) {
     if (
       (element.value === ZERO && !element.listWrap) ||
       element.listId !== preElement?.listId ||
-      element.titleId !== preElement?.titleId
+      element.id !== preElement?.id
     ) {
       break
     }
@@ -180,7 +180,7 @@ function threeClick(host: CanvasEvent) {
     if (
       (element.value === ZERO && !element.listWrap) ||
       element.listId !== nextElement?.listId ||
-      element.titleId !== nextElement?.titleId
+      element.id !== nextElement?.id
     ) {
       break
     }

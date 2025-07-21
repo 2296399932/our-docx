@@ -71,20 +71,20 @@ function getCatalog(payload: IGetCatalogPayload): ICatalog | null {
   let t = 0
   while (t < elementList.length) {
     const element = elementList[t]
-    if (element.titleId) {
-      const titleId = element.titleId
+    if (element.id) {
+      const id = element.id
       const level = element.level
       const titleElement: ICatalogElement = {
         type: ElementType.TITLE,
         value: '',
         level,
-        titleId,
+        id: id,
         pageNo: positionList[t].pageNo
       }
       const valueList: IElement[] = []
       while (t < elementList.length) {
         const titleE = elementList[t]
-        if (titleId !== titleE.titleId) {
+        if (id !== titleE.id) {
           t--
           break
         }
@@ -114,7 +114,7 @@ function getCatalog(payload: IGetCatalogPayload): ICatalog | null {
       recursiveInsert(title, subCatalogItem)
     } else {
       catalogItem.subCatalog.push({
-        id: title.titleId!,
+        id: title.id!,
         name: title.value,
         level: title.level!,
         pageNo: title.pageNo,
@@ -135,7 +135,7 @@ function getCatalog(payload: IGetCatalogPayload): ICatalog | null {
       recursiveInsert(title, catalogItem)
     } else {
       catalog.push({
-        id: title.titleId!,
+        id: title.id!,
         name: title.value,
         level: title.level!,
         pageNo: title.pageNo,

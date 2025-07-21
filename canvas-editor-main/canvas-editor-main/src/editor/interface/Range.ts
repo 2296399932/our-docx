@@ -35,7 +35,7 @@ export type RangeContext = {
   tableElement: IElement | null
   selectionText: string | null
   selectionElementList: IElement[]
-  titleId: string | null
+  id: string | null
   titleStartPageNo: number | null
 }
 

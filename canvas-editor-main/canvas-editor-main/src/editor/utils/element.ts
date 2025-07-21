@@ -97,7 +97,20 @@ export function formatElementList(
   let i = 0
   while (i < elementList.length) {
     let el = elementList[i]
-    // console.log('el:', JSON.stringify(el, null, 2));
+    
+    // 处理零宽空格错误定位问题
+    // 检查当前元素是否为零宽空格且是否与上一元素ID不同
+    if (i > 0 && el.value === ZERO && elementList[i-1].id !== el.id) {
+      // 将零宽空格的ID设置为前一个元素的ID，确保它不会显示在下一段落行首
+      el.id = elementList[i-1].id;
+      // 复制前一个元素的格式属性
+      if (elementList[i-1].rowFlex) el.rowFlex = elementList[i-1].rowFlex;
+      if (elementList[i-1].indent !== undefined) el.indent = elementList[i-1].indent;
+      if (elementList[i-1].line) el.line = elementList[i-1].line;
+      if (elementList[i-1].lineRule) el.lineRule = elementList[i-1].lineRule;
+      if (elementList[i-1].rowMargin) el.rowMargin = elementList[i-1].rowMargin;
+    }
+    
     // 优先处理虚拟元素
     if (el.type === ElementType.TITLE) {
       // 移除父节点
@@ -111,13 +124,13 @@ export function formatElementList(
       })
       // 追加节点
       if (valueList.length) {
-        const titleId = el.titleId || getUUID()
+        const id = el.id || getUUID()
         const titleOptions = editorOptions.title
         for (let v = 0; v < valueList.length; v++) {
           const value = valueList[v]
           value.title = el.title
           if (el.level) {
-            value.titleId = titleId
+            value.id = id
             // value.indent = el.indent
             value.level = el.level
           }
@@ -544,14 +557,14 @@ export function formatElementList(
       // 追加节点
       // 修改：即使valueList为空，也创建段落
       // 获取或创建段落ID
-        const paragraphId = el.paragraphId || getUUID()
-    
+        const id = el.id || getUUID()
+
       if (valueList.length) {
-        // 确保段落内的所有元素都有正确的paragraphId
+        // 确保段落内的所有元素都有正确的Id
         for (let v = 0; v < valueList.length; v++) {
           const value = valueList[v];
           // 明确设置paragraphId，防止混用
-          value.paragraphId = paragraphId;
+          value.id = id;
           // 复制其他属性
           if (el.indent !== undefined) value.indent = el.indent;
           if (el.rowFlex) value.rowFlex = el.rowFlex;
@@ -565,7 +578,7 @@ export function formatElementList(
         // 对于空段落，创建一个带有ZERO值的元素作为段落内容
         const emptyElement: IElement = {
           value: ZERO,
-          paragraphId,
+          id,
           indent: el.indent,
           rowFlex: el.rowFlex,
           line: el.line,
@@ -711,15 +724,15 @@ export function zipElementList(
         zipElementListData.splice(e, 0, ...areaElementList)
         continue
       }
-    } else if (element.titleId && element.level) {
+    } else if (element.id && element.level) {
       // 标题处理
-      const titleId = element.titleId
-      if (titleId) {
+      const id = element.id
+      if (id) {
         const level = element.level
         const titleElement: IElement = {
           type: ElementType.TITLE,
           title: element.title,
-          titleId,
+          id: id,
           value: '',
           level
         }
@@ -731,7 +744,7 @@ export function zipElementList(
         const valueList: IElement[] = []
         while (e < elementList.length) {
           const titleE = elementList[e]
-          if (titleId !== titleE.titleId) {
+          if (id !== titleE.id) {
             e--
             break
           }
@@ -744,14 +757,14 @@ export function zipElementList(
         element = titleElement
       }
     } // 在element.ts中的zipElementList函数中，修改处理段落的部分
-    else if (element.paragraphId) {
+    else if (element.id) {
       // 段落处理
-      const paragraphId = element.paragraphId
-      if (paragraphId) {
+      const id = element.id
+      if (id) {
         const paragraphElement: IElement = {
           type: ElementType.PARAGRAPH,
           value: '',
-          paragraphId
+          id
         }
         // 复制段落级样式
         if (element.rowFlex) paragraphElement.rowFlex = element.rowFlex;
@@ -760,18 +773,18 @@ export function zipElementList(
         // 复制行距属性
         if (element.line !== undefined) paragraphElement.line = element.line;
         if (element.lineRule !== undefined) paragraphElement.lineRule = element.lineRule;
-    
+
         const valueList: IElement[] = []
         while (e < elementList.length) {
           const paragraphE = elementList[e]
-          // 严格检查paragraphId匹配，防止混用
-          if (paragraphId !== paragraphE.paragraphId) {
+          // 严格检查Id匹配，防止混用
+          if (id !== paragraphE.id) {
             e--
             break
           }
           // 从子元素中移除段落属性，防止嵌套
           delete paragraphE.type
-          delete paragraphE.paragraphId
+          delete paragraphE.id
           valueList.push(paragraphE)
           e++
         }
@@ -1064,41 +1077,41 @@ export function formatElementContext(
 
     // 处理粘贴到已有段落的情况（段落拼接）
   // 检查是否是粘贴操作（而非Enter键创建新段落）
-  if (copyElement.paragraphId && formatElementList.length > 0 && 
-      formatElementList[0].type === ElementType.PARAGRAPH && 
+  if (copyElement.id && formatElementList.length > 0 &&
+      formatElementList[0].type === ElementType.PARAGRAPH &&
       !(formatElementList[0] as any).__isNewParagraph) { // 使用__isNewParagraph标志区分
     console.log('复制段落拼接:',copyElement)
-    
+
     // 只处理第一个段落 - 将第一个粘贴段落的ID改为目标段落的ID
-    const targetParagraphId = copyElement.paragraphId;
+    const targetId = copyElement.id;
     const firstParagraphElement = formatElementList[0];
-    
+
     // 更新段落本身的ID
-    firstParagraphElement.paragraphId = targetParagraphId;
-    
+    firstParagraphElement.id = targetId;
+
     // 更新段落内所有元素的ID
     if (firstParagraphElement.valueList && firstParagraphElement.valueList.length > 0) {
       firstParagraphElement.valueList.forEach(element => {
         if (element) {
-          element.paragraphId = targetParagraphId;
+          element.id = targetId;
         }
       });
     }
-    
+
     // 确保后续段落都有唯一ID
     for (let i = 1; i < formatElementList.length; i++) {
       const element = formatElementList[i];
       if (element.type === ElementType.PARAGRAPH) {
         // 如果没有paragraphId或者与前一个相同，生成新的唯一ID
-        if (!element.paragraphId || element.paragraphId === targetParagraphId) {
-          const newParagraphId = getUUID();
-          element.paragraphId = newParagraphId;
-          
+        if (!element.id || element.id === targetId) {
+          const newId = getUUID();
+          element.id = newId;
+
           // 更新该段落内所有元素的ID
           if (element.valueList && element.valueList.length > 0) {
             element.valueList.forEach(subElement => {
               if (subElement) {
-                subElement.paragraphId = newParagraphId;
+                subElement.id = newId;
               }
             });
           }
@@ -1457,7 +1470,7 @@ export function createDomFromElementList(
       }else if (element.type === ElementType.PARAGRAPH) {
         const paragraphDiv = document.createElement('div')
         paragraphDiv.setAttribute('data-type', 'paragraph')
-        paragraphDiv.setAttribute('data-paragraph-id', element.paragraphId || '')
+        paragraphDiv.setAttribute('data-paragraph-id', element.id || '')
 
         if (element.rowFlex) {
           paragraphDiv.style.textAlign = convertRowFlexToTextAlign(element.rowFlex)
@@ -1843,7 +1856,7 @@ export function getElementListByHTML(
           })
         } else if (node.nodeName === 'DIV' && (node as Element).getAttribute('data-type') === 'paragraph') {
           const paragraphElement = node as HTMLDivElement
-          const paragraphId = paragraphElement.getAttribute('data-paragraph-id') || getUUID()
+          const id = paragraphElement.getAttribute('data-paragraph-id') || getUUID()
           const valueList = getElementListByHTML(paragraphElement.innerHTML, options)
 
           // 确保段落末尾有换行符
@@ -1856,7 +1869,7 @@ export function getElementListByHTML(
           elementList.push({
             value: '',
             type: ElementType.PARAGRAPH,
-            paragraphId,
+            id,
             valueList
           })
         } else {
@@ -1929,9 +1942,9 @@ export function getElementListByHTML(
 
   // 确保不会自动生成额外的段落ID
   for (let i = 0; i < elementList.length; i++) {
-    // 如果有元素生成了paragraphId但不是段落类型，则移除paragraphId
-    if (elementList[i].paragraphId && elementList[i].type !== ElementType.PARAGRAPH) {
-      delete elementList[i].paragraphId;
+    // 如果有元素生成了Id但不是段落类型，则移除Id
+    if (elementList[i].id && elementList[i].type !== ElementType.PARAGRAPH) {
+      delete elementList[i].id;
     }
   }
 
@@ -2133,16 +2146,16 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
       const paragraphElement: IElement = {
         type: ElementType.PARAGRAPH,
         value: '',
-        paragraphId: getUUID(),
+        id: getUUID(),
         valueList: [...currentTextElements],
         indent: currentIndent, // 使用保存的缩进值
         rowFlex: currentRowFlex // 使用保存的对齐方式
       };
 
-      // 确保段落中的所有元素继承段落的paragraphId、indent和rowFlex
+      // 确保段落中的所有元素继承段落的Id、indent和rowFlex
       if (paragraphElement.valueList) {
         paragraphElement.valueList.forEach(el => {
-          el.paragraphId = paragraphElement.paragraphId;
+          el.id = paragraphElement.id;
           // el.indent = paragraphElement.indent;
           // el.rowFlex = paragraphElement.rowFlex;
           delete el.indent;
@@ -2161,7 +2174,7 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
           // indent : paragraphElement.indent ,
           // rowFlex  :paragraphElement.rowFlex,
           value: ZERO,
-          paragraphId: paragraphElement.paragraphId
+          id: paragraphElement.id
         });
       }
 
@@ -2185,9 +2198,9 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
       // 处理之前收集的文本元素
       wrapTextElementsInParagraph();
 
-      // 确保段落元素有paragraphId
-      if (element.type === ElementType.PARAGRAPH && !element.paragraphId) {
-        element.paragraphId = getUUID();
+      // 确保段落元素有Id
+      if (element.type === ElementType.PARAGRAPH && !element.id) {
+        element.id = getUUID();
       }
 
       // 如果是段落元素，确保它有一个换行符作为最后一个元素
@@ -2195,10 +2208,10 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
         const lastElement = element.valueList[element.valueList.length - 1];
         // 更严格的检查
         if (!lastElement || lastElement.value !== ZERO) {
-          console.log('为段落添加换行符', element.paragraphId);
+          console.log('为段落添加换行符', element.id);
           element.valueList.push({
             value: ZERO,
-            paragraphId: element.paragraphId,
+            id: element.id,
             indent: element.indent,
             rowFlex: element.rowFlex
           });
@@ -2224,14 +2237,14 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
         const paragraphElement: IElement = {
           type: ElementType.PARAGRAPH,
           value: '',
-          paragraphId: getUUID(),
+          id: getUUID(),
           valueList: [element],
           indent: element.indent, // 保留换行符的缩进值
           rowFlex: element.rowFlex // 保留换行符的对齐方式
         };
 
-        // 确保元素继承paragraphId、indent和rowFlex
-        element.paragraphId = paragraphElement.paragraphId;
+        // 确保元素继承Id、indent和rowFlex
+        element.id = paragraphElement.id;
 
 
         result.push(paragraphElement);
@@ -2292,16 +2305,16 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
 //       const paragraphElement: IElement = {
 //         type: ElementType.PARAGRAPH,
 //         value: '',
-//         paragraphId: getUUID(),
+//         id: getUUID(),
 //         valueList: [...currentTextElements],
 //         indent: currentIndent, // 使用保存的缩进值
 //         rowFlex: currentRowFlex // 使用保存的对齐方式
 //       };
 //
-//       // 确保段落中的所有元素继承段落的paragraphId、indent和rowFlex
+//       // id、indent和rowFlex
 //       if (paragraphElement.valueList) {
 //         paragraphElement.valueList.forEach(el => {
-//           el.paragraphId = paragraphElement.paragraphId;
+//           el.id = paragraphElement.id;
 //           // el.indent = paragraphElement.indent;
 //           // el.rowFlex = paragraphElement.rowFlex;
 //           delete el.indent;
@@ -2320,7 +2333,7 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
 //           // indent : paragraphElement.indent ,
 //           // rowFlex  :paragraphElement.rowFlex,
 //           value: ZERO,
-//           paragraphId: paragraphElement.paragraphId
+//           id: paragraphElement.id
 //         });
 //       }
 //
@@ -2344,9 +2357,9 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
 //       // 处理之前收集的文本元素
 //       wrapTextElementsInParagraph();
 //
-//       // 确保段落元素有paragraphId
-//       if (element.type === ElementType.PARAGRAPH && !element.paragraphId) {
-//         element.paragraphId = getUUID();
+//       // id
+//       if (element.type === ElementType.PARAGRAPH && !element.id) {
+//         element.id = getUUID();
 //       }
 //
 //
@@ -2370,14 +2383,14 @@ export function ensureTextInParagraph(elementList: IElement[]): IElement[] {
 //         const paragraphElement: IElement = {
 //           type: ElementType.PARAGRAPH,
 //           value: '',
-//           paragraphId: getUUID(),
+//           id: getUUID(),
 //           valueList: [element],
 //           indent: element.indent, // 保留换行符的缩进值
 //           rowFlex: element.rowFlex // 保留换行符的对齐方式
 //         };
 //
-//         // 确保元素继承paragraphId、indent和rowFlex
-//         element.paragraphId = paragraphElement.paragraphId;
+//         // id、indent和rowFlex
+//         element.id = paragraphElement.id;
 //
 //
 //         result.push(paragraphElement);

@@ -518,7 +518,7 @@ class DocumentService:
                                                 highlight=highlight,
                                                 lineRule=lineRule_spacing,
                                                 line=line_spacing,
-                                                paragraphId=f"para-{paragraph_count}",
+                                                id=f"para-{paragraph_count}",
                                                 superscript=run_props.get('superscript') == 'true',
                                                 subscript=run_props.get('subscript') == 'true',
                                                 indent=float(
@@ -540,14 +540,14 @@ class DocumentService:
                                         # 添加换行符作为最后一个run
                                         run_models.append(RunModel(
                                             value="\u200B",  # ZERO常量
-                                            paragraphId=f"para-{paragraph_count}"
+                                            id=f"para-{paragraph_count}"
                                         ))
 
                                     # 创建段落模型
                                     paragraph_model = {
                                         'type': 'paragraph',
                                         'value': '',
-                                        'paragraphId': f"para-{paragraph_count}",  # 使用顺序数字作为ID
+                                        'id': f"para-{paragraph_count}",  # 使用顺序数字作为ID
                                         'valueList': run_models,
                                         'rowFlex': align,
                                         'rowMargin': float(
@@ -647,7 +647,7 @@ class DocumentService:
                                         # 根据文本和图片的位置关系决定添加顺序
                                         if text_before_image:
                                             # 先添加段落，再添加图片
-                                            result_json.append({'id': paragraph_model['paragraphId'], "index": elem_info['index']})
+                                            result_json.append({'id': paragraph_model['id'], "index": elem_info['index']})
                                             content.append(paragraph_model)
                                             result_json.append({'id': f"img-{image_info['embed_ids'][0]}-{image_count}", "index": elem_info['index']})
                                             content.append(image_model)
@@ -655,13 +655,13 @@ class DocumentService:
                                             # 先添加图片，再添加段落
                                             result_json.append({'id': f"img-{image_info['embed_ids'][0]}-{image_count}", "index": elem_info['index']})
                                             content.append(image_model)
-                                            result_json.append({'id': paragraph_model['paragraphId'], "index": elem_info['index']})
+                                            result_json.append({'id': paragraph_model['id'], "index": elem_info['index']})
                                             content.append(paragraph_model)
 
                                     except Exception as e:
                                         logger.error(f"处理图片 {elem_info['index']} 失败: {str(e)}", exc_info=True)
                                         # 出错时只添加段落，图片添加错误占位符
-                                        result_json.append({'id': paragraph_model['paragraphId'], "index": elem_info['index']})
+                                        result_json.append({'id': paragraph_model['id'], "index": elem_info['index']})
                                         content.append(paragraph_model)
                                         result_json.append({'id': f"img-{image_info['embed_ids'][0]}-error", "index": elem_info['index']})
                                         content.append(ImageModel(
@@ -723,7 +723,7 @@ class DocumentService:
                                     is_heading = elem_info["index"] in heading_indices
                                     # 生成适当的ID
                                     element_id = f"title-{uuid.uuid4()}" if is_heading else f"para-{paragraph_count}"
-                                    id_field_name = "titleId" if is_heading else "paragraphId"
+                                    id_field_name = "id" if is_heading else "id"
 
                                     # 处理每个run
                                     for run_index, run in enumerate(runs):
@@ -835,13 +835,13 @@ class DocumentService:
                                         adjusted_level = max(2, min(7, numerical_level))
                                         element_model['type'] = 'title'
                                         element_model['level'] = title_level_mapping[adjusted_level]
-                                        element_model['titleId'] = element_id
+                                        element_model['id'] = element_id
                                     else:
                                         element_model['type'] = 'paragraph'
-                                        element_model['paragraphId'] = element_id
+                                        element_model['id'] = element_id
 
                                     # 添加元素索引映射
-                                    element_id = element_model.get('titleId') or element_model.get('paragraphId')
+                                    element_id = element_model.get('id')
                                     result_json.append({'id': element_id, "index": elem_info['index']})
                                     content.append(element_model)
 
@@ -981,7 +981,7 @@ class DocumentService:
                                                     highlight=highlight,
                                                     lineRule=lineRule_spacing,
                                                     line=line_spacing,
-                                                    paragraphId=f"para-{paragraph_count}",
+                                                    id=f"para-{paragraph_count}",
                                                     superscript=run_props.get('superscript') == 'true',
                                                     subscript=run_props.get('subscript') == 'true',
                                                     indent=float(
@@ -1004,14 +1004,14 @@ class DocumentService:
                                             # 添加换行符作为最后一个run
                                             run_models.append(RunModel(
                                                 value="\u200B",  # ZERO常量
-                                                paragraphId=f"para-{paragraph_count}"
+                                                id=f"para-{paragraph_count}"
                                             ))
 
                                         # 创建段落模型
                                         paragraph_model = {
                                             'type': 'paragraph',
                                             'value': '',
-                                            'paragraphId': f"para-{paragraph_count}",  # 使用顺序数字作为ID
+                                            'id': f"para-{paragraph_count}",  # 使用顺序数字作为ID
                                             'valueList': run_models,
                                             'rowFlex': align,
                                             'indent': float(
@@ -1300,16 +1300,16 @@ class DocumentService:
                             item['__original_index'] = idx
 
                             # 为每个元素生成一个ID并添加到映射
-                            if 'id' not in item and 'paragraphId' not in item:
+                            if 'id' not in item and 'id' not in item:
                                 item_id = f"auto-{idx}"
                                 if item.get('type') == 'paragraph':
-                                    item['paragraphId'] = item_id
+                                    item['id'] = item_id
                                 else:
                                     item['id'] = item_id
 
                             # 记录映射关系
                             dummy_index_mapping.append({
-                                'id': item.get('id') or item.get('paragraphId'),
+                                'id': item.get('id'),
                                 'index': idx
                             })
 
@@ -1380,21 +1380,21 @@ def compare_and_merge_json_for_export(edited_content, original_file_path):
     id_to_index = {}
     for item in index_mapping:
         # 检查各种可能的ID字段
-        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        item_id = item.get('id')
         if item_id and 'index' in item:
             id_to_index[item_id] = item['index']
 
     # 5. 创建原始内容ID到元素的映射字典
     original_id_map = {}
     for item in original_content:
-        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        item_id = item.get('id')
         if item_id:
             original_id_map[item_id] = item
 
     # 6. 创建编辑内容ID到元素的映射字典
     edited_id_map = {}
     for item in edited_content:
-        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        item_id = item.get('id')
         if item_id:
             edited_id_map[item_id] = item
 
@@ -1403,7 +1403,7 @@ def compare_and_merge_json_for_export(edited_content, original_file_path):
 
     # 处理编辑后内容中的元素（新增和修改）
     for idx, item in enumerate(edited_content):
-        item_id = item.get('id') or item.get('paragraphId') or item.get('titleId')
+        item_id = item.get('id')
         # 跳过没有ID的元素
         if not item_id:
             continue
@@ -1472,17 +1472,17 @@ def deep_compare_elements(elem1, elem2):
         # 对于未知类型，使用通用比较
         return compare_generic_elements(elem1, elem2)
 
+
 def compare_paragraph_elements(elem1, elem2):
-    """比较段落元素"""
+    """比较段落元素，先合并相同属性的run，再进行比较"""
     # 比较基本属性
-    basic_fields = ['value', 'rowFlex', 'indent', 'lineRule', 'line', 'rowMargin']
+    basic_fields = ['rowFlex', 'indent', 'lineRule', 'line', 'rowMargin']
     for field in basic_fields:
         if field in elem1 or field in elem2:
-            # 对数值型字段进行转换后比较
             val1 = elem1.get(field)
             val2 = elem2.get(field)
 
-            # 数值类型转换 - 尝试将字符串转为数值进行比较
+            # 数值类型转换
             if isinstance(val1, (int, float)) or isinstance(val2, (int, float)):
                 try:
                     if isinstance(val1, str) and val1.replace('.', '').isdigit():
@@ -1490,81 +1490,112 @@ def compare_paragraph_elements(elem1, elem2):
                     if isinstance(val2, str) and val2.replace('.', '').isdigit():
                         val2 = float(val2)
                 except:
-                    pass  # 转换失败时保持原值
+                    pass
 
-                # 都是数值时尝试浮点数比较
                 if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
-                    if abs(float(val1) - float(val2)) > 0.0001:  # 允许小误差
+                    if abs(float(val1) - float(val2)) > 0.0001:
                         return False
-                    continue  # 数值相近，视为相同
+                    continue
 
-            # 对于非数值字段，如果两个都是None或空字符串或False，视为相同
             if (val1 is None or val1 == '' or val1 is False) and (val2 is None or val2 == '' or val2 is False):
                 continue
 
-            # 其他情况，标准比较
             if val1 != val2:
                 return False
 
-    # 比较valueList
+    # 合并相同属性的run并比较
     if 'valueList' in elem1 and 'valueList' in elem2:
-        # 长度不同直接返回False
-        if len(elem1['valueList']) != len(elem2['valueList']):
+        # 定义run的关键属性，添加superscript和subscript
+        key_attrs = ['font', 'size', 'bold', 'italic', 'underline', 'color',
+                     'highlight', 'strike', 'superscript', 'subscript']
+
+        # 合并相同属性的run
+        def merge_runs(runs):
+            if not runs:
+                return []
+
+            merged = []
+            current = None
+
+            for run in runs:
+                # 跳过空值或只有特殊字符的run
+                if not run.get('value') or run.get('value') in ['\n', '\u200B', '​']:
+                    continue
+
+                # 提取当前run的关键属性
+                attrs = {}
+                for attr in key_attrs:
+                    val = run.get(attr)
+                    # 布尔值标准化 - 包括superscript和subscript
+                    if attr in ['bold', 'italic', 'underline', 'strike', 'superscript', 'subscript']:
+                        attrs[attr] = False if val is None or val is False or val == 'false' else bool(val)
+                    # 数值标准化
+                    elif attr == 'size' and isinstance(val, (int, float, str)):
+                        try:
+                            if isinstance(val, str) and val.replace('.', '').isdigit():
+                                attrs[attr] = float(val)
+                            else:
+                                attrs[attr] = val
+                        except:
+                            attrs[attr] = val
+                    else:
+                        attrs[attr] = val
+
+                # 如果是第一个run或与前一个run属性不同，创建新的merged run
+                if current is None or not all(current.get(attr) == attrs.get(attr) for attr in key_attrs):
+                    current = attrs.copy()
+                    current['value'] = run.get('value', '')
+                    merged.append(current)
+                else:
+                    # 合并文本内容
+                    current['value'] += run.get('value', '')
+
+            return merged
+
+        # 合并两个段落的runs
+        merged_runs1 = merge_runs(elem1['valueList'])
+        merged_runs2 = merge_runs(elem2['valueList'])
+
+        # 如果两个段落都没有有效内容，视为相同
+        if not merged_runs1 and not merged_runs2:
+            return True
+
+        # 比较合并后的runs数量
+        if len(merged_runs1) != len(merged_runs2):
             return False
 
-        # 逐一比较valueList中的元素
-        for i in range(len(elem1['valueList'])):
-            val1 = elem1['valueList'][i]
-            val2 = elem2['valueList'][i]
+        # 逐一比较合并后的runs
+        for i in range(len(merged_runs1)):
+            run1 = merged_runs1[i]
+            run2 = merged_runs2[i]
 
-            # 如果是valueList的最后一个元素，且值为换行符或零宽空格，则完全跳过该元素比较
-            if i == len(elem1['valueList']) - 1 and (
-                (val1.get('value') == '\n' or val1.get('value') == '\u200B') and
-                (val2.get('value') == '\n' or val2.get('value') == '\u200B')
-            ):
-                continue  # 跳过最后一个元素的所有比较
+            # 比较文本内容
+            if run1['value'].strip() != run2['value'].strip():
+                return False
 
-            # 对非最后元素或非换行符/零宽空格的元素进行详细比较
-            run_fields = ['value', 'font', 'size', 'bold', 'italic', 'underline',
-                         'strike', 'color', 'highlight', 'rowFlex', 'indent']
-            for field in run_fields:
-                # 特殊处理换行符和零宽空格的等价比较
-                if field == 'value' and (val1.get(field) == '\n' or val1.get(field) == '\u200B') and (val2.get(field) == '\n' or val2.get(field) == '\u200B'):
-                    continue  # 视为相同，继续下一个属性比较
+            # 比较关键属性
+            for attr in key_attrs:
+                val1 = run1.get(attr)
+                val2 = run2.get(attr)
 
-                # 获取两边的值
-                field_val1 = val1.get(field)
-                field_val2 = val2.get(field)
-
-                # 数值类型转换处理
-                if field == 'size' or field == 'indent' or field == 'rowMargin' or field == 'line':
-                    try:
-                        # 尝试将字符串转为数值
-                        if isinstance(field_val1, str) and field_val1.replace('.', '').isdigit():
-                            field_val1 = float(field_val1)
-                        if isinstance(field_val2, str) and field_val2.replace('.', '').isdigit():
-                            field_val2 = float(field_val2)
-                    except:
-                        pass  # 转换失败时保持原值
-
-                    # 如果都是数值类型，进行浮点数比较
-                    if isinstance(field_val1, (int, float)) and isinstance(field_val2, (int, float)):
-                        if abs(float(field_val1) - float(field_val2)) > 0.0001:  # 允许小误差
-                            return False
-                        continue  # 数值相近，视为相同
-
-                # 处理缺失字段与False/None的等价性
-                # strike, superscript, subscript字段如果一边是缺失(None)一边是False，视为相同
-                if field in ['strike', 'superscript', 'subscript']:
-                    if (field_val1 is None or field_val1 is False) and (field_val2 is None or field_val2 is False):
-                        continue
-
-                # 其他情况的标准比较
-                if field_val1 != field_val2:
+                # 数值类型特殊处理
+                if attr == 'size' and isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
+                    if abs(float(val1) - float(val2)) > 0.0001:
+                        return False
+                # 颜色特殊处理
+                elif attr in ['color', 'highlight'] and (val1 is None or val1 == '') and (val2 is None or val2 == ''):
+                    continue
+                # 布尔值特殊处理 - 包括superscript和subscript
+                elif attr in ['bold', 'italic', 'underline', 'strike', 'superscript', 'subscript']:
+                    bool1 = False if val1 is None or val1 is False or val1 == 'false' else bool(val1)
+                    bool2 = False if val2 is None or val2 is False or val2 == 'false' else bool(val2)
+                    if bool1 != bool2:
+                        return False
+                # 其他属性标准比较
+                elif val1 != val2:
                     return False
 
     return True
-
 def compare_image_elements(elem1, elem2):
     """比较图片元素"""
     image_fields = ['value', 'width', 'height', 'imgDisplay', 'rowFlex', 'rowMargin']
@@ -1574,55 +1605,100 @@ def compare_image_elements(elem1, elem2):
                 return False
     return True
 
-def compare_table_elements(elem1, elem2):
-    """比较表格元素"""
-    # 比较基本属性
-    table_fields = ['borderType', 'borderColor', 'width']
-    for field in table_fields:
-        if field in elem1 or field in elem2:
-            if elem1.get(field) != elem2.get(field):
-                return False
 
-    # 比较行数
-    if len(elem1.get('trList', [])) != len(elem2.get('trList', [])):
+def compare_table_elements(elem1, elem2):
+    """比较表格元素，忽略非关键差异
+    
+    只比较影响表格实际显示和内容的关键属性，忽略如minHeight、height、width等非关键属性
+    """
+    # 检查表格基本结构
+    if elem1.get('type') != 'table' or elem2.get('type') != 'table':
         return False
 
-    # 逐行比较
-    for i in range(len(elem1.get('trList', []))):
-        tr1 = elem1['trList'][i]
-        tr2 = elem2['trList'][i]
-
-        # 比较单元格数量
-        if len(tr1.get('tdList', [])) != len(tr2.get('tdList', [])):
+    # 1. 比较行数
+    trList1 = elem1.get('trList', [])
+    trList2 = elem2.get('trList', [])
+    if len(trList1) != len(trList2):
+        return False
+    
+    # 2. 比较行和单元格
+    for i, (row1, row2) in enumerate(zip(trList1, trList2)):
+        # 2.1 比较单元格数量
+        tdList1 = row1.get('tdList', [])
+        tdList2 = row2.get('tdList', [])
+        if len(tdList1) != len(tdList2):
             return False
-
-        # 逐单元格比较
-        for j in range(len(tr1.get('tdList', []))):
-            td1 = tr1['tdList'][j]
-            td2 = tr2['tdList'][j]
-
-            # 比较单元格属性
-            if td1.get('colspan') != td2.get('colspan') or td1.get('rowspan') != td2.get('rowspan'):
+        
+        # 2.2 逐个单元格比较关键属性
+        for j, (cell1, cell2) in enumerate(zip(tdList1, tdList2)):
+            # 只比较这些关键属性
+            key_cell_attrs = ['rowspan', 'colspan', 'verticalAlign', 'backgroundColor']
+            for attr in key_cell_attrs:
+                # 如果两个单元格都没有设置该属性，或值相同，则视为相等
+                val1 = cell1.get(attr)
+                val2 = cell2.get(attr)
+                if (val1 is None and val2 is None) or val1 == val2:
+                    continue
                 return False
-
-            if td1.get('verticalAlign') != td2.get('verticalAlign'):
+            
+            # 2.3 比较边框类型（忽略顺序）
+            border1 = set(cell1.get('borderTypes', []))
+            border2 = set(cell2.get('borderTypes', []))
+            if border1 != border2:
                 return False
-
-            if td1.get('backgroundColor') != td2.get('backgroundColor'):
+            
+            # 2.4 比较单元格内容
+            value1 = cell1.get('value', [])
+            value2 = cell2.get('value', [])
+            if len(value1) != len(value2):
                 return False
-
-            # 比较单元格内容 (递归比较)
-            cell_content1 = td1.get('value', [])
-            cell_content2 = td2.get('value', [])
-
-            if len(cell_content1) != len(cell_content2):
-                return False
-
-            for k in range(len(cell_content1)):
-                if not deep_compare_elements(cell_content1[k], cell_content2[k]):
+            
+            # 2.5 比较单元格中的段落
+            for para1, para2 in zip(value1, value2):
+                if not compare_paragraph_elements(para1, para2):
                     return False
-
+    
+    # 3. 比较列组信息
+    colgroup1 = elem1.get('colgroup', [])
+    colgroup2 = elem2.get('colgroup', [])
+    if len(colgroup1) != len(colgroup2):
+        return False
+    
+    # 4. 比较列宽（允许一定误差和格式差异）
+    for col1, col2 in zip(colgroup1, colgroup2):
+        width1 = col1.get('width')
+        width2 = col2.get('width')
+        
+        # 如果有一个宽度为空，则跳过比较
+        if width1 is None or width2 is None:
+            continue
+        
+        try:
+            # 尝试转换为浮点数并比较
+            if isinstance(width1, str):
+                width1 = float(width1)
+            if isinstance(width2, str):
+                width2 = float(width2)
+            
+            # 允许0.01的误差
+            if abs(float(width1) - float(width2)) > 0.01:
+                return False
+        except (ValueError, TypeError):
+            # 如果转换失败，直接比较字符串形式
+            if str(width1) != str(width2):
+                return False
+    
+    # 5. 比较表格边框属性
+    key_border_attrs = ['borderType', 'borderColor']
+    for attr in key_border_attrs:
+        val1 = elem1.get(attr)
+        val2 = elem2.get(attr)
+        if val1 != val2:
+            return False
+    
+    # 所有关键比较都通过，则认为表格相同
     return True
+
 
 def compare_generic_elements(elem1, elem2):
     """通用元素比较逻辑"""
@@ -1666,7 +1742,7 @@ def find_insertion_index(idx, id_to_index, edited_content):
     for i in range(idx - 1, -1, -1):
         if i >= 0:
             prev_item = edited_content[i]
-            prev_id = prev_item.get('id') or prev_item.get('paragraphId') or prev_item.get('titleId')
+            prev_id = prev_item.get('id') or prev_item.get('id') or prev_item.get('id')
 
             if prev_id and prev_id in id_to_index:
                 # 找到了在原始内容中存在的元素
@@ -1925,10 +2001,7 @@ def update_document_content(marked_content, original_file_path,output_path):
                 # 提取基本属性
                 if 'id' in item:
                     element_data['id'] = item['id']
-                elif 'paragraphId' in item:
-                    element_data['id'] = item['paragraphId']
-                elif 'titleId' in item:
-                    element_data['id'] = item['titleId']
+
 
                 # 提取元素类型
                 element_data['type'] = item.get('type')
@@ -1961,7 +2034,7 @@ def update_document_content(marked_content, original_file_path,output_path):
                     # 首先更新段落样式
                     document_copy.update_paragraph_style_from_xml(document_copy.elements[adjusted_index]['element'], **style_properties)
 
-                    # 标题样式已通过style_id参数设置，不需要额外处理
+                    # id，不需要额外处理
                     # if element_type == 'title' and 'heading_level' in style_properties:
                     #     document_copy.set_paragraph_as_heading(
                     #         document_copy.elements[adjusted_index]['element'],
@@ -2075,9 +2148,12 @@ def update_document_content(marked_content, original_file_path,output_path):
                                 document_copy.set_table_cell_style_from_xml(table_element, row_idx, cell_idx, **cell_style_properties)
 
                                 # 处理单元格内容
+                                # 处理单元格内容
                                 if 'value' in cell_data and cell_data['value']:
                                     # 获取单元格中的段落元素
-                                    cell_paragraphs = document_copy.get_table_cell_paragraphs_from_xml(table_element, row_idx, cell_idx)
+                                    cell_paragraphs = document_copy.get_table_cell_paragraphs_from_xml(table_element,
+                                                                                                       row_idx,
+                                                                                                       cell_idx)
 
                                     # 处理每个内容段落
                                     for para_idx, para_data in enumerate(cell_data['value']):
@@ -2086,23 +2162,32 @@ def update_document_content(marked_content, original_file_path,output_path):
                                             para_style = convert_editor_to_docx_paragraph(para_data)
 
                                             # 应用段落样式
-                                            document_copy.update_paragraph_style_from_xml(cell_paragraphs[para_idx], **para_style)
+                                            document_copy.update_paragraph_style_from_xml(cell_paragraphs[para_idx],
+                                                                                          **para_style)
 
                                             # 处理段落中的文本运行
                                             if 'valueList' in para_data and para_data['valueList']:
-                                                for run_idx, run_data in enumerate(para_data['valueList']):
-                                                    # 跳过空的Run或最后一个换行符
-                                                    if not run_data.get('value') or (run_idx == len(para_data['valueList']) - 1 and
-                                                                                  (run_data.get('value') == '\n' or run_data.get('value') == '\u200B')):
-                                                        continue
+                                                # 过滤掉空值和最后的换行符
+                                                valid_runs = [run for run_idx, run in enumerate(para_data['valueList'])
+                                                              if run.get('value') and not (
+                                                                run_idx == len(para_data['valueList']) - 1 and
+                                                                (run.get('value') == '\n' or run.get(
+                                                                    'value') == '\u200B'))]
 
+                                                # 更新所有有效的run
+                                                for run_idx, run_data in enumerate(valid_runs):
                                                     # 转换Run样式
                                                     run_style = convert_editor_to_docx_run(run_data)
 
                                                     # 更新Run样式
-                                                    document_copy.update_run_style_from_xml(cell_paragraphs[para_idx], run_idx, **run_style)
+                                                    document_copy.update_run_style_from_xml(cell_paragraphs[para_idx],
+                                                                                            run_idx, **run_style)
+
+                                                # 处理完所有run后，一次性删除多余的run
+                                                if valid_runs:  # 确保有有效的run
+                                                    # 删除有效run之后的所有run
                                                     document_copy.delete_runs_after_index_from_xml(
-                                                        document_copy.elements[adjusted_index]['element'], run_idx)
+                                                        cell_paragraphs[para_idx], len(valid_runs))
 
             elif element_type == 'image':
                 # 使用调整后的索引更新图片
@@ -2155,7 +2240,7 @@ def update_document_content(marked_content, original_file_path,output_path):
                     # 替换图片
                     if local_image_path:
                         document_copy.replace_image(
-                            rel_id=rel_id,
+                            id=rel_id,
                             image_path=local_image_path,
                             width=width,
                             height=height,

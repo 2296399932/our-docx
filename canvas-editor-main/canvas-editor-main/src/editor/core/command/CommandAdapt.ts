@@ -266,20 +266,20 @@ export class CommandAdapt {
             const allElementList = this.draw.getElementList();
 
             // 收集选区内的所有paragraphId
-            const paragraphIds = new Set();
+            const Ids = new Set();
             rangeElementList.forEach(el => {
-                if (el.paragraphId) {
-                    paragraphIds.add(el.paragraphId);
+                if (el.id) {
+                    Ids.add(el.id);
                 }
             });
 
-            console.log('找到的段落ID:', Array.from(paragraphIds));
+            console.log('找到的段落ID:', Array.from(Ids));
             let firstLine: boolean = true;  // 类型注解在变量名后面，值使用小写true
             // 为每个段落设置缩进
-            for (const paragraphId of paragraphIds) {
+            for (const id of Ids) {
 
                 // 找出段落内的所有元素
-                const paragraphElements = allElementList.filter(el => el.paragraphId === paragraphId);
+                const paragraphElements = allElementList.filter(el => el.id === id);
 
                 if (paragraphElements.length > 0) {
                     // 1. 首先找到段落标记元素（可能是零宽字符或其他标记）
@@ -312,13 +312,13 @@ export class CommandAdapt {
                                 } else {
                                     // 没有空格元素，创建一个新的
                                     console.log(`创建新的空格元素，包含 ${spaceCount} 个空格`);
-                                    const paragraphIdString = String(paragraphId); // 强制转换为字符串
+                                    const IdString = String(id); // 强制转换为字符串
                                     // 创建新的空格元素，复制第一个内容元素的样式
                                     // const contentElement = secondElement || paragraphMarker;
                                     const newSpaceElement: IElement = {
                                         type: ElementType.TEXT,
                                         value: spaceString,
-                                        paragraphId: paragraphIdString
+                                        id: IdString
                                         // 复制样式属性
                                         // style: contentElement.style,
                                         // metrics: { ...contentElement.metrics }}
@@ -328,20 +328,20 @@ export class CommandAdapt {
                                     if (paragraphMarker.rowFlex) {
                                         newSpaceElement.rowFlex = paragraphMarker.rowFlex;
                                     }
-                                    
+
                                     // 复制字体样式属性
                                     if (paragraphMarker.font) {
                                         newSpaceElement.font = paragraphMarker.font;
                                     }
-                                    
+
                                     if (paragraphMarker.color) {
                                         newSpaceElement.color = paragraphMarker.color;
                                     }
-                                    
+
                                     if (paragraphMarker.bold) {
                                         newSpaceElement.bold = paragraphMarker.bold;
                                     }
-                                    
+
                                     if (paragraphMarker.italic) {
                                         newSpaceElement.italic = paragraphMarker.italic;
                                     }
@@ -382,13 +382,13 @@ export class CommandAdapt {
                                 } else {
                                     // 没有空格元素，创建一个新的
                                     console.log(`创建新的空格元素，包含 ${spaceCount} 个空格`);
-                                    const paragraphIdString = String(paragraphId); // 强制转换为字符串
+                                    const IdString = String(id); // 强制转换为字符串
                                     // 创建新的空格元素，复制第一个内容元素的样式
                                     // const contentElement = secondElement || paragraphMarker;
                                     const newSpaceElement: IElement = {
                                         type: ElementType.TEXT,
                                         value: spaceString,
-                                        paragraphId: paragraphIdString,
+                                        id: IdString,
                                         // 复制样式属性
                                         // style: contentElement.style,
                                         // metrics: { ...contentElement.metrics },
@@ -399,20 +399,20 @@ export class CommandAdapt {
                                     if (paragraphMarker.rowFlex) {
                                         newSpaceElement.rowFlex = paragraphMarker.rowFlex;
                                     }
-                                    
+
                                     // 复制字体样式属性
                                     if (paragraphMarker.font) {
                                         newSpaceElement.font = paragraphMarker.font;
                                     }
-                                    
+
                                     if (paragraphMarker.color) {
                                         newSpaceElement.color = paragraphMarker.color;
                                     }
-                                    
+
                                     if (paragraphMarker.bold) {
                                         newSpaceElement.bold = paragraphMarker.bold;
                                     }
-                                    
+
                                     if (paragraphMarker.italic) {
                                         newSpaceElement.italic = paragraphMarker.italic;
                                     }
@@ -1214,20 +1214,20 @@ export class CommandAdapt {
                 : elementList.slice(startIndex + 1, endIndex + 1)
         if (!changeElementList || !changeElementList.length) return
         // 设置值
-        const titleId = getUUID()
+        const id = getUUID()
         const titleOptions = this.draw.getOptions().title
         changeElementList.forEach(el => {
             if (!el.type && el.value === ZERO) return
             if (payload) {
                 el.level = payload
-                el.titleId = titleId
+                el.id = id
                 if (isTextLikeElement(el)) {
                     el.size = titleOptions[titleSizeMapping[payload]]
                     el.bold = false
                 }
             } else {
-                if (el.titleId) {
-                    delete el.titleId
+                if (el.id) {
+                    delete el.id
                     delete el.title
                     delete el.level
                     delete el.size
@@ -1905,14 +1905,14 @@ export class CommandAdapt {
             }
         }
         // 标题信息
-        let titleId: string | null = null
+        let id: string | null = null
         let titleStartPageNo: number | null = null
         let start = startIndex - 1
         while (start > 0) {
             const curElement = elementList[start]
             const preElement = elementList[start - 1]
-            if (curElement.titleId && curElement.titleId !== preElement?.titleId) {
-                titleId = curElement.titleId
+            if (curElement.id && curElement.id !== preElement?.id) {
+                id = curElement.id
                 titleStartPageNo = positionList[start].pageNo
                 break
             }
@@ -1934,7 +1934,7 @@ export class CommandAdapt {
             tableElement,
             selectionText,
             selectionElementList,
-            titleId,
+            id,
             titleStartPageNo
         })
     }
@@ -2303,17 +2303,17 @@ export class CommandAdapt {
         // 获取完整的元素列表
         const allElementList = this.draw.getElementList();
         // 收集选区内的所有paragraphId
-        const paragraphIds = new Set();
+        const Ids = new Set();
         allElementList.forEach(el => {
-            if (el.paragraphId) {
-                paragraphIds.add(el.paragraphId);
+            if (el.id) {
+                Ids.add(el.id);
             }
         });
-        for (const paragraphId of paragraphIds) {
-            const paragraphElements = allElementList.filter(el => el.paragraphId === paragraphId);
+        for (const id of Ids) {
+            const paragraphElements = allElementList.filter(el => el.id === id);
             if (paragraphElements.length > 0) {
                 const paragraphMarker = paragraphElements[0];
-                
+
                 // 添加判断，确保paragraphElements[1]存在
                 if (paragraphElements.length > 1 && paragraphElements[1]) {
                     paragraphMarker.indent = paragraphElements[1].indent;
@@ -2328,23 +2328,23 @@ export class CommandAdapt {
                     if (paragraphElements[1].lineRule) {
                         paragraphMarker.lineRule = paragraphElements[1].lineRule;
                     }
-                    
+
                     const indentValue = typeof paragraphElements[1].indent === 'number'
                         ? paragraphElements[1].indent
                         : 0;
-                        
+
                     const secondElement = paragraphElements[0];
                     const isSpaceElement = secondElement && /^\s+$/.test(secondElement.value);
                     console.log(`检查第一个元素是否是空格元素: ${secondElement.value}`);
                     const spaceCount = Math.ceil(indentValue); // 1px 对应一个空格
                     const spaceString = ' '.repeat(spaceCount);
-                 
+
                     if (indentValue > 0) {
                         if (isSpaceElement) {
                             // 已有空格元素，调整其值
                             console.log(`修改现有空格元素，设置为 ${spaceCount} 个空格`);
                             secondElement.value = spaceString;
-                            
+
                             // 确保空格元素也继承行距属性
                             if (paragraphMarker.line !== undefined) {
                                 secondElement.line = paragraphMarker.line;
@@ -2355,12 +2355,12 @@ export class CommandAdapt {
                         } else {
                             // 没有空格元素，创建一个新的
                             console.log(`创建新的空格元素，包含 ${spaceCount} 个空格`);
-                            const paragraphIdString = String(paragraphId); // 强制转换为字符串
+                            const IdString = String(id); // 强制转换为字符串
                             // 创建新的空格元素，复制第一个内容元素的样式
                             const newSpaceElement: IElement = {
                                 type: ElementType.TEXT,
                                 value: spaceString,
-                                                                        paragraphId: paragraphIdString
+                                                                        id: IdString
                                         // 复制样式属性
                                         // style: contentElement.style,
                                         // metrics: { ...contentElement.metrics }
@@ -2370,7 +2370,7 @@ export class CommandAdapt {
                             if (paragraphMarker.rowFlex) {
                                 newSpaceElement.rowFlex = paragraphMarker.rowFlex;
                             }
-                            
+
                             // 复制行距属性
                             if (paragraphMarker.line !== undefined) {
                                 newSpaceElement.line = paragraphMarker.line;
@@ -2381,20 +2381,20 @@ export class CommandAdapt {
                             if (paragraphMarker.rowMargin !== undefined) {
                                 newSpaceElement.rowMargin = paragraphMarker.rowMargin;
                             }
-                            
+
                             // 复制字体样式属性
                             if (paragraphMarker.font) {
                                 newSpaceElement.font = paragraphMarker.font;
                             }
-                            
+
                             if (paragraphMarker.color) {
                                 newSpaceElement.color = paragraphMarker.color;
                             }
-                            
+
                             if (paragraphMarker.bold) {
                                 newSpaceElement.bold = paragraphMarker.bold;
                             }
-                            
+
                             if (paragraphMarker.italic) {
                                 newSpaceElement.italic = paragraphMarker.italic;
                             }
@@ -2500,14 +2500,14 @@ export class CommandAdapt {
         return this.workerManager.getCatalog()
     }
 
-    public locationCatalog(titleId: string) {
+    public locationCatalog(id: string) {
         const elementList = this.draw.getOriginalMainElementList()
         let newIndex = -1
         for (let e = 0; e < elementList.length; e++) {
             const element = elementList[e]
             if (
-                element.titleId === titleId &&
-                elementList[e + 1]?.titleId !== titleId
+                element.id === id &&
+                elementList[e + 1]?.id !== id
             ) {
                 newIndex = e
                 break
@@ -2830,7 +2830,7 @@ export class CommandAdapt {
                 while (j < elementList.length) {
                     const nextElement = elementList[j]
                     j++
-                    if (element.titleId === nextElement.titleId) continue
+                    if (element.id === nextElement.id) continue
                     if (
                         nextElement.level &&
                         titleOrderNumberMapping[nextElement.level] <=

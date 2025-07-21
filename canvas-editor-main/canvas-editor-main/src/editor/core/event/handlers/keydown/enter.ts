@@ -38,11 +38,11 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
   let enterText: IElement = {
     value: ZERO,
     type: ElementType.PARAGRAPH,  // 设置为段落类型
-    paragraphId: getUUID(),       // 生成唯一ID
+    id: getUUID(),       // 生成唯一ID
     indent: draw.getOptions().defaultIndent || 0,  // 设置默认缩进
     valueList: []  // 初始化空的值列表
   }
-  
+
   // 添加标记，表示这是通过Enter键创建的新段落
   ;(enterText as any).__isNewParagraph = true
   console.log('创建新段落元素', enterText);
@@ -70,8 +70,8 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
   // 标题结尾处回车无需格式化及样式复制
   if (
     !(
-      endElement.titleId &&
-      endElement.titleId !== elementList[endIndex + 1]?.titleId
+      endElement.id &&
+      endElement.id !== elementList[endIndex + 1]?.id
     )
   ) {
     // 复制样式属性
@@ -111,26 +111,28 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
       draw.spliceElementList(elementList, index + 1, 0, [enterText])
 
       // 新增代码：更新后面文本的paragraphId
-      const newParagraphId = enterText.paragraphId;
-      console.log('新段落ID:', newParagraphId);
+      const newId = enterText.id;
+        console.log('新段落ID:', newId);
 
       // 遍历修改段落ID，直到遇到下一个段落标记或文档结束
       for (let i = index + 2; i < elementList.length; i++) {
         const element = elementList[i];
 
-        // 如果遇到新的段落标记或零宽字符，停止修改
-        if (element.type === ElementType.PARAGRAPH ||
+        // 如果遇到新的段落标记或零宽字符，停止修改 0.
+        if (element.type === ElementType.PARAGRAPH ||element.type === ElementType.TITLE ||
+          element.type === ElementType.TABLE ||
+          element.type === ElementType.IMAGE ||
             (element.value === ZERO && element.type)) {
           console.log('遇到下一个段落标记，停止修改ID', i);
           break;
         }
 
-        // 保存旧ID用于日志
-        const oldId = element.paragraphId;
+        // 保存旧ID用于日志-
+        const oldId = element.id;
 
         // 更新段落ID
-        element.paragraphId = newParagraphId;
-        console.log(`将元素 ${i} 的ID从 ${oldId} 改为 ${newParagraphId}`);
+        element.id = newId;
+        console.log(`将元素 ${i} 的ID从 ${oldId} 改为 ${newId}`);
 
       }
     } else {
@@ -153,23 +155,26 @@ export function enter(evt: KeyboardEvent, host: CanvasEvent) {
 
     if (~curIndex && !isCollapsed) {
       // 只在光标在段落中间的情况下需要处理
-      const newParagraphId = enterText.paragraphId;
+      const newId = enterText.id;
 
       // 更新光标位置后的所有元素，直到遇到下一个段落标记
       for (let i = curIndex + 1; i < elementList.length; i++) {
         const element = elementList[i];
 
-        // 如果遇到新的段落标记，停止更新
-        if (element.type === ElementType.PARAGRAPH ||
-            (element.value === ZERO && i !== curIndex)) {
-          break;
-        }
+         // 如果遇到新的段落标记或其他块级元素，停止更新
+  if (element.type === ElementType.PARAGRAPH ||
+    element.type === ElementType.TITLE ||   // 添加标题类型
+    element.type === ElementType.TABLE ||   // 添加表格类型
+    element.type === ElementType.IMAGE ||   // 添加图片类型
+    (element.value === ZERO && i !== curIndex)) {
+  break;
+}
 
         // 更新段落ID
-        element.paragraphId = newParagraphId;
+        element.id = newId;
       }
 
-      console.log('更新后面文本的段落ID为:', newParagraphId);
+      console.log('更新后面文本的段落ID为:', newId);
     }
   }
 

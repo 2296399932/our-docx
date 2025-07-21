@@ -48,7 +48,7 @@ export interface IElementGroup {
 export interface ITitleElement {
   valueList?: IElement[]
   level?: TitleLevel
-  titleId?: string
+  id?: string
   title?: ITitle
 }
 
@@ -149,7 +149,7 @@ export interface IAreaElement {
 
 export interface IParagraphElement {
   valueList?: IElement[]  // 段落中包含的元素列表
-  paragraphId?: string    // 段落ID，用于标识段落
+  id?: string    // 段落ID，用于标识段落
   indent?: number         // 缩进级别或宽度，段落独有属性
   line?: number           // 行距值
   lineRule?: string       // 行距规则，如"multiple"、"exact"、"atLeast"等

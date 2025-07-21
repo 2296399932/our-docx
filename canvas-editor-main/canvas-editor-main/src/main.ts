@@ -41,8 +41,7 @@ import { Dialog } from './components/dialog/Dialog'
 import { formatPrismToken } from './utils/prism'
 import { Signature } from './components/signature/Signature'
 import { debounce, nextTick, scrollIntoView } from './utils'
-import { TableBorder, TdBorder, TdSlash } from './editor/dataset/enum/table/Table'
-import { VerticalAlign } from './editor/dataset/enum/VerticalAlign'
+
 
 
 window.onload = function () {
@@ -80,7 +79,7 @@ window.onload = function () {
         {
           type: ElementType.PARAGRAPH,
           value: '',
-          paragraphId: 'pra-1',
+          id: 'pra-1',
           valueList: [
             {
               type: ElementType.TEXT,
@@ -1525,7 +1524,7 @@ window.onload = function () {
       loadingMessage.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:4px;z-index:9999;'
       loadingMessage.textContent = '正在生成DOCX文档...'
       document.body.appendChild(loadingMessage)
-      
+
       // 添加进度显示
       const updateProgress = (status: string) => {
         loadingMessage.textContent = status;
@@ -1547,7 +1546,7 @@ window.onload = function () {
 
         // 更新状态
         updateProgress('正在发送文档数据到服务器...');
-        
+
         // 发送到后端API
         fetch(`${API_BASE_URL}/documents/export/`, {
           method: 'POST',
@@ -1560,9 +1559,9 @@ window.onload = function () {
           if (!response.ok) {
             throw new Error(`导出失败: ${response.status} ${response.statusText}`)
           }
-          
+
           updateProgress('正在接收文件数据...');
-          
+
           // 获取实际文件名（从Content-Disposition头或使用默认名称）
           let filename = 'document-export.docx';
           const contentDisposition = response.headers.get('Content-Disposition');
@@ -1572,7 +1571,7 @@ window.onload = function () {
               filename = filenameMatch[1];
             }
           }
-          
+
           return response.blob().then(blob => {
             updateProgress('文件已生成，准备下载...');
             return { blob, filename };
@@ -1619,7 +1618,7 @@ window.onload = function () {
       loadingMessage.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:4px;z-index:9999;'
       loadingMessage.textContent = '正在生成JSON文档...'
       document.body.appendChild(loadingMessage)
-      
+
       try {
         // 获取编辑器内容
         const data = instance.command.getValue()
@@ -1634,14 +1633,14 @@ window.onload = function () {
         a.click()
         URL.revokeObjectURL(url)
         console.log('JSON内容已下载')
-        
+
         // 移除加载提示
         document.body.removeChild(loadingMessage)
         return true
       } catch (err) {
         const error = err as Error
         console.error('导出JSON失败:', error)
-        
+
         // 方式2：尝试通过后端导出（作为后备方案）
         try {
           // 构建请求数据
@@ -1684,12 +1683,12 @@ window.onload = function () {
             // 移除加载提示
             document.body.removeChild(loadingMessage)
           })
-          
+
           return true
         } catch (backupErr) {
           console.error('备份JSON导出方式也失败:', backupErr)
           alert('导出JSON失败: ' + (error.message || '未知错误'))
-          
+
           // 移除加载提示
           document.body.removeChild(loadingMessage)
           return false

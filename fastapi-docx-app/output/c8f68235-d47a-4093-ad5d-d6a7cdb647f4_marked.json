@@ -1,0 +1,76 @@
+{
+    "header": [],
+    "main": [
+        {
+            "value": "",
+            "type": "paragraph",
+            "rowFlex": "alignment",
+            "rowMargin": 1.75,
+            "indent": 7,
+            "line": "420",
+            "lineRule": "exact",
+            "valueList": [
+                {
+                    "value": "用户表（User）如表3-1所示。该表存储系统中所有用户的基本信息，包括管理员、教师和学生，是系统中最核心的表之一。123123",
+                    "font": "SimSun",
+                    "size": 16,
+                    "bold": false,
+                    "color": null,
+                    "italic": false,
+                    "highlight": null,
+                    "underline": false,
+                    "rowFlex": "alignment",
+                    "rowMargin": 1.75,
+                    "indent": 7,
+                    "line": "420",
+                    "lineRule": "exact"
+                },
+                {
+                    "value": "\n",
+                    "font": null,
+                    "size": null,
+                    "bold": false,
+                    "color": null,
+                    "italic": false,
+                    "highlight": null,
+                    "underline": false,
+                    "rowFlex": "alignment",
+                    "rowMargin": 1.75,
+                    "indent": 7,
+                    "line": "420",
+                    "lineRule": "exact"
+                }
+            ],
+            "paragraphId": "para-1",
+            "__diff_status": "modified",
+            "__original_index": 0
+        },
+        {
+            "value": "",
+            "type": "paragraph",
+            "rowFlex": "alignment",
+            "rowMargin": 1.75,
+            "indent": 7,
+            "line": "420",
+            "lineRule": "exact",
+            "valueList": [],
+            "paragraphId": "para-2"
+        }
+    ],
+    "footer": [
+        {
+            "value": "",
+            "type": "paragraph",
+            "valueList": [
+                {
+                    "value": "canvas-editor",
+                    "size": 12
+                },
+                {
+                    "value": "\n"
+                }
+            ],
+            "paragraphId": "f3ac07ff-c826-9304-d94d-84a235edb85e"
+        }
+    ]
+}

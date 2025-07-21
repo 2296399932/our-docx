@@ -83,19 +83,19 @@ export function input(data: string, host: CanvasEvent) {
     }
     return newElement
   })
-  
+
   // 确保文本元素被包裹在段落中
   console.log('准备处理inputData，确保文本被包裹在段落中', inputData);
   const processedInputData = inputData;
-  
+
   // 获取当前位置的元素，检查是否在段落内
   const currentElement = elementList[startIndex];
   console.log('当前位置元素:', currentElement);
-  
+
   // 控件-移除placeholder
   const control = draw.getControl()
   let curIndex: number;
-  
+
   if (control.getActiveControl() && control.getIsRangeWithinControl()) {
     curIndex = control.setValue(processedInputData)
     if (!isComposing) {
@@ -109,37 +109,37 @@ export function input(data: string, host: CanvasEvent) {
     formatElementContext(elementList, processedInputData, startIndex, {
       editorOptions: draw.getOptions()
     })
-    
+
     // 如果当前在段落内，为文本元素添加段落ID
     if (currentElement && currentElement.type === ElementType.PARAGRAPH) {
       console.log('当前在段落内，使用另一种方式处理文本');
-      
+
       // 为文本元素添加段落ID，使其与当前段落关联
       processedInputData.forEach(element => {
-        element.paragraphId = currentElement.paragraphId;
+        element.id = currentElement.id;
       });
-      
+
       console.log('插入关联到段落的元素:', processedInputData);
-    } else if (currentElement && currentElement.paragraphId) {
-      // 如果当前元素不是段落但有paragraphId（即在段落内的文本元素）
+    } else if (currentElement && currentElement.id) {
+      // Id（即在段落内的文本元素）
       console.log('当前在段落内的文本元素上，继承段落ID');
-      
-      // 查找相同paragraphId的段落元素
-      const paragraphId = currentElement.paragraphId;
-      
+
+      // Id
+      const id = currentElement.id;
+
       // 为文本元素添加相同的段落ID
       processedInputData.forEach(element => {
-        element.paragraphId = paragraphId;
+        element.id = id;
       });
-      
+
       console.log('插入关联到段落的元素:', processedInputData);
     }
-    
+
     // 插入处理后的元素
     draw.spliceElementList(elementList, start, 0, processedInputData)
     curIndex = startIndex + processedInputData.length
   }
-  
+
   if (~curIndex) {
     rangeManager.setRange(curIndex, curIndex)
     draw.render({

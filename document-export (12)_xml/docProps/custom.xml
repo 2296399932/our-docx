@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="2" name="KSOProductBuildVer">
+    <vt:lpwstr>2052-12.1.0.21915</vt:lpwstr>
+  </property>
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="3" name="ICV">
+    <vt:lpwstr>C4470ADCBAD64B78B253B31F016A1867_11</vt:lpwstr>
+  </property>
+</Properties>
